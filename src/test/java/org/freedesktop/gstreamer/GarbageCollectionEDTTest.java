@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,15 +19,13 @@
  */
 package org.freedesktop.gstreamer;
 
-import java.lang.ref.WeakReference;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.lang.ref.WeakReference;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  *
@@ -37,22 +35,22 @@ public class GarbageCollectionEDTTest {
     public GarbageCollectionEDTTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         System.setProperty("glib.reapOnEDT", "true");
-        Gst.init("test", new String[]{});
+        Gst.init("test");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
 //        Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -62,8 +60,8 @@ public class GarbageCollectionEDTTest {
         Element e = ElementFactory.make("fakesrc", "test element");
         GCTracker tracker = new GCTracker(e);
         e = null;
-        assertTrue("Element not garbage collected", tracker.waitGC());
-        assertTrue("GObject not destroyed", tracker.waitDestroyed());
+        assertTrue(tracker.waitGC(), "Element not garbage collected");
+        assertTrue(tracker.waitDestroyed(), "GObject not destroyed");
     }
 
     @Test
@@ -73,18 +71,18 @@ public class GarbageCollectionEDTTest {
         Element e2 = ElementFactory.make("fakesink", "sink");
         bin.addMany(e1, e2);
 
-        assertEquals("source not returned", e1, bin.getElementByName("source"));
-        assertEquals("sink not returned", e2, bin.getElementByName("sink"));
+        assertEquals(e1, bin.getElementByName("source"), "source not returned");
+        assertEquals(e2, bin.getElementByName("sink"), "sink not returned");
         WeakReference<Element> binRef = new WeakReference<Element>(bin);
         bin = null;
-        assertTrue("Bin not garbage collected", GCTracker.waitGC(binRef));
+        assertTrue(GCTracker.waitGC(binRef), "Bin not garbage collected");
         WeakReference<Element> e1Ref = new WeakReference<Element>(e1);
         WeakReference<Element> e2Ref = new WeakReference<Element>(e2);
         e1 = null;
         e2 = null;
 
-        assertTrue("First Element not garbage collected", GCTracker.waitGC(e1Ref));
-        assertTrue("Second Element not garbage collected", GCTracker.waitGC(e2Ref));
+        assertTrue(GCTracker.waitGC(e1Ref), "First Element not garbage collected");
+        assertTrue(GCTracker.waitGC(e2Ref), "Second Element not garbage collected");
 
     }
 
@@ -102,8 +100,8 @@ public class GarbageCollectionEDTTest {
         System.gc();
         Thread.sleep(10);
         // Should return the same object that was put into the bin
-        assertEquals("source ID does not match", id1, System.identityHashCode(bin.getElementByName("source")));
-        assertEquals("sink ID does not match", id2, System.identityHashCode(bin.getElementByName("sink")));
+        assertEquals(id1, System.identityHashCode(bin.getElementByName("source")), "source ID does not match");
+        assertEquals(id2, System.identityHashCode(bin.getElementByName("sink")), "sink ID does not match");
     }
 
     @Test
@@ -111,9 +109,9 @@ public class GarbageCollectionEDTTest {
         Pipeline pipe = new Pipeline("test");
         GCTracker pipeTracker = new GCTracker(pipe);
         pipe = null;
-        assertTrue("Pipe not garbage collected", pipeTracker.waitGC());
+        assertTrue(pipeTracker.waitGC(), "Pipe not garbage collected");
         System.out.println("checking if pipeline is destroyed");
-        assertTrue("Pipe not destroyed", pipeTracker.waitDestroyed());
+        assertTrue(pipeTracker.waitDestroyed(), "Pipe not destroyed");
     }
 
     @Test
@@ -125,10 +123,10 @@ public class GarbageCollectionEDTTest {
 
         pipe = null;
         bus = null;
-        assertTrue("Bus not garbage collected", busTracker.waitGC());
-        assertTrue("Bus not destroyed", busTracker.waitDestroyed());
-        assertTrue("Pipe not garbage collected", pipeTracker.waitGC());
-        assertTrue("Pipe not destroyed", pipeTracker.waitDestroyed());
+        assertTrue(busTracker.waitGC(), "Bus not garbage collected");
+        assertTrue(busTracker.waitDestroyed(), "Bus not destroyed");
+        assertTrue(pipeTracker.waitGC(), "Pipe not garbage collected");
+        assertTrue(pipeTracker.waitDestroyed(), "Pipe not destroyed");
 
     }
 
@@ -146,9 +144,9 @@ public class GarbageCollectionEDTTest {
         GCTracker pipeTracker = new GCTracker(pipe);
         bus = null;
         pipe = null;
-        assertTrue("Bus not garbage collected", busTracker.waitGC());
-        assertTrue("Bus not destroyed", busTracker.waitDestroyed());
-        assertTrue("Pipe not garbage collected", pipeTracker.waitGC());
-        assertTrue("Pipe not destroyed", pipeTracker.waitDestroyed());
+        assertTrue(busTracker.waitGC(), "Bus not garbage collected");
+        assertTrue(busTracker.waitDestroyed(), "Bus not destroyed");
+        assertTrue(pipeTracker.waitGC(), "Pipe not garbage collected");
+        assertTrue(pipeTracker.waitDestroyed(), "Pipe not destroyed");
     }
 }

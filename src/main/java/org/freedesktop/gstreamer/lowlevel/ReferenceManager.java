@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2008 Wayne Meissner
  *
  * This file is part of gstreamer-java.
@@ -18,21 +18,24 @@
 
 package org.freedesktop.gstreamer.lowlevel;
 
+import org.freedesktop.gstreamer.glib.RefCountedObject;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.freedesktop.gstreamer.glib.RefCountedObject;
 
 /**
  * Manages keep alive links from one object to another.
  */
 public class ReferenceManager {
-    private ReferenceManager() {}
+    private ReferenceManager() {
+    }
+
     /**
      * Adds a link from <tt>ref</tt> to <tt>target</tt> that keeps target alive
      * whilst <tt>ref</tt> is alive.
-     * 
+     *
      * @param ref
      * @param target
      */
@@ -42,13 +45,14 @@ public class ReferenceManager {
         }
         return ref;
     }
-    
+
     /**
      * Holds static data for lazy loading.
      */
     private static class StaticData {
         private static final Map<Object, Object> map = new ConcurrentHashMap<Object, Object>();
         private static final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
+
         static {
             Thread t = new Thread(new Runnable() {
 

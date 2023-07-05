@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -20,56 +20,51 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  */
 public class InitTest {
-    
+
     public InitTest() {
-        
+
     }
+
+    @BeforeAll
+    public static void setUpClass() throws Exception {
+    }
+
+    @AfterAll
+    public static void tearDownClass() throws Exception {
+    }
+
     @Test
     public void testInit() {
         Version available = Gst.getVersion();
         Version notAvailable = Version.of(available.getMajor(), available.getMinor() + 2);
-        try {
-            Gst.init(notAvailable);
-            assertTrue("Version check exception not thrown!", false);
-        } catch (GstException ex) {
-            System.out.println("Expected init failure");
-            System.out.println(ex);
-        }
+
+        assertThrows(GstException.class, () -> Gst.init(notAvailable), "Version check exception not thrown!");
+
         String[] args = Gst.init(available, "InitTest", "--gst-plugin-spew");
-        assertTrue(args.length == 0);
-        
+        assertEquals(0, args.length);
+
         assertTrue(Gst.testVersion(available.getMajor(), available.getMinor()));
         assertTrue(Gst.testVersion(available.getMajor(), available.getMinor() - 2));
-        assertTrue(!Gst.testVersion(notAvailable.getMajor(), notAvailable.getMinor()));
-        
+        assertFalse(Gst.testVersion(notAvailable.getMajor(), notAvailable.getMinor()));
+
         Gst.deinit();
     }
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
-    
+
 }

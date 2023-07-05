@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (C) 2007 Wayne Meissner
@@ -6,16 +6,16 @@
  *                    2000 Wim Taymans <wtay@chello.be>
  *                    2005 Andy Wingo <wingo@pobox.com>
  *		      2006 Edward Hervey <bilboed@bilboed.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -24,6 +24,7 @@
 package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.glib.Natives;
+
 import static org.freedesktop.gstreamer.lowlevel.GstGhostPadAPI.GSTGHOSTPAD_API;
 
 /**
@@ -65,7 +66,7 @@ public class GhostPad extends Pad {
      * Create a new ghostpad with target as the target. The direction will be
      * taken from the target pad. The target pad must be unlinked.
      *
-     * @param name The name of the new pad, or null to assign a default name.
+     * @param name   The name of the new pad, or null to assign a default name.
      * @param target The {@link Pad} to ghost.
      */
     public GhostPad(String name, Pad target) {
@@ -77,8 +78,8 @@ public class GhostPad extends Pad {
      * taken from the target pad. The template used on the ghostpad will be
      * template.
      *
-     * @param name The name of the new pad, or null to assign a default name.
-     * @param target The {@link Pad} to ghost.
+     * @param name     The name of the new pad, or null to assign a default name.
+     * @param target   The {@link Pad} to ghost.
      * @param template The {@link PadTemplate} to use on the ghostpad.
      */
     public GhostPad(String name, Pad target, PadTemplate template) {
@@ -91,7 +92,7 @@ public class GhostPad extends Pad {
      * <p>
      * The created ghostpad will not have a padtemplate.
      *
-     * @param name The name of the new pad, or null to assign a default name.
+     * @param name      The name of the new pad, or null to assign a default name.
      * @param direction The direction of the ghostpad.
      */
     public GhostPad(String name, PadDirection direction) {
@@ -102,7 +103,7 @@ public class GhostPad extends Pad {
      * Create a new ghostpad based on template, without setting a target. The
      * direction will be taken from the template.
      *
-     * @param name The name of the new pad, or null to assign a default name.
+     * @param name     The name of the new pad, or null to assign a default name.
      * @param template The {@link PadTemplate} to use on the ghostpad.
      */
     public GhostPad(String name, PadTemplate template) {

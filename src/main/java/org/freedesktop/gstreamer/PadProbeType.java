@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -17,10 +17,11 @@
  */
 package org.freedesktop.gstreamer;
 
-import java.util.Collections;
-import java.util.Set;
 import org.freedesktop.gstreamer.glib.NativeFlags;
 import org.freedesktop.gstreamer.lowlevel.GstPadAPI;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * The different probing types that can occur. When either one of {@link #IDLE}
@@ -89,56 +90,56 @@ public enum PadProbeType implements NativeFlags<PadProbeType> {
      */
     public static final Set<PadProbeType> BLOCKING
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_BLOCKING));
+            GstPadAPI.GST_PAD_PROBE_TYPE_BLOCKING));
 
     /**
      * Probe downstream data (buffers, buffer lists and events).
      */
     public static final Set<PadProbeType> DATA_DOWNSTREAM
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_DATA_DOWNSTREAM));
+            GstPadAPI.GST_PAD_PROBE_TYPE_DATA_DOWNSTREAM));
 
     /**
      * Probe upstream data (events).
      */
     public static final Set<PadProbeType> DATA_UPSTREAM
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_DATA_UPSTREAM));
+            GstPadAPI.GST_PAD_PROBE_TYPE_DATA_UPSTREAM));
 
     /**
      * Probe upstream and downstream data (buffers, buffer lists and events).
      */
     public static final Set<PadProbeType> DATA_BOTH
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_DATA_BOTH));
+            GstPadAPI.GST_PAD_PROBE_TYPE_DATA_BOTH));
 
     /**
      * Probe and block downstream data (buffers, buffer lists and events).
      */
     public static final Set<PadProbeType> BLOCK_DOWNSTREAM
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM));
+            GstPadAPI.GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM));
 
     /**
      * Probe and block upstream data (events).
      */
     public static final Set<PadProbeType> BLOCK_UPSTREAM
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_BLOCK_UPSTREAM));
+            GstPadAPI.GST_PAD_PROBE_TYPE_BLOCK_UPSTREAM));
 
     /**
      * Probe upstream and downstream events.
      */
     public static final Set<PadProbeType> EVENT_BOTH
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_EVENT_BOTH));
+            GstPadAPI.GST_PAD_PROBE_TYPE_EVENT_BOTH));
 
     /**
      * Probe upstream and downstream queries.
      */
     public static final Set<PadProbeType> QUERY_BOTH
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_QUERY_BOTH));
+            GstPadAPI.GST_PAD_PROBE_TYPE_QUERY_BOTH));
 
     /**
      * Probe upstream events and queries and downstream buffers, buffer lists,
@@ -146,18 +147,18 @@ public enum PadProbeType implements NativeFlags<PadProbeType> {
      */
     public static final Set<PadProbeType> ALL_BOTH
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_ALL_BOTH));
+            GstPadAPI.GST_PAD_PROBE_TYPE_ALL_BOTH));
 
     /**
      * Probe push and pull.
      */
     public static final Set<PadProbeType> SCHEDULING
             = Collections.unmodifiableSet(NativeFlags.fromInt(PadProbeType.class,
-                    GstPadAPI.GST_PAD_PROBE_TYPE_SCHEDULING));
+            GstPadAPI.GST_PAD_PROBE_TYPE_SCHEDULING));
 
     private final int value;
 
-    private PadProbeType(int value) {
+    PadProbeType(int value) {
         this.value = value;
     }
 

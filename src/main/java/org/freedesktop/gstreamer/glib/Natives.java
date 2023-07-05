@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -16,14 +16,15 @@
 package org.freedesktop.gstreamer.glib;
 
 import com.sun.jna.Pointer;
-import java.util.ServiceLoader;
-import java.util.function.Function;
 import org.freedesktop.gstreamer.MiniObject;
 import org.freedesktop.gstreamer.Structure;
 import org.freedesktop.gstreamer.lowlevel.GObjectPtr;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
 import org.freedesktop.gstreamer.lowlevel.GstMiniObjectPtr;
 import org.freedesktop.gstreamer.lowlevel.GstStructurePtr;
+
+import java.util.ServiceLoader;
+import java.util.function.Function;
 
 /**
  * <b>Here be Dragons!</b>
@@ -50,7 +51,7 @@ public final class Natives {
      * @param ptr native pointer
      * @return initializer
      */
-    public static final NativeObject.Initializer initializer(Pointer ptr) {
+    public static NativeObject.Initializer initializer(Pointer ptr) {
         NativeObject.Initializer initializer = initializer(ptr, false, true);
         return initializer;
     }
@@ -60,12 +61,12 @@ public final class Natives {
      * <p>
      * This initializer will own the handle.
      *
-     * @param ptr native pointer
+     * @param ptr     native pointer
      * @param needRef whether to request a ref increase (only relevant if used
-     * with instance of {@link RefCountedObject})
+     *                with instance of {@link RefCountedObject})
      * @return initializer
      */
-    public static final NativeObject.Initializer initializer(Pointer ptr, boolean needRef) {
+    public static NativeObject.Initializer initializer(Pointer ptr, boolean needRef) {
         NativeObject.Initializer initializer = initializer(ptr, needRef, true);
         return initializer;
     }
@@ -73,14 +74,14 @@ public final class Natives {
     /**
      * Create a {@link NativeObject.Initializer} for the provided Pointer.
      *
-     * @param ptr native pointer
-     * @param needRef whether to request a ref increase (only relevant if used
-     * with instance of {@link RefCountedObject})
+     * @param ptr        native pointer
+     * @param needRef    whether to request a ref increase (only relevant if used
+     *                   with instance of {@link RefCountedObject})
      * @param ownsHandle whether the NativeObject will own the handle, and
-     * should dispose of the native resource when GC'd or explicitly disposed.
+     *                   should dispose of the native resource when GC'd or explicitly disposed.
      * @return initializer
      */
-    public static final NativeObject.Initializer initializer(Pointer ptr, boolean needRef, boolean ownsHandle) {
+    public static NativeObject.Initializer initializer(Pointer ptr, boolean needRef, boolean ownsHandle) {
         if (ptr == null) {
             throw new IllegalArgumentException("Invalid native pointer");
         }
@@ -92,30 +93,30 @@ public final class Natives {
      * Get a {@link NativeObject} instance of the requested type for the
      * provided Pointer. Will return a cached instance if one already exists.
      *
-     * @param <T> NativeObject type to return
-     * @param ptr native Pointer
-     * @param cls Class of type T
-     * @param needRef whether to request a ref increase (only relevant if T is
-     * subclass of {@link RefCountedObject})
+     * @param <T>        NativeObject type to return
+     * @param ptr        native Pointer
+     * @param cls        Class of type T
+     * @param needRef    whether to request a ref increase (only relevant if T is
+     *                   subclass of {@link RefCountedObject})
      * @param ownsHandle whether the NativeObject will own the handle, and
-     * should dispose of the native resource when GC'd or explicitly disposed.
+     *                   should dispose of the native resource when GC'd or explicitly disposed.
      * @return native object of type T
      */
     public static <T extends NativeObject> T objectFor(Pointer ptr, Class<T> cls, boolean needRef, boolean ownsHandle) {
         return objectFor(ptr, cls, needRef ? 1 : 0, ownsHandle);
     }
-    
+
     /**
      * Get a {@link NativeObject} instance of the requested type for the
      * provided Pointer. Will return a cached instance if one already exists.
      *
-     * @param <T> NativeObject type to return
-     * @param ptr native Pointer
-     * @param cls Class of type T
-     * @param needRef whether to request a ref increase (only relevant if T is
-     * subclass of {@link RefCountedObject})
+     * @param <T>        NativeObject type to return
+     * @param ptr        native Pointer
+     * @param cls        Class of type T
+     * @param needRef    whether to request a ref increase (only relevant if T is
+     *                   subclass of {@link RefCountedObject})
      * @param ownsHandle whether the NativeObject will own the handle, and
-     * should dispose of the native resource when GC'd or explicitly disposed.
+     *                   should dispose of the native resource when GC'd or explicitly disposed.
      * @return native object of type T
      */
     public static <T extends NativeObject> T objectFor(GPointer ptr, Class<T> cls, boolean needRef, boolean ownsHandle) {
@@ -139,7 +140,7 @@ public final class Natives {
     public static <T extends NativeObject> T callerOwnsReturn(Pointer ptr, Class<T> cls) {
         return objectFor(ptr, cls, -1, true);
     }
-    
+
     /**
      * Get a {@link NativeObject} instance of the requested type for the
      * provided Pointer, for use with native functions returning
@@ -165,14 +166,14 @@ public final class Natives {
                 : new GPointer(ptr);
         return NativeObject.objectFor(gptr, cls, refAdjust, ownsHandle);
     }
-    
+
     /**
      * Get the underlying raw native Pointer for a {@link NativeObject}.
      *
      * @param obj native object
      * @return native pointer
      * @throws IllegalStateException if the native reference has been
-     * invalidated or disposed
+     *                               invalidated or disposed
      */
     public static Pointer getRawPointer(NativeObject obj) {
         return obj.getRawPointer();
@@ -184,7 +185,7 @@ public final class Natives {
      * @param obj native object
      * @return native typed pointer
      * @throws IllegalStateException if the native reference has been
-     * invalidated or disposed
+     *                               invalidated or disposed
      */
     public static GPointer getPointer(NativeObject obj) {
         return obj.getPointer();
@@ -248,16 +249,16 @@ public final class Natives {
      * {@link NativeObject.TypeProvider} instances registered for use with
      * {@link ServiceLoader}
      *
-     * @param <T> Java type
-     * @param javaType Java type class
+     * @param <T>       Java type
+     * @param javaType  Java type class
      * @param gTypeName name of the GType
-     * @param factory a factory function to return an instance of T given a
-     * {@link NativeObject.Initializer}. Normally a constructor reference -
-     * {@code T::new}
+     * @param factory   a factory function to return an instance of T given a
+     *                  {@link NativeObject.Initializer}. Normally a constructor reference -
+     *                  {@code T::new}
      * @return registration
      */
     public static <T extends NativeObject> NativeObject.TypeRegistration<T>
-            registration(Class<T> javaType, String gTypeName, Function<NativeObject.Initializer, ? extends T> factory) {
+    registration(Class<T> javaType, String gTypeName, Function<NativeObject.Initializer, ? extends T> factory) {
         return new NativeObject.TypeRegistration<>(javaType, gTypeName, factory);
     }
 

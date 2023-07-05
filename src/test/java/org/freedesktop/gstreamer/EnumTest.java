@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,18 +19,14 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertEquals;
 
 import org.freedesktop.gstreamer.lowlevel.EnumMapper;
 import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- *
  * @author wayne
  */
 public class EnumTest {
@@ -38,35 +34,38 @@ public class EnumTest {
     public EnumTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("EnumTest", new String[] {});
+        Gst.init("EnumTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
-    private static enum TestEnum {
-        FOO,
-        @DefaultEnumValue
-        BAR;
-    }
+
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
     // @Test
     // public void hello() {}
-    @Test public void valueOfInt() {
+    @Test
+    public void valueOfInt() {
         TestEnum e = EnumMapper.getInstance().valueOf(0xdeadbeef, TestEnum.class);
-        assertEquals("Wrong value returned for the default", TestEnum.BAR, e);
+        assertEquals(TestEnum.BAR, e, "Wrong value returned for the default");
+    }
+
+    private enum TestEnum {
+        FOO,
+        @DefaultEnumValue
+        BAR
     }
 }

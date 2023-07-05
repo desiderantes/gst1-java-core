@@ -1,5 +1,5 @@
 /*
- * 
+ *
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2015 Andres Colubri <andres.colubri@gmail.com>
  * Copyright (C) 2013 Olivier Crete <olivier.crete@collabora.com>
@@ -54,7 +54,7 @@ public class Device extends GstObject {
      * device.
      *
      * @param name name of new element, or NULL to automatically create a unique
-     * name
+     *             name
      * @return a new {@link Element} configured to use this device.
      */
     public Element createElement(String name) {
@@ -100,7 +100,7 @@ public class Device extends GstObject {
      * Check if device matches all of the given classes.
      *
      * @param classes a "/"-separated list of device classes to match, only
-     * match if all classes are matched
+     *                match if all classes are matched
      * @return true if device matches
      */
     public boolean hasClasses(String classes) {
@@ -111,7 +111,7 @@ public class Device extends GstObject {
      * Check if device matches all of the given classes.
      *
      * @param classes an array of classes to match, only match if all classes
-     * are matched.
+     *                are matched.
      * @return true if device matches
      */
     public boolean hasClasses(String[] classes) {
@@ -125,7 +125,7 @@ public class Device extends GstObject {
      * <p>
      * Note: This should only be implemented for elements can change their
      * device in the PLAYING state.
-     * 
+     *
      * @param element the element to be configured
      * @return true if the element could be reconfigured to use this device
      */
@@ -135,7 +135,7 @@ public class Device extends GstObject {
 
     /**
      * Gets the extra properties of a device.
-     * 
+     *
      * @return The extra properties or NULL when there are none.
      */
     public Structure getProperties() {

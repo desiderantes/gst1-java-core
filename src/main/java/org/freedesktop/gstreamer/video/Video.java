@@ -17,8 +17,9 @@
  */
 package org.freedesktop.gstreamer.video;
 
-import java.util.stream.Stream;
 import org.freedesktop.gstreamer.glib.NativeObject;
+
+import java.util.stream.Stream;
 
 import static org.freedesktop.gstreamer.glib.Natives.registration;
 

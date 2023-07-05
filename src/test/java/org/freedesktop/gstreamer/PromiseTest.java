@@ -1,8 +1,8 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2019 Kezhu Wang
  * Copyright (c) 2018 Antonio Morales
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -20,76 +20,74 @@
  */
 package org.freedesktop.gstreamer;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.util.TestAssumptions;
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PromiseTest {
 
     public PromiseTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         Gst.init(Gst.getVersion(), "PromiseTest");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
-    
+
     @Test
     public void testReply() {
         TestAssumptions.requireGstVersion(1, 14);
-        
+
         Promise promise = new Promise();
 
         promise.reply(null);
 
         PromiseResult promiseStatus = promise.waitResult();
 
-        assertEquals("promise reply state not correct", promiseStatus, PromiseResult.REPLIED);
+        assertEquals(promiseStatus, PromiseResult.REPLIED, "promise reply state not correct");
     }
 
     @Test
     public void testInterrupt() {
         TestAssumptions.requireGstVersion(1, 14);
-        
+
         Promise promise = new Promise();
         promise.interrupt();
 
         PromiseResult promiseStatus = promise.waitResult();
 
-        assertEquals("promise reply state not correct", promiseStatus, PromiseResult.INTERRUPTED);
+        assertEquals(promiseStatus, PromiseResult.INTERRUPTED, "promise reply state not correct");
     }
 
     @Test
     public void testExpire() {
         TestAssumptions.requireGstVersion(1, 14);
-        
+
         Promise promise = new Promise();
         promise.expire();
 
         PromiseResult promiseStatus = promise.waitResult();
 
-        assertEquals("promise reply state not correct", promiseStatus, PromiseResult.EXPIRED);
+        assertEquals(promiseStatus, PromiseResult.EXPIRED, "promise reply state not correct");
     }
 
     @Test
     public void testInvalidateReply() {
         TestAssumptions.requireGstVersion(1, 14);
-        
+
         Promise promise = new Promise();
         Structure data = new Structure("data");
 
@@ -102,22 +100,22 @@ public class PromiseTest {
     @Test
     public void testReplyData() {
         TestAssumptions.requireGstVersion(1, 14);
-        
+
         Promise promise = new Promise();
         Structure data = new Structure("data", "test", GType.UINT, 1);
         GPointer pointer = Natives.getPointer(data);
 
         promise.reply(data);
-        assertEquals("promise state not in replied", promise.waitResult(), PromiseResult.REPLIED);
+        assertEquals(promise.waitResult(), PromiseResult.REPLIED, "promise state not in replied");
 
         Structure result = promise.getReply();
-        assertEquals("result of promise does not match reply", pointer, Natives.getPointer(result));
+        assertEquals(pointer, Natives.getPointer(result), "result of promise does not match reply");
     }
 
     @Test
     public void testDispose() {
         TestAssumptions.requireGstVersion(1, 14);
-        
+
         Promise promise = new Promise();
         promise.interrupt();
         promise.dispose();
@@ -126,7 +124,7 @@ public class PromiseTest {
     @Test
     public void testDisposeWithChangeFunc() {
         TestAssumptions.requireGstVersion(1, 14);
-        
+
         Promise promise = new Promise(new Promise.PROMISE_CHANGE() {
             @Override
             public void onChange(Promise promise) {
@@ -135,13 +133,13 @@ public class PromiseTest {
         promise.interrupt();
         promise.dispose();
     }
-    
+
     @Test
     public void testChangeFunctionGC() {
         TestAssumptions.requireGstVersion(1, 14);
-        
+
         final AtomicBoolean onChangeFired = new AtomicBoolean(false);
-        
+
         Promise promise = new Promise(new Promise.PROMISE_CHANGE() {
             @Override
             public void onChange(Promise promise) {
@@ -151,7 +149,7 @@ public class PromiseTest {
         System.gc();
         System.gc();
         promise.interrupt();
-        assertTrue("Promise Change callback GC'd", onChangeFired.get());
+        assertTrue(onChangeFired.get(), "Promise Change callback GC'd");
         promise.dispose();
     }
 }

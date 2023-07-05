@@ -1,20 +1,20 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2007, 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wtay@chello.be>
  *                    2005 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -23,14 +23,15 @@
 package org.freedesktop.gstreamer;
 
 import com.sun.jna.Pointer;
-import java.util.logging.Logger;
 import org.freedesktop.gstreamer.glib.GObject;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GObjectAPI;
 import org.freedesktop.gstreamer.lowlevel.GType;
+import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValue;
 import org.freedesktop.gstreamer.lowlevel.GstControlBindingPtr;
 import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
-import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValue;
+
+import java.util.logging.Logger;
 
 import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GOBJECT_API;
 import static org.freedesktop.gstreamer.lowlevel.GValueAPI.GVALUE_API;
@@ -48,11 +49,10 @@ import static org.freedesktop.gstreamer.lowlevel.GstValueAPI.GSTVALUE_API;
  * GstObject provides a root for the object hierarchy tree filed in by the
  * GStreamer library. It is currently a thin wrapper on top of {@link GObject}.
  * It is an abstract class that is not very usable on its own.
- *
  */
 public class GstObject extends GObject {
 
-    private static Logger LOG = Logger.getLogger(GstObject.class.getName());
+    private static final Logger LOG = Logger.getLogger(GstObject.class.getName());
 
     private final Handle handle;
 
@@ -76,9 +76,9 @@ public class GstObject extends GObject {
      * The data value is deserialized using <code>gst_value_deserialize</code>.
      *
      * @param property the property to set
-     * @param data the value as a valid String representation
+     * @param data     the value as a valid String representation
      * @throws IllegalArgumentException if the data cannot be deserialized to
-     * the required type.
+     *                                  the required type.
      */
     public void setAsString(String property, String data) {
         GObjectAPI.GParamSpec propertySpec = findProperty(property);
@@ -143,10 +143,10 @@ public class GstObject extends GObject {
     /**
      * Sets the name of this object, or gives this object a guaranteed unique
      * name (if name is null).
-     *
+     * <p>
      * Returns: TRUE if the name could be set. Since Objects that have a parent
      * cannot be renamed, this function returns FALSE in those cases.
-     *
+     * <p>
      * MT safe.
      *
      * @param name new name of object
@@ -160,7 +160,7 @@ public class GstObject extends GObject {
 
     /**
      * Returns a copy of the name of this object.
-     *
+     * <p>
      * For a nameless object, this returns null.
      *
      * @return the name of this object.
@@ -230,7 +230,7 @@ public class GstObject extends GObject {
      * property.
      *
      * @param propertyName property to disable
-     * @param disabled whether to disable the controller or not
+     * @param disabled     whether to disable the controller or not
      */
     public void setControlBindingDisabled(String propertyName, boolean disabled) {
         GSTOBJECT_API.gst_object_set_control_binding_disabled(handle.getPointer(), propertyName, disabled);
@@ -242,7 +242,7 @@ public class GstObject extends GObject {
      *
      * @param binding the ControlBinding that should be used
      * @throws IllegalStateException if the binding has not been setup for this
-     * object
+     *                               object
      */
     public void addControlBinding(ControlBinding binding) {
         GstControlBindingPtr bindingPtr = Natives.getPointer(binding)

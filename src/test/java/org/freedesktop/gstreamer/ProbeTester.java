@@ -20,15 +20,12 @@
 package org.freedesktop.gstreamer;
 
 import java.util.Set;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Utility class for unit testing API that operates on a Probe.
@@ -55,7 +52,7 @@ public class ProbeTester {
      * The pipeline is <code>videotestsrc ! fakesink name=sink</code>. The probe
      * will be attached to the sink pad of the sink element.
      *
-     * @param mask PadProbeType mask to use when attaching probe to sink pad
+     * @param mask     PadProbeType mask to use when attaching probe to sink pad
      * @param callback probe callback
      */
     public static void test(Set<PadProbeType> mask, Predicate<PadProbeInfo> callback) {
@@ -72,14 +69,14 @@ public class ProbeTester {
      * attached to the sink pad of the sink element.
      *
      * @param pipeline custom pipeline with named sink element
-     * @param mask PadProbeType mask to use when attaching probe to sink pad
+     * @param mask     PadProbeType mask to use when attaching probe to sink pad
      * @param callback probe callback
      */
     public static void test(String pipeline, Set<PadProbeType> mask, Predicate<PadProbeInfo> callback) {
-        assertNotNull("Pipeline description can not be null", pipeline);
-        assertFalse("Pipeline description can not be empty", pipeline.isEmpty());
+        assertNotNull(pipeline, "Pipeline description can not be null");
+        assertFalse(pipeline.isEmpty(), "Pipeline description can not be empty");
         Pipeline pipe = (Pipeline) Gst.parseLaunch(pipeline);
-        assertNotNull("Unable to create Pipeline from pipeline description: ", pipe);
+        assertNotNull(pipe, "Unable to create Pipeline from pipeline description: ");
 
         Element sink = pipe.getElementByName("sink");
         Pad pad = sink.getStaticPad("sink");

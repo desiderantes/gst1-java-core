@@ -19,19 +19,18 @@
 package org.freedesktop.gstreamer.video;
 
 import org.freedesktop.gstreamer.glib.NativeFlags;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
 import org.freedesktop.gstreamer.lowlevel.GstVideoAPI;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VideoTimeCodeConfigTest {
     private GstVideoAPI.GstVideoTimeCodeConfigStruct origStruct;
     private VideoTimeCodeConfig codeConfig;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         origStruct = new GstVideoAPI.GstVideoTimeCodeConfigStruct();
         origStruct.fps_d = 25;

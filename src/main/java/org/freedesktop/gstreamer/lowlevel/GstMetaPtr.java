@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -22,10 +22,10 @@ import com.sun.jna.Pointer;
  * Base GstMeta pointer
  */
 public class GstMetaPtr extends GTypedPtr {
-    
+
     private static final int INFO_OFFSET;
     private static final int IMPL_TYPE_OFFSET;
-    
+
     static {
         INFO_OFFSET = new GstMetaAPI.GstMetaStruct().infoOffset();
         IMPL_TYPE_OFFSET = new GstMetaAPI.GstMetaInfoStruct().typeOffset();
@@ -50,7 +50,7 @@ public class GstMetaPtr extends GTypedPtr {
             throw new IllegalStateException("SIZE_T size not supported: " + Native.SIZE_T_SIZE);
         }
     }
-    
+
     public GType getAPIGType() {
         // Quick getter for GType without allocation
         Pointer metaInfo = getPointer().getPointer(INFO_OFFSET);

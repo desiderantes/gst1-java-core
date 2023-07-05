@@ -1,18 +1,18 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wtay@chello.be>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -28,7 +28,7 @@ import org.freedesktop.gstreamer.glib.NativeFlags;
  */
 public enum BufferFlags implements NativeFlags<BufferFlags> {
 
-    /**  
+    /**
      * the {@link Buffer} is live data and should be discarded in the PAUSED state.
      */
     LIVE(MiniObjectFlags.LAST.intValue() << 0),
@@ -79,8 +79,10 @@ public enum BufferFlags implements NativeFlags<BufferFlags> {
      * the {@link Buffer} can be dropped without breaking the stream, for example to reduce bandwidth.
      */
     DROPPABLE(MiniObjectFlags.LAST.intValue() << 8),
-    
-    /** This unit cannot be decoded independently. */
+
+    /**
+     * This unit cannot be decoded independently.
+     */
     DELTA_UNIT(MiniObjectFlags.LAST.intValue() << 9),
 
     /**
@@ -92,32 +94,33 @@ public enum BufferFlags implements NativeFlags<BufferFlags> {
      * Elements which write to disk or permanent storage should ensure the data is synced after writing the contents of this {@link Buffer}. (Since 1.6)
      */
     SYNC_AFTER(MiniObjectFlags.LAST.intValue() << 11),
-    
+
     /**
      * This buffer is important and should not be dropped. This can be used to
      * mark important buffers, e.g. to flag RTP packets carrying keyframes or
      * codec setup data for RTP Forward Error Correction purposes, or to prevent
      * still video frames from being dropped by elements due to QoS. (Since
      * 1.14)
-
      */
     @Gst.Since(minor = 14)
     NON_DROPPABLE(MiniObjectFlags.LAST.intValue() << 12),
-    
+
     /* padding */
     LAST(MiniObjectFlags.LAST.intValue() << 16);
-    
+
     private final int value;
-    
-    private BufferFlags(int value) {
+
+    BufferFlags(int value) {
         this.value = value;
     }
+
     /**
      * Get the integer value of the enum.
+     *
      * @return The integer value for this enum.
      */
     public final int intValue() {
         return value;
     }
-    
+
 }

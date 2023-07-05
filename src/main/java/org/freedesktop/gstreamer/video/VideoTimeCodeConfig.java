@@ -18,12 +18,13 @@
  */
 package org.freedesktop.gstreamer.video;
 
-import java.util.EnumSet;
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.glib.NativeFlags;
 import org.freedesktop.gstreamer.glib.NativeObject;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
 import org.freedesktop.gstreamer.lowlevel.GstVideoAPI.GstVideoTimeCodeConfigStruct;
+
+import java.util.EnumSet;
 
 /**
  * The configuration of the time code.
@@ -75,12 +76,11 @@ public class VideoTimeCodeConfig extends NativeObject {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("GstVideoTimeCodeConfig{");
-        sb.append("flags=").append(getFlags())
-                .append(", numerator=").append(getNumerator())
-                .append(", denominator=").append(getDenominator())
-                .append('}');
-        return sb.toString();
+        String sb = "GstVideoTimeCodeConfig{" + "flags=" + getFlags() +
+                ", numerator=" + getNumerator() +
+                ", denominator=" + getDenominator() +
+                '}';
+        return sb;
     }
 
     private static final class Handle extends NativeObject.Handle {
@@ -105,6 +105,6 @@ public class VideoTimeCodeConfig extends NativeObject {
         protected GPointer getPointer() {
             return super.getPointer();
         }
-        
+
     }
 }

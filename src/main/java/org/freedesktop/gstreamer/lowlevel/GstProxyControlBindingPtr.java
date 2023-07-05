@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -18,15 +18,15 @@ package org.freedesktop.gstreamer.lowlevel;
 import com.sun.jna.Pointer;
 
 /**
- * 
+ *
  */
 public class GstProxyControlBindingPtr extends GstControlBindingPtr {
-    
+
     public GstProxyControlBindingPtr() {
     }
-    
+
     public GstProxyControlBindingPtr(Pointer ptr) {
         super(ptr);
     }
-    
+
 }

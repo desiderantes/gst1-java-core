@@ -4,9 +4,9 @@ import org.freedesktop.gstreamer.Structure;
 
 /**
  * GstContext API
- * 
+ * <p>
  * https://gstreamer.freedesktop.org/documentation/gstreamer/gstcontext.html
- * 
+ * <p>
  * https://gitlab.freedesktop.org/gstreamer/gstreamer/blob/master/gst/gstcontext.h
  * https://gitlab.freedesktop.org/gstreamer/gstreamer/blob/master/gst/gstcontext.c
  */

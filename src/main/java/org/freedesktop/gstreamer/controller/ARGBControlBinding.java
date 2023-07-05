@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -24,10 +24,9 @@ import org.freedesktop.gstreamer.glib.GObject;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstARGBControlBindingPtr;
 import org.freedesktop.gstreamer.lowlevel.GstControlSourcePtr;
-import org.freedesktop.gstreamer.lowlevel.GstDirectControlBindingPtr;
+import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
 
 import static org.freedesktop.gstreamer.lowlevel.GstControllerAPI.GSTCONTROLLER_API;
-import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
 
 /**
  * Attachment for control sources to ARGB properties
@@ -47,8 +46,8 @@ public class ARGBControlBinding extends ControlBinding {
 
     ARGBControlBinding(Initializer init) {
         this(new Handle(
-                init.ptr.as(GstARGBControlBindingPtr.class, GstARGBControlBindingPtr::new),
-                init.ownsHandle),
+                        init.ptr.as(GstARGBControlBindingPtr.class, GstARGBControlBindingPtr::new),
+                        init.ownsHandle),
                 init.needRef);
     }
 
@@ -60,8 +59,8 @@ public class ARGBControlBinding extends ControlBinding {
      * Create a new control-binding that attaches the given
      * {@link ControlSource} to the {@link GObject} property.
      *
-     * @param object the object of the property
-     * @param propertyName the property-name to attach the control source
+     * @param object         the object of the property
+     * @param propertyName   the property-name to attach the control source
      * @param controlSourceA the control source for the alpha channel
      * @param controlSourceR the control source for the red channel
      * @param controlSourceG the control source for the green channel
@@ -69,11 +68,11 @@ public class ARGBControlBinding extends ControlBinding {
      * @return new ARGBControlBinding
      */
     public static ARGBControlBinding create(GstObject object,
-            String propertyName,
-            ControlSource controlSourceA,
-            ControlSource controlSourceR,
-            ControlSource controlSourceG,
-            ControlSource controlSourceB) {
+                                            String propertyName,
+                                            ControlSource controlSourceA,
+                                            ControlSource controlSourceR,
+                                            ControlSource controlSourceG,
+                                            ControlSource controlSourceB) {
         GstARGBControlBindingPtr ptr = GSTCONTROLLER_API.gst_argb_control_binding_new(
                 Natives.getPointer(object).as(GstObjectPtr.class, GstObjectPtr::new),
                 propertyName,

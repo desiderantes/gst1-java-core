@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (C) 2020 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,20 +19,22 @@
  */
 package org.freedesktop.gstreamer;
 
-import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.sun.jna.Pointer;
 import org.freedesktop.gstreamer.glib.GObject;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstMiniObjectPtr;
 import org.freedesktop.gstreamer.lowlevel.IntPtr;
 
-import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.*;
-import static org.freedesktop.gstreamer.lowlevel.GstMiniObjectAPI.*;
+import java.lang.ref.WeakReference;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GOBJECT_API;
+import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GWeakNotify;
+import static org.freedesktop.gstreamer.lowlevel.GstMiniObjectAPI.GSTMINIOBJECT_API;
+import static org.freedesktop.gstreamer.lowlevel.GstMiniObjectAPI.GstMiniObjectNotify;
 
 /**
  * Tracks Java and/or native disposal of GObject and MiniObject derived objects.
@@ -41,7 +43,31 @@ public class GCTracker {
 
     private static final Map<Integer, WeakReference<GCTracker>> OBJ_MAP
             = Collections.synchronizedMap(new HashMap<Integer, WeakReference<GCTracker>>());
+    private static final GWeakNotify GOBJECT_NOTIFY = new GWeakNotify() {
 
+        @Override
+        public void callback(IntPtr id, Pointer obj) {
+            int identityHashCode = id.intValue();
+            WeakReference<GCTracker> trackerRef = OBJ_MAP.get(identityHashCode);
+            GCTracker tracker = trackerRef.get();
+            if (tracker != null) {
+                tracker.destroyed.set(true);
+            }
+        }
+    };
+    private static final GstMiniObjectNotify GSTMINIOBJECT_NOTIFY
+            = new GstMiniObjectNotify() {
+
+        @Override
+        public void callback(IntPtr id, Pointer obj) {
+            int identityHashCode = id.intValue();
+            WeakReference<GCTracker> trackerRef = OBJ_MAP.get(identityHashCode);
+            GCTracker tracker = trackerRef.get();
+            if (tracker != null) {
+                tracker.destroyed.set(true);
+            }
+        }
+    };
     private final WeakReference<?> ref;
     private final AtomicBoolean destroyed = new AtomicBoolean(false);
 
@@ -51,7 +77,7 @@ public class GCTracker {
         OBJ_MAP.put(identityHashCode, new WeakReference<>(this));
         GOBJECT_API.g_object_weak_ref(obj, GOBJECT_NOTIFY, new IntPtr(identityHashCode));
     }
-    
+
     public GCTracker(MiniObject obj) {
         int identityHashCode = System.identityHashCode(this);
         ref = new WeakReference<>(obj);
@@ -60,6 +86,18 @@ public class GCTracker {
                 Natives.getPointer(obj).as(GstMiniObjectPtr.class, GstMiniObjectPtr::new),
                 GSTMINIOBJECT_NOTIFY,
                 new IntPtr(identityHashCode));
+    }
+
+    public static boolean waitGC(WeakReference<? extends Object> ref) {
+        System.gc();
+        for (int i = 0; ref.get() != null && i < 10; ++i) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+            }
+            System.gc();
+        }
+        return ref.get() == null;
     }
 
     public boolean waitGC() {
@@ -74,45 +112,6 @@ public class GCTracker {
             }
         }
         return destroyed.get();
-    }
-
-    private static final GWeakNotify GOBJECT_NOTIFY = new GWeakNotify() {
-
-        @Override
-        public void callback(IntPtr id, Pointer obj) {
-            int identityHashCode = id.intValue();
-            WeakReference<GCTracker> trackerRef = OBJ_MAP.get(identityHashCode);
-            GCTracker tracker = trackerRef.get();
-            if (tracker != null) {
-                tracker.destroyed.set(true);
-            }
-        }
-    };
-
-    private static final GstMiniObjectNotify GSTMINIOBJECT_NOTIFY
-            = new GstMiniObjectNotify() {
-
-        @Override
-        public void callback(IntPtr id, Pointer obj) {
-            int identityHashCode = id.intValue();
-            WeakReference<GCTracker> trackerRef = OBJ_MAP.get(identityHashCode);
-            GCTracker tracker = trackerRef.get();
-            if (tracker != null) {
-                tracker.destroyed.set(true);
-            }
-        }
-    };
-
-    public static boolean waitGC(WeakReference<? extends Object> ref) {
-        System.gc();
-        for (int i = 0; ref.get() != null && i < 10; ++i) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
-            System.gc();
-        }
-        return ref.get() == null;
     }
 
 }

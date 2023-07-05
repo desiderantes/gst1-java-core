@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -18,25 +18,28 @@
 
 package org.freedesktop.gstreamer.lowlevel;
 
+import org.freedesktop.gstreamer.glib.NativeEnum;
+import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
+
 import java.lang.reflect.Field;
 import java.util.EnumSet;
 
-import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
-import org.freedesktop.gstreamer.glib.NativeEnum;
-
 /**
  * Maps to and from native int and an Enum value.
+ *
  * @author wayne
  */
 public class EnumMapper {
     private static final EnumMapper mapper = new EnumMapper();
+
     public static EnumMapper getInstance() {
         return mapper;
     }
-    
+
     public int intValue(Enum<?> value) {
         return value instanceof NativeEnum ? ((NativeEnum) value).intValue() : value.ordinal();
     }
+
     public <E extends Enum<E>> E valueOf(int value, Class<E> enumClass) {
         //
         // Just loop around all the enum values and find one that matches.
@@ -68,7 +71,7 @@ public class EnumMapper {
                 }
             }
             throw new IllegalArgumentException();
-        } catch (IllegalArgumentException ex) {      
+        } catch (IllegalArgumentException ex) {
             //
             // No default, so just give up and throw an exception
             //

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -21,12 +21,12 @@ import com.sun.jna.Pointer;
  * GstBus pointer.
  */
 public class GstBusPtr extends GstObjectPtr {
-    
+
     public GstBusPtr() {
     }
-    
+
     public GstBusPtr(Pointer ptr) {
         super(ptr);
     }
-    
+
 }

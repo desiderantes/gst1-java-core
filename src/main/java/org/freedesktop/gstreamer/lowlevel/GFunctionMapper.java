@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -18,18 +18,18 @@
 
 package org.freedesktop.gstreamer.lowlevel;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-
 import com.sun.jna.NativeLibrary;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
- *
  * @author wayne
  */
 public class GFunctionMapper implements com.sun.jna.FunctionMapper {
-    private final static List<String> stripPrefixes = Arrays.asList("ptr_");
+    private final static List<String> stripPrefixes = Collections.singletonList("ptr_");
 
     public String getFunctionName(NativeLibrary library, Method method) {
 

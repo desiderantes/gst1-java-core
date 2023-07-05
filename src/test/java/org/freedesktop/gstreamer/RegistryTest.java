@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,19 +19,15 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *
  * @author wayne
  */
 public class RegistryTest {
@@ -39,12 +35,12 @@ public class RegistryTest {
     public RegistryTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("RegistryTest", new String[] {});
+        Gst.init("RegistryTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
@@ -52,29 +48,29 @@ public class RegistryTest {
     @Test
     public void testGet() {
         Registry registry = Registry.get();
-        assertNotNull("Registry.getDefault() returned null", registry);
+        assertNotNull(registry, "Registry.getDefault() returned null");
     }
-    
+
     @Test
     public void testGetPluginList() {
         final String PLUGIN = "vorbis"; // Use something that is likely to be there
         Registry registry = Registry.get();
         List<Plugin> plugins = registry.getPluginList();
-        assertFalse("No plugins found", plugins.isEmpty());
+        assertFalse(plugins.isEmpty(), "No plugins found");
         boolean pluginFound = false;
         for (Plugin p : plugins) {
             if (p.getName().equals(PLUGIN)) {
                 pluginFound = true;
             }
         }
-        assertTrue(PLUGIN + " plugin not found", pluginFound);
+        assertTrue(pluginFound, PLUGIN + " plugin not found");
     }
-    
+
     @Test
     public void testGetPluginListFiltered() {
         final String PLUGIN = "vorbis"; // Use something that is likely to be there
         Registry registry = Registry.get();
-        final boolean[] filterCalled = { false };
+        final boolean[] filterCalled = {false};
         List<Plugin> plugins = registry.getPluginList(new Registry.PluginFilter() {
             @Override
             public boolean accept(Plugin plugin) {
@@ -82,34 +78,34 @@ public class RegistryTest {
                 return plugin.getName().equals(PLUGIN);
             }
         });
-        assertFalse("No plugins found", plugins.isEmpty());
-        assertTrue("PluginFilter not called", filterCalled[0]);
-        assertEquals("Plugin list should contain 1 item", 1, plugins.size());
-        assertEquals(PLUGIN + " plugin not found", PLUGIN, plugins.get(0).getName());
+        assertFalse(plugins.isEmpty(), "No plugins found");
+        assertTrue(filterCalled[0], "PluginFilter not called");
+        assertEquals(1, plugins.size(), "Plugin list should contain 1 item");
+        assertEquals(PLUGIN, plugins.get(0).getName(), PLUGIN + " plugin not found");
     }
-    
+
     @Test
     public void testGetPluginFeatureListByPlugin() {
         final String PLUGIN = "vorbis"; // Use something that is likely to be there
         final String FEATURE = "vorbisdec";
         Registry registry = Registry.get();
         List<PluginFeature> features = registry.getPluginFeatureListByPlugin(PLUGIN);
-        assertFalse("No plugin features found", features.isEmpty());
+        assertFalse(features.isEmpty(), "No plugin features found");
         boolean pluginFound = false;
         for (PluginFeature p : features) {
             if (p.getName().equals(FEATURE)) {
                 pluginFound = true;
             }
         }
-        assertTrue(PLUGIN + " plugin not found", pluginFound);
+        assertTrue(pluginFound, PLUGIN + " plugin not found");
     }
-    
+
     @Test
     public void testFindPluginFeature() {
         PluginFeature f = Registry.get().lookupFeature("decodebin");
         assertNotNull(f);
     }
-    
+
     @Test
     public void testFindPlugin() {
         Plugin f = Registry.get().findPlugin("playback");

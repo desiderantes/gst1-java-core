@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -55,7 +55,7 @@ public class SegmentQuery extends Query {
      * The normal playback segment of a pipeline is 0 to duration at the default
      * rate of 1.0. If a seek was performed on the pipeline to play a different
      * segment, this query will return the range specified in the last seek.
-     *
+     * <p>
      * {@code startValue} and {@code stopValue} will respectively contain the
      * configured playback range start and stop values expressed in format. The
      * values are always between 0 and the duration of the media and
@@ -63,10 +63,10 @@ public class SegmentQuery extends Query {
      * rate. For negative rates, playback will actually happen from
      * {@code stopValue} to {@code startValue}.
      *
-     * @param rate the rate of the segment.
-     * @param format the {@link Format} of the segment values.
+     * @param rate       the rate of the segment.
+     * @param format     the {@link Format} of the segment values.
      * @param startValue the start value.
-     * @param stopValue the stop value.
+     * @param stopValue  the stop value.
      */
     public void setSegment(double rate, Format format, long startValue, long stopValue) {
         GstQueryAPI.GSTQUERY_API.gst_query_set_segment(this, rate, format, startValue, stopValue);

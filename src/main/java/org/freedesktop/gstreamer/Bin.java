@@ -1,20 +1,20 @@
-/* 
+/*
  * Copyright (c) 2021 Neil C Smith
  * Copyright (c) 2016 Christophe Lafolet
  * Copyright (c) 2009 Levente Farkas
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2004 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -22,15 +22,16 @@
  */
 package org.freedesktop.gstreamer;
 
-import static org.freedesktop.gstreamer.lowlevel.GstBinAPI.GSTBIN_API;
-
-import java.util.EnumSet;
-import java.util.List;
 import org.freedesktop.gstreamer.glib.NativeFlags;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 import org.freedesktop.gstreamer.lowlevel.GstIteratorPtr;
 import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
+
+import java.util.EnumSet;
+import java.util.List;
+
+import static org.freedesktop.gstreamer.lowlevel.GstBinAPI.GSTBIN_API;
 
 /**
  * Base class and element that can contain other elements.
@@ -59,11 +60,10 @@ import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
  * <p>
  * A list of elements contained in a bin can be retrieved with
  * {@link Bin#getElements}
- *
+ * <p>
  * The {@link ELEMENT_ADDED} signal is fired whenever a new element is added to
  * the bin. Likewise the {@link ELEMENT_REMOVED} signal is fired whenever an
  * element is removed from the bin.
- *
  */
 public class Bin extends Element {
 
@@ -77,7 +77,7 @@ public class Bin extends Element {
     Bin(Handle handle, boolean needRef) {
         super(handle, needRef);
     }
-    
+
     /**
      * Creates a new Bin with a unique name.
      */
@@ -125,7 +125,7 @@ public class Bin extends Element {
      * Removes a Element from this Bin
      * <p>
      * Removes the element from the bin, unparenting it as well.
-     *
+     * <p>
      * If the element's pads are linked to other pads, the pads will be unlinked
      * before the element is removed from the bin.
      *
@@ -172,7 +172,7 @@ public class Bin extends Element {
     /**
      * Retrieve a list of the {@link Element}s contained in the Bin and its Bin
      * children.
-     *
+     * <p>
      * This differs from {@link #getElements()} as it will also return
      * {@link Element}s that are in any Bin elements contained in this Bin, also
      * recursing down those Bins.
@@ -233,6 +233,7 @@ public class Bin extends Element {
 //    public <T extends Element> T getElementByInterface(Class<T> iface) {
 //        return iface.cast(GSTBIN_API.gst_bin_get_by_interface(this, GstTypes.typeFor(iface)));
 //    }
+
     /**
      * To aid debugging applications one can use this method to write out the
      * whole network of gstreamer elements that form the pipeline into a dot
@@ -243,7 +244,7 @@ public class Bin extends Element {
      * "--gst-enable-gst-debug" and the environment variable
      * GST_DEBUG_DUMP_DOT_DIR is set to a basepath (e.g. /tmp).
      *
-     * @param details to show in the graph
+     * @param details  to show in the graph
      * @param fileName output base filename (e.g. "myplayer")
      */
     public void debugToDotFile(EnumSet<DebugGraphDetails> details, String fileName) {
@@ -264,8 +265,8 @@ public class Bin extends Element {
      * Unlike {@link #debugToDotFile(java.util.EnumSet, java.lang.String)} this
      * method adds the current timestamp to the filename, so that it can be
      * used to take multiple snapshots.
-     * 
-     * @param details to show in the graph
+     *
+     * @param details  to show in the graph
      * @param fileName output base filename (e.g. "myplayer")
      */
     public void debugToDotFileWithTS(EnumSet<DebugGraphDetails> details, String fileName) {
@@ -274,27 +275,10 @@ public class Bin extends Element {
     }
 
     /**
-     * Signal emitted when an {@link Element} is added to this Bin
-     *
-     * @see #connect(ELEMENT_ADDED)
-     * @see #disconnect(ELEMENT_ADDED)
-     */
-    public static interface ELEMENT_ADDED {
-
-        /**
-         * Called when an {@link Element} is added to a {@link Bin}
-         *
-         * @param bin the Bin the element was added to.
-         * @param element the {@link Element} that was added.
-         */
-        public void elementAdded(Bin bin, Element element);
-    }
-
-    /**
      * Add a listener for the <code>element-added</code> signal on this Bin
      *
      * @param listener The listener to be called when an {@link Element} is
-     * added.
+     *                 added.
      */
     public void connect(final ELEMENT_ADDED listener) {
         connect(ELEMENT_ADDED.class, listener, new GstCallback() {
@@ -315,27 +299,10 @@ public class Bin extends Element {
     }
 
     /**
-     * Signal emitted when an {@link Element} is removed from this Bin
-     *
-     * @see #connect(ELEMENT_REMOVED)
-     * @see #disconnect(ELEMENT_REMOVED)
-     */
-    public static interface ELEMENT_REMOVED {
-
-        /**
-         * Called when an {@link Element} is removed from a {@link Bin}
-         *
-         * @param bin the Bin the element was removed from.
-         * @param element the {@link Element} that was removed.
-         */
-        public void elementRemoved(Bin bin, Element element);
-    }
-
-    /**
      * Add a listener for the <code>element-removed</code> signal on this Bin
      *
      * @param listener The listener to be called when an {@link Element} is
-     * removed.
+     *                 removed.
      */
     public void connect(final ELEMENT_REMOVED listener) {
         connect(ELEMENT_REMOVED.class, listener, new GstCallback() {
@@ -356,32 +323,10 @@ public class Bin extends Element {
     }
 
     /**
-     * Signal emitted when an {@link Element} is added to sub-bin of this
-     * {@link Bin}
-     *
-     * @see #connect(DEEP_ELEMENT_ADDED)
-     * @see #disconnect(DEEP_ELEMENT_ADDED)
-     */
-    @Gst.Since(minor = 10)
-    public static interface DEEP_ELEMENT_ADDED {
-
-        /**
-         * Called when an {@link Element} is added to a {@link Bin}
-         *
-         * Since GStreamer 1.10
-         *
-         * @param bin the Bin
-         * @param sub_bin the Bin the element was added to.
-         * @param element the {@link Element} that was added.
-         */
-        public void elementAdded(Bin bin, Bin sub_bin, Element element);
-    }
-
-    /**
      * Add a listener for the <code>deep-element-added</code> signal on this Bin
      *
      * @param listener The listener to be called when an {@link Element} is
-     * added.
+     *                 added.
      */
     @Gst.Since(minor = 10)
     public void connect(final DEEP_ELEMENT_ADDED listener) {
@@ -405,33 +350,11 @@ public class Bin extends Element {
     }
 
     /**
-     * Signal emitted when an {@link Element} is removed from sub-bin of this
-     * {@link Bin}
-     *
-     * @see #connect(ELEMENT_REMOVED)
-     * @see #disconnect(ELEMENT_REMOVED)
-     */
-    @Gst.Since(minor = 10)
-    public static interface DEEP_ELEMENT_REMOVED {
-
-        /**
-         * Called when an {@link Element} is removed from a {@link Bin}
-         *
-         * Since GStreamer 1.10
-         *
-         * @param bin the Bin
-         * @param sub_bin the Bin the element was removed from.
-         * @param element the {@link Element} that was removed.
-         */
-        public void elementRemoved(Bin bin, Bin sub_bin, Element element);
-    }
-
-    /**
      * Add a listener for the <code>deep-element-removed</code> signal on this
      * Bin
      *
      * @param listener The listener to be called when an {@link Element} is
-     * removed.
+     *                 removed.
      */
     @Gst.Since(minor = 10)
     public void connect(final DEEP_ELEMENT_REMOVED listener) {
@@ -455,26 +378,10 @@ public class Bin extends Element {
     }
 
     /**
-     * Signal emitted when an {@link Element} has latency
-     *
-     * @see #connect(DO_LATENCY)
-     * @see #disconnect(DO_LATENCY)
-     */
-    public static interface DO_LATENCY {
-
-        /**
-         * Called when an {@link Element} is removed from a {@link Bin}
-         *
-         * @param bin the Bin the element was removed from.
-         */
-        public void doLatency(Bin bin);
-    }
-
-    /**
      * Add a listener for the <code>do-latency</code> signal on this Bin
      *
      * @param listener The listener to be called when an {@link Element} is
-     * removed.
+     *                 removed.
      */
     public void connect(final DO_LATENCY listener) {
         connect(DO_LATENCY.class, listener, new GstCallback() {
@@ -498,7 +405,7 @@ public class Bin extends Element {
      * Available details for pipeline graphs produced by
      * {@link #debugToDotFile(int, java.lang.String, boolean)}
      */
-    public static enum DebugGraphDetails implements NativeFlags<DebugGraphDetails> {
+    public enum DebugGraphDetails implements NativeFlags<DebugGraphDetails> {
 
         /**
          * Show caps-name on edges.
@@ -522,10 +429,10 @@ public class Bin extends Element {
          */
         public final static EnumSet<DebugGraphDetails> SHOW_ALL
                 = EnumSet.allOf(DebugGraphDetails.class);
-        
+
         private final int value;
 
-        private DebugGraphDetails(int value) {
+        DebugGraphDetails(int value) {
             this.value = value;
         }
 
@@ -535,13 +442,107 @@ public class Bin extends Element {
         }
 
     }
-    
+
+    /**
+     * Signal emitted when an {@link Element} is added to this Bin
+     *
+     * @see #connect(ELEMENT_ADDED)
+     * @see #disconnect(ELEMENT_ADDED)
+     */
+    public interface ELEMENT_ADDED {
+
+        /**
+         * Called when an {@link Element} is added to a {@link Bin}
+         *
+         * @param bin     the Bin the element was added to.
+         * @param element the {@link Element} that was added.
+         */
+        void elementAdded(Bin bin, Element element);
+    }
+
+    /**
+     * Signal emitted when an {@link Element} is removed from this Bin
+     *
+     * @see #connect(ELEMENT_REMOVED)
+     * @see #disconnect(ELEMENT_REMOVED)
+     */
+    public interface ELEMENT_REMOVED {
+
+        /**
+         * Called when an {@link Element} is removed from a {@link Bin}
+         *
+         * @param bin     the Bin the element was removed from.
+         * @param element the {@link Element} that was removed.
+         */
+        void elementRemoved(Bin bin, Element element);
+    }
+
+    /**
+     * Signal emitted when an {@link Element} is added to sub-bin of this
+     * {@link Bin}
+     *
+     * @see #connect(DEEP_ELEMENT_ADDED)
+     * @see #disconnect(DEEP_ELEMENT_ADDED)
+     */
+    @Gst.Since(minor = 10)
+    public interface DEEP_ELEMENT_ADDED {
+
+        /**
+         * Called when an {@link Element} is added to a {@link Bin}
+         * <p>
+         * Since GStreamer 1.10
+         *
+         * @param bin     the Bin
+         * @param sub_bin the Bin the element was added to.
+         * @param element the {@link Element} that was added.
+         */
+        void elementAdded(Bin bin, Bin sub_bin, Element element);
+    }
+
+    /**
+     * Signal emitted when an {@link Element} is removed from sub-bin of this
+     * {@link Bin}
+     *
+     * @see #connect(ELEMENT_REMOVED)
+     * @see #disconnect(ELEMENT_REMOVED)
+     */
+    @Gst.Since(minor = 10)
+    public interface DEEP_ELEMENT_REMOVED {
+
+        /**
+         * Called when an {@link Element} is removed from a {@link Bin}
+         * <p>
+         * Since GStreamer 1.10
+         *
+         * @param bin     the Bin
+         * @param sub_bin the Bin the element was removed from.
+         * @param element the {@link Element} that was removed.
+         */
+        void elementRemoved(Bin bin, Bin sub_bin, Element element);
+    }
+
+    /**
+     * Signal emitted when an {@link Element} has latency
+     *
+     * @see #connect(DO_LATENCY)
+     * @see #disconnect(DO_LATENCY)
+     */
+    public interface DO_LATENCY {
+
+        /**
+         * Called when an {@link Element} is removed from a {@link Bin}
+         *
+         * @param bin the Bin the element was removed from.
+         */
+        void doLatency(Bin bin);
+    }
+
     static class Handle extends Element.Handle {
-        
+
         public Handle(GstObjectPtr ptr, boolean ownsHandle) {
             super(ptr, ownsHandle);
         }
-        
+
     }
 
 }

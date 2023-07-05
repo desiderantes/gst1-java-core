@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2016 Christophe Lafolet
  * Copyright (c) 2010 Levente Farkas
- * 
- * This code is free software: you can redistribute it and/or modify it under 
+ *
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -17,22 +17,18 @@
  */
 package org.freedesktop.gstreamer;
 
-import static org.freedesktop.gstreamer.lowlevel.GstDateTimeAPI.GSTDATETIME_API;
-
-import org.freedesktop.gstreamer.glib.NativeObject;
-
 import com.sun.jna.Pointer;
+import org.freedesktop.gstreamer.glib.NativeObject;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
 
+import static org.freedesktop.gstreamer.lowlevel.GstDateTimeAPI.GSTDATETIME_API;
+
 /**
+ *
  */
 public class DateTime extends NativeObject {
 
     public static final String GTYPE_NAME = "GstDateTime";
-
-    public static DateTime createInstanceLocalEpoch(long secs) {
-        return new DateTime(GSTDATETIME_API.gst_date_time_new_from_unix_epoch_local_time(secs), false, true);
-    }
 
     DateTime(Initializer init) {
         this(new Handle(init.ptr, init.ownsHandle));
@@ -41,9 +37,13 @@ public class DateTime extends NativeObject {
     DateTime(Pointer ptr, boolean needRef, boolean ownsHandle) {
         this(new Handle(new GPointer(ptr), ownsHandle));
     }
-    
+
     DateTime(Handle handle) {
         super(handle);
+    }
+
+    public static DateTime createInstanceLocalEpoch(long secs) {
+        return new DateTime(GSTDATETIME_API.gst_date_time_new_from_unix_epoch_local_time(secs), false, true);
     }
 
     public int getYear() {
@@ -76,7 +76,7 @@ public class DateTime extends NativeObject {
 
     @Override
     public String toString() {
-        return "" + getYear() + "-" + getMonth() + "-" + getDay() + " " + getHour() + ":" + getMinute() + ":" + getSecond() + "." + getMicrosecond();
+        return getYear() + "-" + getMonth() + "-" + getDay() + " " + getHour() + ":" + getMinute() + ":" + getSecond() + "." + getMicrosecond();
     }
 
     private static final class Handle extends NativeObject.Handle {

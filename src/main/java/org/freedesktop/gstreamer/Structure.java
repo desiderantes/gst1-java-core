@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
- * Copyright (C) 2009 Tamas Korodi <kotyo@zamba.fm> 
+ * Copyright (C) 2009 Tamas Korodi <kotyo@zamba.fm>
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 2003 David A. Schleef <ds@schleef.org>
- * 
- * This code is free software: you can redistribute it and/or modify it under 
+ *
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -21,7 +21,6 @@ package org.freedesktop.gstreamer;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
-
 import org.freedesktop.gstreamer.glib.GObject;
 import org.freedesktop.gstreamer.glib.NativeObject;
 import org.freedesktop.gstreamer.glib.Natives;
@@ -68,7 +67,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstValueAPI.GSTVALUE_API;
  * @see Event
  */
 public class Structure extends NativeObject {
-    
+
     public static final String GTYPE_NAME = "GstStructure";
 
     /**
@@ -85,22 +84,40 @@ public class Structure extends NativeObject {
      * arguments and sets fields to the values listed. Variable arguments should
      * be passed as field name, field type, and value.
      *
-     * @param name The name of new structure.
+     * @param name           The name of new structure.
      * @param firstFieldName The name of first field to set
-     * @param data Additional arguments.
+     * @param data           Additional arguments.
      */
     public Structure(String name, String firstFieldName, Object... data) {
         this(new Handle(new GPointer(GSTSTRUCTURE_API.ptr_gst_structure_new(name, firstFieldName, data)), true));
     }
+
     /**
      * Creates a new instance of Structure
      */
     Structure(Initializer init) {
         this(new Handle(init.ptr, init.ownsHandle));
     }
-    
+
     private Structure(Handle handle) {
         super(handle);
+    }
+
+    /**
+     * Creates a Structure from a string representation.
+     *
+     * @param data A string representation of a Structure.
+     * @return A new Structure or null when the string could not be parsed.
+     */
+    public static Structure fromString(String data) {
+        return new Structure(
+                new Handle(
+                        new GPointer(GSTSTRUCTURE_API.ptr_gst_structure_from_string(data, new PointerByReference()))
+                        , true));
+    }
+
+    static Structure objectFor(Pointer ptr, boolean needRef, boolean ownsHandle) {
+        return Natives.objectFor(ptr, Structure.class, needRef, ownsHandle);
     }
 
     public Structure copy() {
@@ -110,6 +127,7 @@ public class Structure extends NativeObject {
     public boolean fixateNearestInteger(String field, Integer value) {
         return GSTSTRUCTURE_API.gst_structure_fixate_field_nearest_int(this, field, value);
     }
+
     /**
      * Get the value of the named field as a boolean. Throws
      * {@link InvalidFieldException} if the Structure does not contain the named
@@ -183,7 +201,7 @@ public class Structure extends NativeObject {
      * - other native list types will be supported in future.
      *
      * @param fieldName name of field
-     * @param array an array to hold values, or null
+     * @param array     an array to hold values, or null
      * @return List of values from the named field
      */
     public double[] getDoubles(String fieldName, double[] array) {
@@ -203,7 +221,7 @@ public class Structure extends NativeObject {
             }
             return values;
         } else {
-            if (Double.class.isInstance(val)) {
+            if (val instanceof Double) {
                 double[] values = array == null || array.length != 1
                         ? new double[1] : array;
                 values[0] = ((Double) val);
@@ -222,7 +240,6 @@ public class Structure extends NativeObject {
     public int getFields() {
         return GSTSTRUCTURE_API.gst_structure_n_fields(this);
     }
-
 
     /**
      * Gets FOURCC field int representation
@@ -247,10 +264,10 @@ public class Structure extends NativeObject {
     public String getFourccString(String fieldName) {
         int f = getFourcc(fieldName);
         byte[] b = {(byte) ((f >> 0) & 0xff), (byte) ((f >> 8) & 0xff),
-            (byte) ((f >> 16) & 0xff), (byte) ((f >> 24) & 0xff)};
+                (byte) ((f >> 16) & 0xff), (byte) ((f >> 24) & 0xff)};
         return new String(b);
     }
-    
+
     /**
      * Get the value of the named field as a Fraction. Throws
      * {@link InvalidFieldException} if the Structure does not contain the named
@@ -267,6 +284,7 @@ public class Structure extends NativeObject {
         }
         return new Fraction(numerator[0], denominator[0]);
     }
+
     /**
      * Get the value of the named field as an int. Throws
      * {@link InvalidFieldException} if the Structure does not contain the named
@@ -306,6 +324,7 @@ public class Structure extends NativeObject {
     public int[] getIntegers(String fieldName) {
         return getIntegers(fieldName, null);
     }
+
     /**
      * Extract the values of the named field as an array of integers. If the
      * native GType of the field is a GValueArray then this method will return
@@ -323,7 +342,7 @@ public class Structure extends NativeObject {
      * - other native list types will be supported in future.
      *
      * @param fieldName name of field
-     * @param array an array to hold values, or null
+     * @param array     an array to hold values, or null
      * @return List of values from the named field
      */
     public int[] getIntegers(String fieldName, int[] array) {
@@ -343,7 +362,7 @@ public class Structure extends NativeObject {
             }
             return values;
         } else {
-            if (Integer.class.isInstance(val)) {
+            if (val instanceof Integer) {
                 int[] values = array == null || array.length != 1
                         ? new int[1] : array;
                 values[0] = ((Integer) val);
@@ -355,8 +374,17 @@ public class Structure extends NativeObject {
     }
 
     /**
-     * Sets the name of the structure to the given name.
+     * Get the name of @structure as a string.
      *
+     * @return The name of the structure.
+     */
+    public String getName() {
+        return GSTSTRUCTURE_API.gst_structure_get_name(this);
+    }
+
+    /**
+     * Sets the name of the structure to the given name.
+     * <p>
      * The name must not be empty, must start with a letter and can be followed
      * by letters, numbers and any of "/-_.:".
      *
@@ -366,15 +394,6 @@ public class Structure extends NativeObject {
         GSTSTRUCTURE_API.gst_structure_set_name(this, name);
     }
 
-    /**
-     * Get the name of @structure as a string.
-     *
-     * @return The name of the structure.
-     */
-    public String getName() {
-        return GSTSTRUCTURE_API.gst_structure_get_name(this);
-    }
-    
     /**
      * Get the @structure's ith field name as a string.
      *
@@ -400,6 +419,7 @@ public class Structure extends NativeObject {
         }
         return new Range(val);
     }
+
     /**
      * Get the value of the named field as a String.
      *
@@ -409,7 +429,7 @@ public class Structure extends NativeObject {
     public String getString(String fieldName) {
         return GSTSTRUCTURE_API.gst_structure_get_string(this, fieldName);
     }
-    
+
     /**
      * Get the value of the named field. Throws {@link InvalidFieldException} if
      * the Structure does not contain the named field.
@@ -419,7 +439,7 @@ public class Structure extends NativeObject {
      */
     public Object getValue(String fieldName) {
         GValue val = GSTSTRUCTURE_API.gst_structure_get_value(this, fieldName);
-        
+
         if (val == null) {
             throw new InvalidFieldException("Object", fieldName);
         }
@@ -442,7 +462,7 @@ public class Structure extends NativeObject {
      * GstValueList.
      *
      * @param <T>
-     * @param type type of values
+     * @param type      type of values
      * @param fieldName name of field
      * @return List of values from the named field
      */
@@ -456,7 +476,7 @@ public class Structure extends NativeObject {
         if (gType.equals(GSTVALUE_API.gst_value_list_get_type())) {
             int size = GSTVALUE_API.gst_value_list_get_size(gValue);
             ArrayList<T> values = new ArrayList<>(size);
-            for (int i = 0; i <size; i++) {
+            for (int i = 0; i < size; i++) {
                 Object o = GSTVALUE_API.gst_value_list_get_value(gValue, i).getValue();
                 if (type.isInstance(o)) {
                     values.add(type.cast(o));
@@ -490,7 +510,7 @@ public class Structure extends NativeObject {
             }
         }
     }
-    
+
     /**
      * Check if the {@link Structure} contains a double field named fieldName.
      *
@@ -510,7 +530,6 @@ public class Structure extends NativeObject {
     public boolean hasField(String fieldName) {
         return GSTSTRUCTURE_API.gst_structure_has_field(this, fieldName);
     }
-
 
     /**
      * Check if the {@link Structure} contains a field named fieldName.
@@ -545,6 +564,7 @@ public class Structure extends NativeObject {
     public boolean hasIntField(String fieldName) {
         return hasField(fieldName, GType.INT);
     }
+
     /**
      * Checks if the structure has the given name.
      *
@@ -554,6 +574,7 @@ public class Structure extends NativeObject {
     public boolean hasName(String name) {
         return GSTSTRUCTURE_API.gst_structure_has_name(this, name);
     }
+
     /**
      * Checks that two structures are equal
      *
@@ -583,20 +604,21 @@ public class Structure extends NativeObject {
     public void removeFields(String... fieldNames) {
         GSTSTRUCTURE_API.gst_structure_remove_fields(this, fieldNames);
     }
-    
+
     public void setDouble(String field, Double value) {
         GSTSTRUCTURE_API.gst_structure_set(this, field, GType.DOUBLE, value);
     }
-    
+
     public void setDoubleRange(String field, Double min, Double max) {
         GSTSTRUCTURE_API.gst_structure_set(this, field,
                 GSTVALUE_API.gst_double_range_get_type(), min, max);
     }
-    
+
     public void setFraction(String field, Integer numerator, Integer denominator) {
         GSTSTRUCTURE_API.gst_structure_set(this, field,
                 GSTVALUE_API.gst_fraction_get_type(), numerator, denominator);
     }
+
     /**
      * Sets an integer field in the structure.
      *
@@ -606,18 +628,18 @@ public class Structure extends NativeObject {
     public void setInteger(String field, Integer value) {
         GSTSTRUCTURE_API.gst_structure_set(this, field, GType.INT, value);
     }
-    
+
     public void setIntegerRange(String field, Integer min, Integer max) {
         GSTSTRUCTURE_API.gst_structure_set(this, field,
                 GSTVALUE_API.gst_int_range_get_type(), min, max);
     }
-    
+
     /**
      * Set an object field in the structure.
-     * 
-     * @param field the name of the field to set.
+     *
+     * @param field    the name of the field to set.
      * @param typeName a type into which the provided object could be coerced into.
-     * @param object the value to set for the field (must not be {@code null}).
+     * @param object   the value to set for the field (must not be {@code null}).
      */
     public void setObject(String field, String typeName, GObject object) {
         GType type = GType.valueOf(typeName);
@@ -643,6 +665,7 @@ public class Structure extends NativeObject {
     void setPointer(String field, Pointer value) {
         GSTSTRUCTURE_API.gst_structure_set(this, field, GType.POINTER, value);
     }
+
     void setValue(String field, GType type, Object value) {
         GSTSTRUCTURE_API.gst_structure_set(this, field, type, value);
     }
@@ -652,32 +675,6 @@ public class Structure extends NativeObject {
         return GSTSTRUCTURE_API.gst_structure_to_string(this);
     }
 
-    /**
-     * Creates a Structure from a string representation.
-     *
-     * @param data A string representation of a Structure.
-     * @return A new Structure or null when the string could not be parsed.
-     */
-    public static Structure fromString(String data) {
-        return new Structure(
-                new Handle(
-                        new GPointer(GSTSTRUCTURE_API.ptr_gst_structure_from_string(data, new PointerByReference()))
-                , true));
-    }
-    
-    static Structure objectFor(Pointer ptr, boolean needRef, boolean ownsHandle) {
-        return Natives.objectFor(ptr, Structure.class, needRef, ownsHandle);
-    }
-    
-    public class InvalidFieldException extends RuntimeException {
-        
-        private static final long serialVersionUID = 864118748304334069L;
-        
-        public InvalidFieldException(String type, String fieldName) {
-            super(String.format("Structure does not contain %s field '%s'", type, fieldName));
-        }
-    }
-    
     private static final class Handle extends NativeObject.Handle {
 
         public Handle(GPointer ptr, boolean ownsHandle) {
@@ -688,6 +685,15 @@ public class Structure extends NativeObject {
         protected void disposeNativeHandle(GPointer ptr) {
             GSTSTRUCTURE_API.gst_structure_free(ptr.getPointer());
         }
-        
+
+    }
+
+    public class InvalidFieldException extends RuntimeException {
+
+        private static final long serialVersionUID = 864118748304334069L;
+
+        public InvalidFieldException(String type, String fieldName) {
+            super(String.format("Structure does not contain %s field '%s'", type, fieldName));
+        }
     }
 }

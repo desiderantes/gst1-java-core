@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,183 +19,193 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
 
 import org.freedesktop.gstreamer.ElementFactory.ListType;
 import org.freedesktop.gstreamer.PluginFeature.Rank;
 import org.freedesktop.gstreamer.elements.DecodeBin;
 import org.freedesktop.gstreamer.elements.PlayBin;
 import org.freedesktop.gstreamer.elements.URIDecodeBin;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+
+import java.lang.ref.WeakReference;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *
  * @author wayne
  */
 @SuppressWarnings("deprecation")
 public class ElementFactoryTest {
-    
+
     public ElementFactoryTest() {
     }
-    
-    @BeforeClass
+
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("test", new String[] {});
+        Gst.init("test");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
-    
-    @Before
+
+    @BeforeEach
     public void setUp() throws Exception {
     }
-    
-    @After
+
+    @AfterEach
     public void tearDown() throws Exception {
     }
+
     @Test
     public void testMakeFakesink() {
         Element e = ElementFactory.make("fakesink", "sink");
-        assertNotNull("Failed to create fakesink", e);
+        assertNotNull(e, "Failed to create fakesink");
     }
+
     @Test
     public void testMakeFakesrc() {
         Element e = ElementFactory.make("fakesrc", "source");
-        assertNotNull("Failed to create fakesrc", e);
+        assertNotNull(e, "Failed to create fakesrc");
     }
+
     @Test
     public void testMakeFilesink() {
         Element e = ElementFactory.make("filesink", "sink");
-        assertNotNull("Failed to create filesink", e);
+        assertNotNull(e, "Failed to create filesink");
     }
+
     @Test
     public void testMakeFilesrc() {
         Element e = ElementFactory.make("filesrc", "source");
-        assertNotNull("Failed to create filesrc", e);
+        assertNotNull(e, "Failed to create filesrc");
     }
+
     @Test
     public void testMakeBin() {
         Element e = ElementFactory.make("bin", "bin");
-        assertNotNull("Failed to create bin", e);
-        assertTrue("Element not a subclass of Bin", e instanceof Bin);
+        assertNotNull(e, "Failed to create bin");
+        assertTrue(e instanceof Bin, "Element not a subclass of Bin");
     }
+
     @Test
     public void testMakePipeline() {
         Element e = ElementFactory.make(Pipeline.GST_NAME, "bin");
-        assertNotNull("Failed to create " + Pipeline.GST_NAME, e);
-        assertTrue("Element not a subclass of Bin", e instanceof Bin);
-        assertTrue("Element not a subclass of Pipeline", e instanceof Pipeline);
+        assertNotNull(e, "Failed to create " + Pipeline.GST_NAME);
+        assertTrue(e instanceof Bin, "Element not a subclass of Bin");
+        assertTrue(e instanceof Pipeline, "Element not a subclass of Pipeline");
     }
+
     @Test
     public void testMakePlaybin() {
         Element e = ElementFactory.make(PlayBin.GST_NAME, "bin");
-        assertNotNull("Failed to create " + PlayBin.GST_NAME, e);
-        assertTrue("Element not a subclass of Bin", e instanceof Bin);
-        assertTrue("Element not a subclass of Pipeline", e instanceof Pipeline);
-        assertTrue("Element not a subclass of PlayBin", e instanceof PlayBin);
+        assertNotNull(e, "Failed to create " + PlayBin.GST_NAME);
+        assertTrue(e instanceof Bin, "Element not a subclass of Bin");
+        assertTrue(e instanceof Pipeline, "Element not a subclass of Pipeline");
+        assertTrue(e instanceof PlayBin, "Element not a subclass of PlayBin");
     }
+
     @Test
     public void testMakeDecodeBin() {
         Element e = ElementFactory.make(DecodeBin.GST_NAME, "bin");
-        assertNotNull("Failed to create " + DecodeBin.GST_NAME, e);
-        assertTrue("Element not a subclass of Bin", e instanceof Bin);
-        assertTrue("Element not a subclass of DecodeBin", e instanceof DecodeBin);
+        assertNotNull(e, "Failed to create " + DecodeBin.GST_NAME);
+        assertTrue(e instanceof Bin, "Element not a subclass of Bin");
+        assertTrue(e instanceof DecodeBin, "Element not a subclass of DecodeBin");
     }
+
     @Test
     public void testMakeURIDecodeBin() {
         Element e = ElementFactory.make(URIDecodeBin.GST_NAME, "bin");
-        assertNotNull("Failed to create " + URIDecodeBin.GST_NAME, e);
-        assertTrue("Element not a subclass of Bin", e instanceof Bin);
-        assertTrue("Element not a subclass of DecodeBin", e instanceof URIDecodeBin);
+        assertNotNull(e, "Failed to create " + URIDecodeBin.GST_NAME);
+        assertTrue(e instanceof Bin, "Element not a subclass of Bin");
+        assertTrue(e instanceof URIDecodeBin, "Element not a subclass of DecodeBin");
     }
+
     @Test
     public void testCreateFakesrc() {
         ElementFactory factory = ElementFactory.find("fakesrc");
-        assertNotNull("Could not locate fakesrc factory", factory);
+        assertNotNull(factory, "Could not locate fakesrc factory");
         Element e = factory.create("source");
-        assertNotNull("Failed to create fakesrc", e);
+        assertNotNull(e, "Failed to create fakesrc");
     }
+
     @Test
     public void testCreateBin() {
         ElementFactory factory = ElementFactory.find("bin");
-        assertNotNull("Could not locate bin factory", factory);
+        assertNotNull(factory, "Could not locate bin factory");
         Element e = factory.create("bin");
-        assertNotNull("Failed to create bin", e);
-        assertTrue("Element not a subclass of Bin", e instanceof Bin);
+        assertNotNull(e, "Failed to create bin");
+        assertTrue(e instanceof Bin, "Element not a subclass of Bin");
     }
+
     @Test
     public void testCreatePipeline() {
         ElementFactory factory = ElementFactory.find("pipeline");
-        assertNotNull("Could not locate pipeline factory", factory);
+        assertNotNull(factory, "Could not locate pipeline factory");
         Element e = factory.create("bin");
-        assertNotNull("Failed to create pipeline", e);
-        assertTrue("Element not a subclass of Bin", e instanceof Bin);
-        assertTrue("Element not a subclass of Pipeline", e instanceof Pipeline);
+        assertNotNull(e, "Failed to create pipeline");
+        assertTrue(e instanceof Bin, "Element not a subclass of Bin");
+        assertTrue(e instanceof Pipeline, "Element not a subclass of Pipeline");
     }
+
     @Test
     public void testCreatePlaybin() {
         ElementFactory factory = ElementFactory.find("playbin");
-        assertNotNull("Could not locate pipeline factory", factory);
+        assertNotNull(factory, "Could not locate pipeline factory");
         System.out.println("PlayBin factory name=" + factory.getName());
         Element e = factory.create("bin");
-        assertNotNull("Failed to create playbin", e);
-        assertTrue("Element not a subclass of Bin", e instanceof Bin);
-        assertTrue("Element not a subclass of Pipeline", e instanceof Pipeline);
-        assertTrue("Element not a subclass of PlayBin", e instanceof PlayBin);
+        assertNotNull(e, "Failed to create playbin");
+        assertTrue(e instanceof Bin, "Element not a subclass of Bin");
+        assertTrue(e instanceof Pipeline, "Element not a subclass of Pipeline");
+        assertTrue(e instanceof PlayBin, "Element not a subclass of PlayBin");
     }
+
     @Test
     public void testGarbageCollection() throws Throwable {
         ElementFactory factory = ElementFactory.find("fakesrc");
-        assertNotNull("Could not locate fakesrc factory", factory);
+        assertNotNull(factory, "Could not locate fakesrc factory");
         WeakReference<ElementFactory> ref = new WeakReference<ElementFactory>(factory);
         factory = null;
-        assertTrue("Factory not garbage collected", GCTracker.waitGC(ref));
+        assertTrue(GCTracker.waitGC(ref), "Factory not garbage collected");
     }
+
     @Test
     public void testMakeGarbageCollection() throws Throwable {
         Element e = ElementFactory.make("fakesrc", "test");
         WeakReference<Element> ref = new WeakReference<Element>(e);
         e = null;
-        assertTrue("Element not garbage collected", GCTracker.waitGC(ref));
-        
+        assertTrue(GCTracker.waitGC(ref), "Element not garbage collected");
+
     }
+
     @Test
     public void testCreateGarbageCollection() throws Throwable {
         ElementFactory factory = ElementFactory.find("fakesrc");
-        assertNotNull("Could not locate fakesrc factory", factory);
+        assertNotNull(factory, "Could not locate fakesrc factory");
         Element e = factory.create("bin");
         WeakReference<Element> ref = new WeakReference<Element>(e);
         e = null;
-        assertTrue("Element not garbage collected", GCTracker.waitGC(ref));
+        assertTrue(GCTracker.waitGC(ref), "Element not garbage collected");
     }
+
     @Test
     public void getStaticPadTemplates() {
         ElementFactory f = ElementFactory.find("fakesink");
         List<StaticPadTemplate> templates = f.getStaticPadTemplates();
-        assertTrue("No static pad templates found", !templates.isEmpty());
+        assertFalse(templates.isEmpty(), "No static pad templates found");
         StaticPadTemplate t = templates.get(0);
-        assertEquals("Not a sink", "sink", t.getName());
-        assertEquals("Not a sink", PadDirection.SINK, t.getDirection());
+        assertEquals("sink", t.getName(), "Not a sink");
+        assertEquals(PadDirection.SINK, t.getDirection(), "Not a sink");
     }
 
     @Test
     public void listGetElement() {
         List<ElementFactory> list = ElementFactory.listGetElements(ListType.ANY,
                 Rank.NONE);
-        assertNotNull("List of factories is null", list);
-        assertTrue("No factories found", !list.isEmpty());
+        assertNotNull(list, "List of factories is null");
+        assertFalse(list.isEmpty(), "No factories found");
 //        System.out.println("Factories >>>");
 //        for (ElementFactory fact : list) {
 //            System.out.println(fact.getName());
@@ -225,8 +235,8 @@ public class ElementFactoryTest {
     public void filterList2() {
         List<ElementFactory> list = ElementFactory.listGetElementsFilter(ListType.ENCODER, Rank.NONE, new Caps("video/x-h263"),
                 PadDirection.SRC, false);
-        assertNotNull("List of factories is null", list);
-        assertTrue("No factories found", !list.isEmpty());
+        assertNotNull(list, "List of factories is null");
+        assertFalse(list.isEmpty(), "No factories found");
 
 //        System.out.println("Factories >>>");
 //        for (ElementFactory fact : list) {
@@ -234,7 +244,7 @@ public class ElementFactoryTest {
 //        }
 //        System.out.println("<<<");
     }
-    
+
     @Test
     public void testMetaData() {
         ElementFactory f = ElementFactory.find("fakesink");
@@ -242,10 +252,10 @@ public class ElementFactoryTest {
         String longName = f.getLongName();
         String description = f.getDescription();
         String author = f.getAuthor();
-        assertNotNull("Klass is null", klass);
-        assertNotNull("Long name is null", longName);
-        assertNotNull("Description is null", description);
-        assertNotNull("Author is null", author);
+        assertNotNull(klass, "Klass is null");
+        assertNotNull(longName, "Long name is null");
+        assertNotNull(description, "Description is null");
+        assertNotNull(author, "Author is null");
         System.out.println("FakeSink MetaData");
         System.out.println("Klass : " + f.getKlass());
         System.out.println("Long Name : " + f.getLongName());

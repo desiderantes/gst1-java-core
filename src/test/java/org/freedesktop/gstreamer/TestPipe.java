@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007, 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -33,17 +33,19 @@ class TestPipe {
     public TestPipe() {
         this(getInvokingMethod());
     }
+
+    public TestPipe(String name) {
+        this.name = name;
+        pipe.addMany(src, sink);
+        Element.linkMany(src, sink);
+    }
+
     private static String getInvokingMethod() {
         try {
             throw new Exception();
         } catch (Exception ex) {
             return ex.getStackTrace()[2].getMethodName();
         }
-    }
-    public TestPipe(String name) {
-        this.name = name;
-        pipe.addMany(src, sink);
-        Element.linkMany(src, sink);
     }
 
     public TestPipe run() {

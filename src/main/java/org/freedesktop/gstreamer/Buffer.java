@@ -22,23 +22,22 @@
  */
 package org.freedesktop.gstreamer;
 
-import static org.freedesktop.gstreamer.lowlevel.GstBufferAPI.GSTBUFFER_API;
-
-import java.nio.ByteBuffer;
-
-import org.freedesktop.gstreamer.lowlevel.GstBufferAPI;
-import org.freedesktop.gstreamer.lowlevel.GstBufferAPI.BufferStruct;
-import org.freedesktop.gstreamer.lowlevel.GstBufferAPI.MapInfoStruct;
-
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import org.freedesktop.gstreamer.glib.NativeFlags;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GType;
+import org.freedesktop.gstreamer.lowlevel.GstBufferAPI;
+import org.freedesktop.gstreamer.lowlevel.GstBufferAPI.BufferStruct;
+import org.freedesktop.gstreamer.lowlevel.GstBufferAPI.MapInfoStruct;
 import org.freedesktop.gstreamer.lowlevel.GstMetaPtr;
+
+import java.nio.ByteBuffer;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import static org.freedesktop.gstreamer.lowlevel.GstBufferAPI.GSTBUFFER_API;
 
 /**
  * Buffers are the basic unit of data transfer in GStreamer. They contain the
@@ -147,7 +146,7 @@ public class Buffer extends MiniObject {
      * Set the decode timestamp of the Buffer
      *
      * @param val a long representing the timestamp or
-     * {@link ClockTime#NONE} when the timestamp is not known or relevant.
+     *            {@link ClockTime#NONE} when the timestamp is not known or relevant.
      */
     public void setDecodeTimestamp(long val) {
         this.struct.writeField("dts", val);
@@ -169,7 +168,7 @@ public class Buffer extends MiniObject {
      * Set the presentation timestamp of the Buffer
      *
      * @param val a long representing the timestamp or
-     * {@link ClockTime#NONE} when the timestamp is not known or relevant.
+     *            {@link ClockTime#NONE} when the timestamp is not known or relevant.
      */
     public void setPresentationTimestamp(long val) {
         this.struct.writeField("pts", val);
@@ -189,7 +188,7 @@ public class Buffer extends MiniObject {
      * Set the duration of this buffer.
      *
      * @param val a long representing the duration or
-     * {@link ClockTime#NONE} when the timestamp is not known or relevant.
+     *            {@link ClockTime#NONE} when the timestamp is not known or relevant.
      */
     public void setDuration(long val) {
         this.struct.writeField("duration", val);
@@ -211,9 +210,9 @@ public class Buffer extends MiniObject {
      * Set the offset (media-specific) of this buffer
      *
      * @param val a media specific offset for the buffer data. For video frames,
-     * this is the frame number of this buffer. For audio samples, this is the
-     * offset of the first sample in this buffer. For file data or compressed
-     * data this is the byte offset of the first byte in this buffer.
+     *            this is the frame number of this buffer. For audio samples, this is the
+     *            offset of the first sample in this buffer. For file data or compressed
+     *            data this is the byte offset of the first byte in this buffer.
      */
     public void setOffset(long val) {
         this.struct.writeField("offset", val);
@@ -235,9 +234,9 @@ public class Buffer extends MiniObject {
      * Set the offset (media-specific) of this buffer
      *
      * @param val a media specific offset for the buffer data. For video frames,
-     * this is the frame number of this buffer. For audio samples, this is the
-     * offset of the first sample in this buffer. For file data or compressed
-     * data this is the byte offset of the first byte in this buffer.
+     *            this is the frame number of this buffer. For audio samples, this is the
+     *            offset of the first sample in this buffer. For file data or compressed
+     *            data this is the byte offset of the first byte in this buffer.
      */
     public void setOffsetEnd(long val) {
         this.struct.writeField("offset_end", val);
@@ -277,10 +276,10 @@ public class Buffer extends MiniObject {
         }
         return Natives.objectFor(ptr, api.getImplClass(), false, false);
     }
-    
+
     /**
      * Iterate all Meta on buffer.
-     * 
+     *
      * @return iterator of meta
      */
     public Iterator<Meta> iterateMeta() {
@@ -345,7 +344,6 @@ public class Buffer extends MiniObject {
      *
      * @param flags an EnumSet of {@link BufferFlags} to be cleared on the buffer.
      * @return true if flags were successfully cleared on this buffer
-     *
      */
     @Gst.Since(minor = 10)
     public boolean unsetFlags(EnumSet<BufferFlags> flags) {
@@ -371,7 +369,7 @@ public class Buffer extends MiniObject {
             }
             return next != null;
         }
-        
+
         @Override
         public Meta next() {
             if (!hasNext() || next == null) {

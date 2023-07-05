@@ -1,8 +1,8 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ import org.freedesktop.gstreamer.Element;
  * <p>
  */
 public class BaseSrc extends Element {
-    
+
     public static final String GTYPE_NAME = "GstBaseSrc";
 
     protected BaseSrc(Initializer init) {
@@ -40,7 +40,7 @@ public class BaseSrc extends Element {
     // @TODO review - all properties are available by set / get mechanism
     // some other methods require the stream lock, but we don't have a way to
     // access. Methods for subclasses should probably be protected.
-    
+
 //    public FlowReturn waitPlaying() {
 //    	return gst().gst_base_src_wait_playing(this);
 //    }

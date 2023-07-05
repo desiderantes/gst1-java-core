@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 2019 Christophe Lafolet
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -88,8 +88,8 @@ public class Context extends MiniObject {
      * Access the structure of the context.
      *
      * @return The structure of this context. The structure is still owned by this
-     *         context, which means that you should not modify it and not dispose of
-     *         it.
+     * context, which means that you should not modify it and not dispose of
+     * it.
      */
     public Structure getStructure() {
         return GstContextAPI.GSTCONTEXT_API.gst_context_get_structure(handle.getPointer());
@@ -99,7 +99,7 @@ public class Context extends MiniObject {
      * Get a writable version of the structure.
      *
      * @return The structure of this context. The structure is still owned by the
-     *         context, which means that you should not dispose of it.
+     * context, which means that you should not dispose of it.
      */
     public Structure getWritableStructure() {
         return GstContextAPI.GSTCONTEXT_API.gst_context_writable_structure(handle.getPointer());

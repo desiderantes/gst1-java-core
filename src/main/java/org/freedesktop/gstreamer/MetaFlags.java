@@ -20,7 +20,7 @@ package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.glib.NativeFlags;
 
- /**
+/**
  * See upstream documentation at
  * <a href="https://gstreamer.freedesktop.org/documentation/gstreamer/gstmeta.html#GstMetaFlags"
  * >https://gstreamer.freedesktop.org/documentation/gstreamer/gstmeta.html#GstMetaFlags</a>

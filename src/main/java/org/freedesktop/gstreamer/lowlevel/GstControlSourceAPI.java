@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -24,17 +24,18 @@ import com.sun.jna.Structure;
 
 /**
  * GstControlSource API
- *
+ * <p>
  * https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstControlBinding.html
  * https://gitlab.freedesktop.org/gstreamer/gstreamer/tree/master/libs/gst/controller
  */
 
 public interface GstControlSourceAPI extends Library {
 
-    GstControlSourceAPI GSTCONTROLSOURCE_API = GstNative.load(GstControlSourceAPI.class);    
+    GstControlSourceAPI GSTCONTROLSOURCE_API = GstNative.load(GstControlSourceAPI.class);
 
 
     boolean gst_control_source_get_value(GstControlSourcePtr self, long timestamp, double[] value);
+
     boolean gst_control_source_get_value_array(GstControlSourcePtr self, long timestamp, long interval, int n_values, double[] values);
 
 //    static class Direct implements GstControlSourceAPI {
@@ -48,21 +49,20 @@ public interface GstControlSourceAPI extends Library {
 //    }
 
     @Structure.FieldOrder({"timestamp", "value"})
-    public static final class GstTimedValue extends Structure {
-        
+    final class GstTimedValue extends Structure {
+
         public volatile long timestamp;
         public volatile double value;
-        
+
         public GstTimedValue() {
             super();
         }
-        
+
         public GstTimedValue(Pointer ptr) {
             super(ptr);
         }
-        
-    } 
-    
-    
+
+    }
+
 
 }

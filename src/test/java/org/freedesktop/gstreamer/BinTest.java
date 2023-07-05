@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -20,48 +20,39 @@
 package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.glib.GError;
-import java.util.ArrayList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.freedesktop.gstreamer.lowlevel.GstBinAPI;
+import org.freedesktop.gstreamer.lowlevel.GstPipelineAPI;
+import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.freedesktop.gstreamer.lowlevel.GstBinAPI;
-import org.freedesktop.gstreamer.lowlevel.GstPipelineAPI;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *
  * @author wayne
  */
-public class BinTest {    
+public class BinTest {
     public BinTest() {
     }
-    
-    @BeforeClass
+
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("BinTest", new String[] {});
+        Gst.init("BinTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
-    
-    @Before
+
+    @BeforeEach
     public void setUp() throws Exception {
     }
-    
-    @After
+
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -72,117 +63,112 @@ public class BinTest {
         Element e2 = ElementFactory.make("fakesink", "sink");
         bin.addMany(e1, e2);
         List<Element> elements = bin.getElements();
-        assertFalse("Bin returned empty list from getElements", elements.isEmpty());
-        assertTrue("Element list does not contain e1", elements.contains(e1));
-        assertTrue("Element list does not contain e2", elements.contains(e2));
+        assertFalse(elements.isEmpty(), "Bin returned empty list from getElements");
+        assertTrue(elements.contains(e1), "Element list does not contain e1");
+        assertTrue(elements.contains(e2), "Element list does not contain e2");
     }
+
     @Test
-    public void testGetSinks() throws Exception {
+    public void testGetSinks() {
         Bin bin = new Bin("test");
         Element e1 = ElementFactory.make("fakesrc", "source");
         Element e2 = ElementFactory.make("fakesink", "sink");
         bin.addMany(e1, e2);
         List<Element> elements = bin.getSinks();
-        assertFalse("Bin returned empty list from getElements", elements.isEmpty());
-        assertTrue("Element list does not contain sink", elements.contains(e2));
+        assertFalse(elements.isEmpty(), "Bin returned empty list from getElements");
+        assertTrue(elements.contains(e2), "Element list does not contain sink");
     }
-    
+
     @Test
-    public void testGetSources() throws Exception {
+    public void testGetSources() {
         Bin bin = new Bin("test");
         Element e1 = ElementFactory.make("fakesrc", "source");
         Element e2 = ElementFactory.make("fakesink", "sink");
         bin.addMany(e1, e2);
         List<Element> elements = bin.getSources();
-        assertFalse("Bin returned empty list from getElements", elements.isEmpty());
-        assertTrue("Element list does not contain source", elements.contains(e1));
+        assertFalse(elements.isEmpty(), "Bin returned empty list from getElements");
+        assertTrue(elements.contains(e1), "Element list does not contain source");
     }
+
     @Test
-    public void testGetElementByName() throws Exception {
+    public void testGetElementByName() {
         Bin bin = new Bin("test");
         Element e1 = ElementFactory.make("fakesrc", "source");
         Element e2 = ElementFactory.make("fakesink", "sink");
         bin.addMany(e1, e2);
-        
-        assertEquals("source not returned", e1, bin.getElementByName("source"));
-        assertEquals("sink not returned", e2, bin.getElementByName("sink"));
+
+        assertEquals(e1, bin.getElementByName("source"), "source not returned");
+        assertEquals(e2, bin.getElementByName("sink"), "sink not returned");
     }
-    
+
     @Test
-    public void testElementAddedCallback() throws Exception {
+    public void testElementAddedCallback() {
         Bin bin = new Bin("test");
         final Element e1 = ElementFactory.make("fakesrc", "source");
         final Element e2 = ElementFactory.make("fakesink", "sink");
         final AtomicInteger added = new AtomicInteger(0);
-        
-        bin.connect(new Bin.ELEMENT_ADDED() {
-            public void elementAdded(Bin bin, Element elem) {
-                if (elem == e1 || elem == e2) {
-                    added.incrementAndGet();
-                }
+
+        bin.connect((Bin.ELEMENT_ADDED) (bin1, elem) -> {
+            if (elem == e1 || elem == e2) {
+                added.incrementAndGet();
             }
         });
         bin.addMany(e1, e2);
-        
-        assertEquals("Callback not called", 2, added.get());
+
+        assertEquals(2, added.get(), "Callback not called");
     }
+
     @Test
     public void testElementRemovedCallback() {
         Bin bin = new Bin("test");
         final Element e1 = ElementFactory.make("fakesrc", "source");
         final Element e2 = ElementFactory.make("fakesink", "sink");
         final AtomicInteger removed = new AtomicInteger(0);
-        
-        bin.connect(new Bin.ELEMENT_ADDED() {
-            public void elementAdded(Bin bin, Element elem) {
-                if (elem == e1 || elem == e2) {
-                    removed.incrementAndGet();
-                }
+
+        bin.connect((Bin.ELEMENT_ADDED) (bin1, elem) -> {
+            if (elem == e1 || elem == e2) {
+                removed.incrementAndGet();
             }
         });
         bin.addMany(e1, e2);
-        
-        assertEquals("Callback not called", 2, removed.get());
+
+        assertEquals(2, removed.get(), "Callback not called");
     }
-    @Test 
+
+    @Test
     public void addLinked()
-        throws PadLinkException
-    {
+            throws PadLinkException {
         /* adding an element with linked pads to a bin unlinks the pads */
         Pipeline pipeline = new Pipeline((String) null);
-        assertNotNull("Could not create pipeline", pipeline);
+        assertNotNull(pipeline, "Could not create pipeline");
 
         Element src = ElementFactory.make("fakesrc", null);
-        assertNotNull("Could not create fakesrc", src);
+        assertNotNull(src, "Could not create fakesrc");
         Element sink = ElementFactory.make("fakesink", null);
-        assertNotNull("Could not create fakesink", sink);
+        assertNotNull(sink, "Could not create fakesink");
 
         Pad srcpad = src.getStaticPad("src");
-        assertNotNull("Could not get src pad", srcpad);
+        assertNotNull(srcpad, "Could not get src pad");
         Pad sinkpad = sink.getStaticPad("sink");
-        assertNotNull("Could not get sink pad", sinkpad);
-        
+        assertNotNull(sinkpad, "Could not get sink pad");
+
         srcpad.link(sinkpad);
 
         /* pads are linked now */
-        assertTrue("srcpad not linked", srcpad.isLinked());
-        assertTrue("sinkpad not linked", sinkpad.isLinked());
-        
+        assertTrue(srcpad.isLinked(), "srcpad not linked");
+        assertTrue(sinkpad.isLinked(), "sinkpad not linked");
+
         /* adding element to bin voids hierarchy so pads are unlinked */
         pipeline.add(src);
 
         /* check if pads really are unlinked */
-        assertFalse("srcpad is still linked after being added to bin", srcpad.isLinked());
-        assertFalse("sinkpad is still linked after being added to bin", sinkpad.isLinked());
-        
+        assertFalse(srcpad.isLinked(), "srcpad is still linked after being added to bin");
+        assertFalse(sinkpad.isLinked(), "sinkpad is still linked after being added to bin");
+
         /* cannot link pads in wrong hierarchy */
-        try {
-            srcpad.link(sinkpad);
-            fail("Should not be able to link pads in different hierarchy");
-        } catch (PadLinkException e) {
-            assertEquals("Should not be able to link pads in different hierarchy",
-                PadLinkReturn.WRONG_HIERARCHY, e.getLinkResult());
-        }
+        assertThrows(PadLinkException.class, () ->
+                        srcpad.link(sinkpad)
+                , "Should not be able to link pads in different hierarchy");
 
         /* adding other element to bin as well */
         pipeline.add(sink);
@@ -191,12 +177,17 @@ public class BinTest {
         srcpad.link(sinkpad);
 
         /* check if pads really are linked */
-        assertTrue("srcpad not linked", srcpad.isLinked());
-        assertTrue("sinkpad not linked", sinkpad.isLinked());
-        
+        assertTrue(srcpad.isLinked(), "srcpad not linked");
+        assertTrue(sinkpad.isLinked(), "sinkpad not linked");
+
         // Force disposal to flush out any refcounting bugs.
-        pipeline.dispose(); src.dispose(); sink.dispose(); srcpad.dispose(); sinkpad.dispose();
+        pipeline.dispose();
+        src.dispose();
+        sink.dispose();
+        srcpad.dispose();
+        sinkpad.dispose();
     }
+
     @Test
     public void addSelf() {
         Bin bin = new Bin("");
@@ -204,120 +195,131 @@ public class BinTest {
         //assertFalse("Should not be able to add bin to itself", bin.add(bin));
         bin.dispose();
     }
+
     // This test doesn't work correctly on older gstreamer?
     //@Test 
     public void iterateSorted() {
         Pipeline pipeline = GstPipelineAPI.GSTPIPELINE_API.gst_pipeline_new(null);
-        assertNotNull("Failed to create Pipeline", pipeline);
+        assertNotNull(pipeline, "Failed to create Pipeline");
         Bin bin = GstBinAPI.GSTBIN_API.gst_bin_new(null);
-        assertNotNull("Failed to create bin", bin);
+        assertNotNull(bin, "Failed to create bin");
 
         Element src = ElementFactory.make("fakesrc", null);
-        assertNotNull("Failed to create fakesrc", src);
+        assertNotNull(src, "Failed to create fakesrc");
 
         Element tee = ElementFactory.make("tee", null);
-        assertNotNull("Failed to create tee", tee);
+        assertNotNull(tee, "Failed to create tee");
 
         Element sink1 = ElementFactory.make("fakesink", null);
-        assertNotNull("Failed to create fakesink", sink1);
+        assertNotNull(sink1, "Failed to create fakesink");
 
         bin.addMany(src, tee, sink1);
-        assertTrue("Could not link fakesrc to tee", src.link(tee));
-        assertTrue("Could not link tee to fakesink", tee.link(sink1));
+        assertTrue(src.link(tee), "Could not link fakesrc to tee");
+        assertTrue(tee.link(sink1), "Could not link tee to fakesink");
 
         Element identity = ElementFactory.make("identity", null);
-        assertNotNull("Failed to create identity", identity);
-        
+        assertNotNull(identity, "Failed to create identity");
+
 
         Element sink2 = ElementFactory.make("fakesink", null);
-        assertNotNull("Failed to create fakesink", sink2);
+        assertNotNull(sink2, "Failed to create fakesink");
         pipeline.addMany(bin, identity, sink2);
 //  gst_bin_add_many (GST_BIN (pipeline), bin, identity, sink2, NULL);
-        assertTrue("Could not link tee to identity", tee.link(identity));
-        assertTrue("Could not link identity to second fakesink", identity.link(sink2));
+        assertTrue(tee.link(identity), "Could not link tee to identity");
+        assertTrue(identity.link(sink2), "Could not link identity to second fakesink");
         Iterator<Element> it = pipeline.getElementsSorted().iterator();
-        
-        assertEquals("First sorted element should be sink2", sink2, it.next());
-        assertEquals("Second sorted element should be identity", identity, it.next());
-        assertEquals("Third sorted element should be bin", bin, it.next());
+
+        assertEquals(sink2, it.next(), "First sorted element should be sink2");
+        assertEquals(identity, it.next(), "Second sorted element should be identity");
+        assertEquals(bin, it.next(), "Third sorted element should be bin");
         pipeline.dispose();
     }
-    
+
     @Test
     public void testParseBin() {
         ArrayList<GError> errors = new ArrayList<GError>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
-        assertNotNull("Bin not created", bin);
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
-    }   
+        assertNotNull(bin, "Bin not created");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
+    }
+
     @Test
     public void testParseBinElementCount() {
         ArrayList<GError> errors = new ArrayList<GError>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
-        assertEquals("Number of elements in pipeline incorrect", 2, bin.getElements().size());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        assertEquals(2, bin.getElements().size(), "Number of elements in pipeline incorrect");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinSrcElement() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
-        assertEquals("First element not a fakesrc", "fakesrc", bin.getSources().get(0).getFactory().getName());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
+        assertEquals("fakesrc", bin.getSources().get(0).getFactory().getName(), "First element not a fakesrc");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinSinkElement() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
-        assertEquals("First element not a fakesink", "fakesink", bin.getSinks().get(0).getFactory().getName());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
+        assertEquals("fakesink", bin.getSinks().get(0).getFactory().getName(), "First element not a fakesink");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinDisabledGhostPadsForSource() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesrc", false, errors);
-    	assertEquals("Number of src pads incorrect", 0, bin.getSrcPads().size());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesrc", false, errors);
+        assertEquals(0, bin.getSrcPads().size(), "Number of src pads incorrect");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinDisabledGhostPadsForSink() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesink", false, errors);
-    	assertEquals("Number of sink pads incorrect", 0, bin.getSinkPads().size());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesink", false, errors);
+        assertEquals(0, bin.getSinkPads().size(), "Number of sink pads incorrect");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinEnabledGhostPadsForSource() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesrc", true, errors);
-    	assertEquals("Number of src pads incorrect", 1, bin.getSrcPads().size());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesrc", true, errors);
+        assertEquals(1, bin.getSrcPads().size(), "Number of src pads incorrect");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinEnabledGhostPadsForSink() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesink", true, errors);
-    	assertEquals("Number of sink pads incorrect", 1, bin.getSinkPads().size());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesink", true, errors);
+        assertEquals(1, bin.getSinkPads().size(), "Number of sink pads incorrect");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinEnabledGhostPadsForSourceWithNoUsablePads() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
-    	assertEquals("Number of src pads incorrect", 0, bin.getSrcPads().size());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
+        assertEquals(0, bin.getSrcPads().size(), "Number of src pads incorrect");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinEnabledGhostPadsForSinkWithNoUsablePads() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
-    	assertEquals("Number of sink pads incorrect", 0, bin.getSinkPads().size());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
+        assertEquals(0, bin.getSinkPads().size(), "Number of sink pads incorrect");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
+
     @Test
     public void testParseBinEnabledGhostPadsWithNoUsablePads() {
         ArrayList<GError> errors = new ArrayList<GError>();
-    	Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
-    	assertEquals("Number of pads incorrect", 0, bin.getPads().size());
-        assertEquals("parseBinFromDescription with error!", errors.size(), 0);
+        Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
+        assertEquals(0, bin.getPads().size(), "Number of pads incorrect");
+        assertEquals(0, errors.size(), "parseBinFromDescription with error!");
     }
 }

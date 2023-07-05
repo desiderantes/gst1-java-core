@@ -19,16 +19,15 @@
  */
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+
+import org.freedesktop.gstreamer.elements.AppSink;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import org.freedesktop.gstreamer.elements.AppSink;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Utility class for unit testing API that operates on a Sample.
@@ -49,10 +48,10 @@ public class SampleTester {
     }
 
     public static void test(Consumer<Sample> callback, String pipelineDescription, int skipFrames) {
-        assertNotNull("Pipeline description can not be null", pipelineDescription);
-        assertFalse("Pipeline description can not be empty", pipelineDescription.isEmpty());
+        assertNotNull(pipelineDescription, "Pipeline description can not be null");
+        assertFalse(pipelineDescription.isEmpty(), "Pipeline description can not be empty");
         Pipeline pipe = (Pipeline) Gst.parseLaunch(pipelineDescription);
-        assertNotNull("Unable to create Pipeline from pipeline description: ", pipe);
+        assertNotNull(pipe, "Unable to create Pipeline from pipeline description: ");
 
         AppSink appSink = (AppSink) pipe.getElementByName("myappsink");
         appSink.set("emit-signals", true);

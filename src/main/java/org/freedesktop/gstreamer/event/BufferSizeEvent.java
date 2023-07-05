@@ -1,10 +1,10 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wim.taymans@chello.be>
  *                    2005 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -55,10 +55,10 @@ public class BufferSizeEvent extends Event {
      * <p>
      * When the <tt>async</tt> flag is set, a thread boundary is preferred.
      *
-     * @param format buffer format
+     * @param format  buffer format
      * @param minsize minimum buffer size
      * @param maxsize maximum buffer size
-     * @param async thread behaviour
+     * @param async   thread behaviour
      */
     public BufferSizeEvent(Format format, long minsize, long maxsize, boolean async) {
         super(Natives.initializer(GSTEVENT_API.ptr_gst_event_new_buffer_size(format, minsize, maxsize, async)));

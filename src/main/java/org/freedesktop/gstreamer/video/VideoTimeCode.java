@@ -27,7 +27,7 @@ import org.freedesktop.gstreamer.lowlevel.GstVideoAPI.GstVideoTimeCodeStruct;
 
 /**
  * A representation of a SMPTE time code.
- *
+ * <p>
  * See <a href="https://gstreamer.freedesktop.org/documentation/video/gstvideotimecode.html"
  * >https://gstreamer.freedesktop.org/documentation/video/gstvideotimecode.html</a>
  */
@@ -44,7 +44,7 @@ public class VideoTimeCode extends NativeObject {
     VideoTimeCode(GstVideoTimeCodeStruct struct) {
         this(struct, new Handle(new GPointer(struct.getPointer()), false));
     }
-    
+
     private VideoTimeCode(GstVideoTimeCodeStruct struct, Handle handle) {
         super(handle);
         this.timeCodeStruct = struct;
@@ -102,7 +102,7 @@ public class VideoTimeCode extends NativeObject {
         super.disown();
     }
 
-    private static final class Handle extends NativeObject.Handle{
+    private static final class Handle extends NativeObject.Handle {
 
         /**
          * Construct a Handle for the supplied native reference.
@@ -123,7 +123,7 @@ public class VideoTimeCode extends NativeObject {
         protected GPointer getPointer() {
             return super.getPointer();
         }
-        
-        
+
+
     }
 }

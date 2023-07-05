@@ -18,12 +18,7 @@
  */
 package org.freedesktop.gstreamer.webrtc;
 
-import org.freedesktop.gstreamer.Bin;
-import org.freedesktop.gstreamer.Element;
-import org.freedesktop.gstreamer.Gst;
-import org.freedesktop.gstreamer.Promise;
-import org.freedesktop.gstreamer.Structure;
-
+import org.freedesktop.gstreamer.*;
 import org.freedesktop.gstreamer.glib.NativeEnum;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 
@@ -33,9 +28,7 @@ import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
  * browsers
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
- *
- * @see
- * https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad/blob/master/ext/webrtc/gstwebrtcbin.c
+ * @see https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad/blob/master/ext/webrtc/gstwebrtcbin.c
  * available since Gstreamer 1.14
  */
 @Gst.Since(minor = 14)
@@ -50,54 +43,6 @@ public class WebRTCBin extends Bin {
 
     public WebRTCBin(String name) {
         super(makeRawElement(GST_NAME, name));
-    }
-
-    /**
-     * Signal emitted when this {@link WebRTCBin} is ready to do negotiation to
-     * setup a WebRTC connection Good starting point to have the WebRTCBin send
-     * an offer to potential clients
-     */
-    public static interface ON_NEGOTIATION_NEEDED {
-
-        /**
-         * @param elem the original webrtc bin that had the callback attached to
-         */
-        public void onNegotiationNeeded(Element elem);
-    }
-
-    /*
-     * Signal emmited when this {@link WebRTCBin} gets a new ice candidate
-     */
-    public static interface ON_ICE_CANDIDATE {
-
-        /**
-         * @param sdpMLineIndex the zero-based index of the m-line attribute
-         * within the SDP to which the candidate should be associated to
-         * @param candidate the ICE candidate
-         */
-        public void onIceCandidate(int sdpMLineIndex, String candidate);
-    }
-
-    /**
-     * Signal emitted when this {@link WebRTCBin} creates an offer
-     */
-    public static interface CREATE_OFFER {
-
-        /**
-         * @param a @WebRTCSessionDescription of the offer
-         */
-        public void onOfferCreated(WebRTCSessionDescription offer);
-    }
-
-    /**
-     * Signal emitted when this {@link WebRTCBin} creates an answer
-     */
-    public static interface CREATE_ANSWER {
-
-        /**
-         * @param a @WebRTCSessionDescription of the answer
-         */
-        public void onAnswerCreated(WebRTCSessionDescription answer);
     }
 
     /**
@@ -178,43 +123,20 @@ public class WebRTCBin extends Bin {
      * Adds a remote ice candidate to the bin
      *
      * @param sdpMLineIndex the zero-based index of the m-line attribute within
-     * the SDP to which the candidate should be associated to
-     * @param candidate the ICE candidate
+     *                      the SDP to which the candidate should be associated to
+     * @param candidate     the ICE candidate
      */
     public void addIceCandidate(int sdpMLineIndex, String candidate) {
         emit("add-ice-candidate", sdpMLineIndex, candidate);
     }
 
     /**
-     * Sets the local description for the WebRTC connection. Should be called
-     * after {@link #createOffer} or {@link #createAnser} is called.
+     * Retrieves the STUN server that is used.
      *
-     * @param description the {@link WebRTCSessionDescription} to set for the
-     * local description
+     * @return the url for the STUN server
      */
-    public void setLocalDescription(WebRTCSessionDescription description) {
-        Promise promise = new Promise();
-        // the raw WebRTCBin element gets ownership of the description so it must be disown in order to prevent it from being deallocated
-        description.disown();
-        emit("set-local-description", description, promise);
-        promise.interrupt();
-        promise.dispose();
-    }
-
-    /**
-     * Sets the remote description for the WebRTC connection. Shoud be called
-     * after receiving an offer or answer from other clients.
-     *
-     * @param description the {@link WebRTCSessionDescription} to set for the
-     * remote description
-     */
-    public void setRemoteDescription(WebRTCSessionDescription description) {
-        Promise promise = new Promise();
-        // the raw WebRTCBin element gets ownership of the description so it must be disown in order to prevent it from being deallocated
-        description.disown();
-        emit("set-remote-description", description, promise);
-        promise.interrupt();
-        promise.dispose();
+    public String getStunServer() {
+        return (String) get("stun-server");
     }
 
     /**
@@ -228,12 +150,12 @@ public class WebRTCBin extends Bin {
     }
 
     /**
-     * Retrieves the STUN server that is used.
+     * Retrieves the TURN server that is used.
      *
-     * @return the url for the STUN server
+     * @return the url for the TURN server
      */
-    public String getStunServer() {
-        return (String) get("stun-server");
+    public String getTurnServer() {
+        return (String) get("turn-server");
     }
 
     /**
@@ -245,15 +167,6 @@ public class WebRTCBin extends Bin {
      */
     public void setTurnServer(String server) {
         set("turn-server", server);
-    }
-
-    /**
-     * Retrieves the TURN server that is used.
-     *
-     * @return the url for the TURN server
-     */
-    public String getTurnServer() {
-        return (String) get("turn-server");
     }
 
     /**
@@ -287,6 +200,22 @@ public class WebRTCBin extends Bin {
     }
 
     /**
+     * Sets the local description for the WebRTC connection. Should be called
+     * after {@link #createOffer} or {@link #createAnser} is called.
+     *
+     * @param description the {@link WebRTCSessionDescription} to set for the
+     *                    local description
+     */
+    public void setLocalDescription(WebRTCSessionDescription description) {
+        Promise promise = new Promise();
+        // the raw WebRTCBin element gets ownership of the description so it must be disown in order to prevent it from being deallocated
+        description.disown();
+        emit("set-local-description", description, promise);
+        promise.interrupt();
+        promise.dispose();
+    }
+
+    /**
      * Retrieve the remote description for this {@link WebRTCBin}
      *
      * @return the remote {@link WebRTCSessionDescription}
@@ -295,5 +224,69 @@ public class WebRTCBin extends Bin {
         WebRTCSessionDescription description = (WebRTCSessionDescription) get("remote-description");
         description.disown();
         return description;
+    }
+
+    /**
+     * Sets the remote description for the WebRTC connection. Shoud be called
+     * after receiving an offer or answer from other clients.
+     *
+     * @param description the {@link WebRTCSessionDescription} to set for the
+     *                    remote description
+     */
+    public void setRemoteDescription(WebRTCSessionDescription description) {
+        Promise promise = new Promise();
+        // the raw WebRTCBin element gets ownership of the description so it must be disown in order to prevent it from being deallocated
+        description.disown();
+        emit("set-remote-description", description, promise);
+        promise.interrupt();
+        promise.dispose();
+    }
+
+    /**
+     * Signal emitted when this {@link WebRTCBin} is ready to do negotiation to
+     * setup a WebRTC connection Good starting point to have the WebRTCBin send
+     * an offer to potential clients
+     */
+    public interface ON_NEGOTIATION_NEEDED {
+
+        /**
+         * @param elem the original webrtc bin that had the callback attached to
+         */
+        void onNegotiationNeeded(Element elem);
+    }
+
+    /*
+     * Signal emmited when this {@link WebRTCBin} gets a new ice candidate
+     */
+    public interface ON_ICE_CANDIDATE {
+
+        /**
+         * @param sdpMLineIndex the zero-based index of the m-line attribute
+         *                      within the SDP to which the candidate should be associated to
+         * @param candidate     the ICE candidate
+         */
+        void onIceCandidate(int sdpMLineIndex, String candidate);
+    }
+
+    /**
+     * Signal emitted when this {@link WebRTCBin} creates an offer
+     */
+    public interface CREATE_OFFER {
+
+        /**
+         * @param a @WebRTCSessionDescription of the offer
+         */
+        void onOfferCreated(WebRTCSessionDescription offer);
+    }
+
+    /**
+     * Signal emitted when this {@link WebRTCBin} creates an answer
+     */
+    public interface CREATE_ANSWER {
+
+        /**
+         * @param a @WebRTCSessionDescription of the answer
+         */
+        void onAnswerCreated(WebRTCSessionDescription answer);
     }
 }

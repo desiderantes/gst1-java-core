@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2021 Neil C Smith
  * Copyright (c) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -59,14 +59,38 @@ public class Version {
      * @param major Major version of GStreamer
      * @param minor Minor version of GStreamer
      * @param micro Micro (patch) version of GStreamer
-     * @param nano Nano The nano version of GStreamer : Actual releases have 0,
-     * GIT versions have 1, prerelease versions have 2
+     * @param nano  Nano The nano version of GStreamer : Actual releases have 0,
+     *              GIT versions have 1, prerelease versions have 2
      */
     public Version(int major, int minor, int micro, int nano) {
         this.major = major;
         this.minor = minor;
         this.micro = micro;
         this.nano = nano;
+    }
+
+    /**
+     * Create a Version with specified major and minor version, and micro and
+     * nano version set to zero. Useful for specifying a required version in
+     * {@link Gst#init(org.freedesktop.gstreamer.Version)}.
+     * <p>
+     * <b>The library only supports major version 1</b>
+     * <p>
+     * Unlike the constructor this method will throw an exception if the version
+     * is not greater or equal to {@link #BASELINE}, or the major version isn't
+     * 1.
+     *
+     * @param major major version, currently must be 1
+     * @param minor minor version, greater or equal to 8
+     * @return requested version
+     * @throws IllegalArgumentException if the requested version is invalid
+     */
+    public static Version of(int major, int minor) {
+        if (major == BASELINE.getMajor()
+                && minor >= BASELINE.getMinor()) {
+            return new Version(major, minor);
+        }
+        throw new IllegalArgumentException("Invalid version");
     }
 
     /**
@@ -128,30 +152,6 @@ public class Version {
     public boolean checkSatisfies(Version required) {
         return (major == required.major && minor > required.minor)
                 || (major == required.major && minor == required.minor && micro >= required.micro);
-    }
-
-    /**
-     * Create a Version with specified major and minor version, and micro and
-     * nano version set to zero. Useful for specifying a required version in
-     * {@link Gst#init(org.freedesktop.gstreamer.Version)}.
-     * <p>
-     * <b>The library only supports major version 1</b>
-     * <p>
-     * Unlike the constructor this method will throw an exception if the version
-     * is not greater or equal to {@link #BASELINE}, or the major version isn't
-     * 1.
-     *
-     * @param major major version, currently must be 1
-     * @param minor minor version, greater or equal to 8
-     * @return requested version
-     * @throws IllegalArgumentException if the requested version is invalid
-     */
-    public static Version of(int major, int minor) {
-        if (major == BASELINE.getMajor()
-                && minor >= BASELINE.getMinor()) {
-            return new Version(major, minor);
-        }
-        throw new IllegalArgumentException("Invalid version");
     }
 
 }

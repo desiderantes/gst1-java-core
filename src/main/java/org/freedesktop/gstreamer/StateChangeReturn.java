@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -22,7 +22,7 @@ package org.freedesktop.gstreamer;
 import org.freedesktop.gstreamer.glib.NativeEnum;
 
 /**
- * The possible return values from a state change function. 
+ * The possible return values from a state change function.
  * <p>
  * Only {@link StateChangeReturn#FAILURE} is a real failure.
  * <p>
@@ -32,21 +32,27 @@ import org.freedesktop.gstreamer.glib.NativeEnum;
  * <p>
  */
 public enum StateChangeReturn implements NativeEnum<StateChangeReturn> {
-    /** The state change failed. */
+    /**
+     * The state change failed.
+     */
     FAILURE(0),
-    /** The state change succeeded. */
+    /**
+     * The state change succeeded.
+     */
     SUCCESS(1),
-    /** The state change will happen asynchronously. */
+    /**
+     * The state change will happen asynchronously.
+     */
     ASYNC(2),
     /**
-     * The state change succeeded but the {@link Element} cannot produce data in 
+     * The state change succeeded but the {@link Element} cannot produce data in
      * {@link State#PAUSED}. This typically happens with live sources.
      */
     NO_PREROLL(3);
-    
+
     private final int value;
-    
-    private StateChangeReturn(int value) {
+
+    StateChangeReturn(int value) {
         this.value = value;
     }
 

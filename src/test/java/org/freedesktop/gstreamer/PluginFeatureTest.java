@@ -16,21 +16,22 @@
  */
 package org.freedesktop.gstreamer;
 
-import org.junit.AfterClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PluginFeatureTest {
     private static PluginFeature decodebinFeature;
-    
-    @BeforeClass
+
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("PluginTest", new String[] {});
+        Gst.init("PluginTest");
         decodebinFeature = Registry.get().lookupFeature("decodebin");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
@@ -54,12 +55,12 @@ public class PluginFeatureTest {
     public void testCheckVersion() {
         assertTrue(decodebinFeature.checkVersion(0, 0, 1));
     }
-    
+
     @Test
     public void testGetPluginName() {
         assertEquals("playback", decodebinFeature.getPluginName());
     }
-    
+
     public void testGetPlugin() {
         Plugin plugin = decodebinFeature.getPlugin();
         assertNotNull(plugin);

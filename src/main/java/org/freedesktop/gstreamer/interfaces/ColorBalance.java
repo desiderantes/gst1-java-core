@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2009 Tamas Korodi <kotyo@zamba.fm>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -18,18 +18,26 @@
  */
 package org.freedesktop.gstreamer.interfaces;
 
-import java.util.List;
-
+import com.sun.jna.Pointer;
 import org.freedesktop.gstreamer.Element;
+import org.freedesktop.gstreamer.lowlevel.GlibAPI;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 
-import com.sun.jna.Pointer;
 import java.util.ArrayList;
-import org.freedesktop.gstreamer.lowlevel.GlibAPI;
+import java.util.List;
 
 import static org.freedesktop.gstreamer.lowlevel.GstColorBalanceAPI.GSTCOLORBALANCE_API;
 
 public class ColorBalance extends GstInterface {
+
+    /**
+     * Creates a new ColorBalance instance
+     *
+     * @param element the element that implements the ColorBalance interface
+     */
+    private ColorBalance(Element element) {
+        super(element, GSTCOLORBALANCE_API.gst_color_balance_get_type());
+    }
 
     /**
      * Wraps the {@link Element} in a <tt>ColorBalance</tt> interface
@@ -42,21 +50,12 @@ public class ColorBalance extends GstInterface {
     }
 
     /**
-     * Creates a new ColorBalance instance
-     *
-     * @param element the element that implements the ColorBalance interface
-     */
-    private ColorBalance(Element element) {
-        super(element, GSTCOLORBALANCE_API.gst_color_balance_get_type());
-    }
-
-    /**
      * Retrieves a list of ColorBalanceChannels from the ColorBalance
      *
      * @return a list of color balance channels available on this device
      */
     public List<ColorBalanceChannel> getChannelList() {
-        
+
         GlibAPI.GList glist = GSTCOLORBALANCE_API.gst_color_balance_list_channels(this);
         List<ColorBalanceChannel> list = new ArrayList<>();
         GlibAPI.GList next = glist;
@@ -68,7 +67,7 @@ public class ColorBalance extends GstInterface {
         }
         return list;
     }
-        
+
     /**
      * Retrieves a ColorBalanceChannel for the given Pointer
      *
@@ -77,23 +76,8 @@ public class ColorBalance extends GstInterface {
      * @return a ColorBalanceChannel instance
      */
     private final ColorBalanceChannel channelFor(Pointer pointer,
-            boolean needRef) {
+                                                 boolean needRef) {
         return new ColorBalanceChannel(this, pointer, needRef, true);
-    }
-
-    /**
-     * Signal emitted when color balance value changed
-     *
-     * @see #connect(VALUE_CHANGED)
-     * @see #disconnect(VALUE_CHANGED)
-     */
-    public static interface VALUE_CHANGED {
-
-        /**
-         * Called when the color balance channel value changes
-         */
-        public void colorBalanceValueChanged(ColorBalance colorBalance,
-                ColorBalanceChannel channel, int value);
     }
 
     /**
@@ -118,6 +102,21 @@ public class ColorBalance extends GstInterface {
      */
     public void disconnect(VALUE_CHANGED listener) {
         element.disconnect(VALUE_CHANGED.class, listener);
+    }
+
+    /**
+     * Signal emitted when color balance value changed
+     *
+     * @see #connect(VALUE_CHANGED)
+     * @see #disconnect(VALUE_CHANGED)
+     */
+    public interface VALUE_CHANGED {
+
+        /**
+         * Called when the color balance channel value changes
+         */
+        void colorBalanceValueChanged(ColorBalance colorBalance,
+                                             ColorBalanceChannel channel, int value);
     }
 
 }

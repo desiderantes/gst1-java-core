@@ -19,15 +19,13 @@
  */
 package org.freedesktop.gstreamer.device;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.freedesktop.gstreamer.Bus;
 import org.freedesktop.gstreamer.GstObject;
-import org.freedesktop.gstreamer.Plugin;
 import org.freedesktop.gstreamer.glib.Natives;
-import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GlibAPI;
-import org.freedesktop.gstreamer.lowlevel.GstDeviceProviderAPI;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.freedesktop.gstreamer.lowlevel.GstDeviceProviderAPI.GSTDEVICEPROVIDER_API;
 
@@ -98,6 +96,7 @@ public class DeviceProvider extends GstObject {
 //    public void remove(Device device) {
 //        GSTDEVICEPROVIDER_API.gst_device_provider_device_remove(this, device);
 //    }
+
     /**
      * Get the {@link Bus} of this DeviceProvider
      *
@@ -125,7 +124,7 @@ public class DeviceProvider extends GstObject {
             }
             next = next.next();
         }
-        
+
 
         return list;
     }

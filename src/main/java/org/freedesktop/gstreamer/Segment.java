@@ -32,14 +32,14 @@ public final class Segment {
     private final long startValue;
     private final long stopValue;
 
-   /**
-    * Creates a new instance of {@link Segment}.
-    *
-    * @param rate the rate of the segment.
-    * @param format the {@link Format} of the segment values.
-    * @param startValue the start value.
-    * @param stopValue the stop value.
-    */
+    /**
+     * Creates a new instance of {@link Segment}.
+     *
+     * @param rate       the rate of the segment.
+     * @param format     the {@link Format} of the segment values.
+     * @param startValue the start value.
+     * @param stopValue  the stop value.
+     */
     Segment(double rate, Format format, long startValue, long stopValue) {
         this.rate = rate;
         this.format = format;
@@ -67,7 +67,7 @@ public final class Segment {
 
     /**
      * Gets the start value.
-     * 
+     *
      * @return The start value.
      */
     public long getStartValue() {
@@ -76,7 +76,7 @@ public final class Segment {
 
     /**
      * Gets the stop value.
-     * 
+     *
      * @return The stop value.
      */
     public long getStopValue() {

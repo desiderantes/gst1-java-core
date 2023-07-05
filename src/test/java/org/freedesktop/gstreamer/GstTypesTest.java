@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2016 Christophe Lafolet
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -20,59 +20,55 @@ package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GObjectPtr;
-import static org.junit.Assert.assertEquals;
-
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GstTypes;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GstTypesTest {
 
     public GstTypesTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("GstTypesTest", new String[] {});
+        Gst.init("GstTypesTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
 
-    @Test 
+    @Test
     public void registeredClassTest() {
-    	// check a registered class
-    	GType elementType = GType.valueOf(Element.GTYPE_NAME);
-    	assertEquals(Element.class, GstTypes.classFor(elementType));
-    	assertEquals(elementType, GstTypes.typeFor(Element.class));
+        // check a registered class
+        GType elementType = GType.valueOf(Element.GTYPE_NAME);
+        assertEquals(Element.class, GstTypes.classFor(elementType));
+        assertEquals(elementType, GstTypes.typeFor(Element.class));
     }
 
-    @Test 
+    @Test
     public void unregisteredClassTest() {
-    	GType elementType = GType.valueOf(Element.GTYPE_NAME);
-    	// check a unregistered class which derived from Element 
-    	Element anElement = ElementFactory.make("avidemux", "avidemux");
+        GType elementType = GType.valueOf(Element.GTYPE_NAME);
+        // check an unregistered class which derived from Element
+        Element anElement = ElementFactory.make("avidemux", "avidemux");
 //    	assertEquals(Element.class, GstTypes.classFor(anElement.getType()));
-    	assertEquals(Element.class, GstTypes.classFor(
+        assertEquals(Element.class, GstTypes.classFor(
                 Natives.getPointer(anElement)
                         .as(GObjectPtr.class, GObjectPtr::new).getGType()));
-    	
-    	// verify GType has not changed for Element.class
-    	assertEquals(elementType, GstTypes.typeFor(Element.class));
+
+        // verify GType has not changed for Element.class
+        assertEquals(elementType, GstTypes.typeFor(Element.class));
     }
 }
 

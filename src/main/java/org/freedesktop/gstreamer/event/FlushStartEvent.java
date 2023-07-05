@@ -1,10 +1,10 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wim.taymans@chello.be>
  *                    2005 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ package org.freedesktop.gstreamer.event;
 import org.freedesktop.gstreamer.FlowReturn;
 import org.freedesktop.gstreamer.Pad;
 import org.freedesktop.gstreamer.glib.Natives;
+
 import static org.freedesktop.gstreamer.lowlevel.GstEventAPI.GSTEVENT_API;
 
 /**
@@ -47,7 +48,6 @@ import static org.freedesktop.gstreamer.lowlevel.GstEventAPI.GSTEVENT_API;
  * <p>
  * This event is typically generated after a seek to flush out all queued data
  * in the pipeline so that the new media is played as soon as possible.
- *
  */
 public class FlushStartEvent extends Event {
 

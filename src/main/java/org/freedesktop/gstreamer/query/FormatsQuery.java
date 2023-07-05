@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -21,12 +21,12 @@
  */
 package org.freedesktop.gstreamer.query;
 
-import java.util.AbstractList;
-import java.util.List;
-
 import org.freedesktop.gstreamer.Format;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstQueryAPI;
+
+import java.util.AbstractList;
+import java.util.List;
 
 /**
  * Used for querying formats of the stream.
@@ -35,6 +35,7 @@ import org.freedesktop.gstreamer.lowlevel.GstQueryAPI;
  * <a href="https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstQuery.html#gst-query-new-formats"
  * >https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstQuery.html#gst-query-new-formats</a>
  * <p>
+ *
  * @see Format
  */
 public class FormatsQuery extends Query {
@@ -48,15 +49,6 @@ public class FormatsQuery extends Query {
 
     FormatsQuery(Initializer init) {
         super(init);
-    }
-
-    /**
-     * Sets the formats query result fields.
-     *
-     * @param formats the formats to set.
-     */
-    public void setFormats(Format... formats) {
-        GstQueryAPI.GSTQUERY_API.gst_query_set_formats(this, formats.length, formats);
     }
 
     /**
@@ -100,5 +92,14 @@ public class FormatsQuery extends Query {
                 return count;
             }
         };
+    }
+
+    /**
+     * Sets the formats query result fields.
+     *
+     * @param formats the formats to set.
+     */
+    public void setFormats(Format... formats) {
+        GstQueryAPI.GSTQUERY_API.gst_query_set_formats(this, formats.length, formats);
     }
 }

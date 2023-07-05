@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -42,8 +42,8 @@ public class ConvertQuery extends Query {
     /**
      * Construct a new convert query object.
      *
-     * @param srcFormat the source {@link Format} for the new query
-     * @param value the value to convert
+     * @param srcFormat  the source {@link Format} for the new query
+     * @param value      the value to convert
      * @param destFormat the target {@link Format}
      */
     public ConvertQuery(Format srcFormat, long value, Format destFormat) {
@@ -54,9 +54,9 @@ public class ConvertQuery extends Query {
      * Answer a convert query by setting the requested values.
      *
      * @param srcFormat the source {@link Format}
-     * @param srcValue the source value
+     * @param srcValue  the source value
      * @param dstFormat the destination {@link Format}
-     * @param dstValue the destination value
+     * @param dstValue  the destination value
      */
     public void setConvert(Format srcFormat, long srcValue, Format dstFormat, long dstValue) {
         GstQueryAPI.GSTQUERY_API.gst_query_set_convert(this, srcFormat, srcValue, dstFormat, dstValue);

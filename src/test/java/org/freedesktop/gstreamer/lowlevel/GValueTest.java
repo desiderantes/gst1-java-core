@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,27 +19,19 @@
 
 package org.freedesktop.gstreamer.lowlevel;
 
-import org.freedesktop.gstreamer.lowlevel.GNative;
-import org.freedesktop.gstreamer.lowlevel.GValueAPI;
-import org.freedesktop.gstreamer.lowlevel.GType;
-import org.freedesktop.gstreamer.lowlevel.GstElementFactoryAPI;
-import static org.junit.Assert.*;
 
-import java.util.HashMap;
-
+import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 import org.freedesktop.gstreamer.Element;
 import org.freedesktop.gstreamer.ElementFactory;
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValue;
 import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValueArray;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
-import com.sun.jna.Library;
-import com.sun.jna.Pointer;
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -47,169 +39,160 @@ import com.sun.jna.Pointer;
 public class GValueTest {
     private static final GValueAPI api = GValueAPI.GVALUE_API;
 
-    public interface GValueTestAPI extends Library {
-
-        @SuppressWarnings("serial")
-        GValueTestAPI API = GNative.loadLibrary("gobject-2.0", GValueTestAPI.class,
-                new HashMap<String, Object>() {
-        });
-
-        void g_value_set_object(Pointer value, Pointer obj);
-
-        Pointer g_value_get_object(Pointer pointer);
-
-    }
-	
     public GValueTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("GValueTest", new String[] {});
+        Gst.init("GValueTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
 
-    @Test public void testGValueArray() throws Exception {
+    @Test
+    public void testGValueArray() throws Exception {
         testGValueArray(new GValueArray());
         testGValueArray(new GValueArray(2));
         testGValueArray(new GValueArray(5));
     }
-    
+
     private void testGValueArray(GValueArray gva) throws Exception {
-        
-        gva.append(new GValue(GType.INT, 5));        
-        gva.append(new GValue(GType.DOUBLE, 5.0));        
+
+        gva.append(new GValue(GType.INT, 5));
+        gva.append(new GValue(GType.DOUBLE, 5.0));
         gva.append(new GValue(GType.STRING, "omanipadmihoom"));
-        
-        assertEquals("vrong n_value", 3, gva.getNValues());
-        
-        assertEquals("value mismatch", 5, gva.getValue(0));
-        assertEquals("value mismatch", 5.0, gva.getValue(1));
-        assertEquals("value mismatch", "omanipadmihoom", gva.getValue(2));
-        
+
+        assertEquals(3, gva.getNValues(), "vrong n_value");
+
+        assertEquals(5, gva.getValue(0), "value mismatch");
+        assertEquals(5.0, gva.getValue(1), "value mismatch");
+        assertEquals("omanipadmihoom", gva.getValue(2), "value mismatch");
+
         gva.free();
     }
-    
-    @Test public void testInitSet() throws Exception {
-        
+
+    @Test
+    public void testInitSet() throws Exception {
+
         GValue v = new GValue(GType.INT);
-        
-        assertEquals("type mismatch", GType.INT, v.getType());  
-        
-        try {
-            v.setValue(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) {}
-                
-        try {
-            v.setValue(0.2);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (ClassCastException e) {}
-        
+
+        assertEquals(GType.INT, v.getType(), "type mismatch");
+
+        assertThrows(IllegalArgumentException.class, () -> v.setValue(null), "IllegalArgumentException should have been thrown");
+
+        assertThrows(IllegalArgumentException.class, () -> v.setValue(0.2), "IllegalArgumentException should have been thrown");
 
         v.setValue(42);
-        
-        assertEquals("wrong value", 42, v.getValue());
-        
+
+        assertEquals(42, v.getValue(), "wrong value");
+
     }
 
-    @Test public void testInitValue() throws Exception {
-        
+    @Test
+    public void testInitValue() throws Exception {
+
         GValue v;
-        
-        
-        try {
-            v = new GValue(GType.INT, null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) {}
-                
-        try {
-            v = new GValue(GType.INT, 0.2);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (ClassCastException e) {}
-        
-        v = new GValue(GType.DOUBLE, 42.0);
-        
-        assertEquals("type mismatch", GType.DOUBLE, v.getType());  
 
-        
-        assertEquals("wrong value", 42.0, v.getValue());
-        
+        assertThrows(IllegalArgumentException.class, () -> new GValue(GType.INT, null), "IllegalArgumentException should have been thrown");
+
+        assertThrows(IllegalArgumentException.class, () -> new GValue(GType.INT, 0.2), "IllegalArgumentException should have been thrown");
+
+        v = new GValue(GType.DOUBLE, 42.0);
+
+        assertEquals(GType.DOUBLE, v.getType(), "type mismatch");
+
+        assertEquals(42.0, v.getValue(), "wrong value");
+
     }
 
-    @Test public void testInt() throws Exception {
-    	GValue v = new GValue();
-    	api.g_value_init(v, GType.INT);
-    	api.g_value_set_int(v, 5);
-    	
-    	assertEquals("int value mismatch", 5, v.getValue());
-    	
-    	api.g_value_set_int(v, 6);
-    	
-    	assertEquals("int value mismatch", 6, v.getValue());
-    	
-    	assertTrue("type mismatch", v.getValue() instanceof Integer);
-    	
-    	
+    @Test
+    public void testInt() throws Exception {
+        GValue v = new GValue();
+        api.g_value_init(v, GType.INT);
+        api.g_value_set_int(v, 5);
+
+        assertEquals(5, v.getValue(), "int value mismatch");
+
+        api.g_value_set_int(v, 6);
+
+        assertEquals(6, v.getValue(), "int value mismatch");
+
+        assertTrue(v.getValue() instanceof Integer, "type mismatch");
+
+
     }
 
     /**
      * Test type conversion of object value when using
      * an object created 'the proper way'
      */
-    @Test public void testObjectPtrRef() throws Exception {
-	// the following probably puts 'e' into the object reference map
+    @Test
+    public void testObjectPtrRef() throws Exception {
+        // the following probably puts 'e' into the object reference map
 
-    	Element e = ElementFactory.make("fakesink", "fakesink");
-    	
-    	GValue v = new GValue();
-    	api.g_value_init(v, GType.OBJECT);
-    	api.g_value_set_object(v, e);
-    	
-    	Object obj = v.getValue();
-    	
-    	assertTrue("type mismatch", obj instanceof Element);
+        Element e = ElementFactory.make("fakesink", "fakesink");
 
-    	assertEquals("object mismatch", e, obj);
+        GValue v = new GValue();
+        api.g_value_init(v, GType.OBJECT);
+        api.g_value_set_object(v, e);
+
+        Object obj = v.getValue();
+
+        assertTrue(obj instanceof Element, "type mismatch");
+
+        assertEquals(e, obj, "object mismatch");
     }
-    
+
     /**
      * Test type conversion of object value trying to bypass the object reference map
      */
-     @Test public void testObjectTypeMap() throws Exception {
+    @Test
+    public void testObjectTypeMap() throws Exception {
 
-	 Pointer p;
-	 
-	 {
-	     /*
-	      * Not using ElementFactory.make() here probably prevents the element 
-	      * from being placed in the object reference map and therefore forces
-	      * type mapper conversion - what we want to test
-	      */
-	     
-	     ElementFactory factory = GstElementFactoryAPI.GSTELEMENTFACTORY_API.gst_element_factory_find("videotestsrc");
-	     p = GstElementFactoryAPI.GSTELEMENTFACTORY_API.ptr_gst_element_factory_create(factory, "videotestsrc");
-	 }
-    	    	
-    	GValue v = new GValue();
-    	api.g_value_init(v, GType.OBJECT);
-    	
-    	GValueTestAPI.API.g_value_set_object(v.getPointer(), p);
-    	
-    	Object obj = v.getValue();
+        Pointer p;
 
-    	assertTrue("type mismatch", obj instanceof Element);
+        {
+            /*
+             * Not using ElementFactory.make() here probably prevents the element
+             * from being placed in the object reference map and therefore forces
+             * type mapper conversion - what we want to test
+             */
+
+            ElementFactory factory = GstElementFactoryAPI.GSTELEMENTFACTORY_API.gst_element_factory_find("videotestsrc");
+            p = GstElementFactoryAPI.GSTELEMENTFACTORY_API.ptr_gst_element_factory_create(factory, "videotestsrc");
+        }
+
+        GValue v = new GValue();
+        api.g_value_init(v, GType.OBJECT);
+
+        GValueTestAPI.API.g_value_set_object(v.getPointer(), p);
+
+        Object obj = v.getValue();
+
+        assertTrue(obj instanceof Element, "type mismatch");
+    }
+
+    public interface GValueTestAPI extends Library {
+
+        @SuppressWarnings("serial")
+        GValueTestAPI API = GNative.loadLibrary("gobject-2.0", GValueTestAPI.class,
+                new HashMap<String, Object>() {
+                });
+
+        void g_value_set_object(Pointer value, Pointer obj);
+
+        Pointer g_value_get_object(Pointer pointer);
+
     }
 }

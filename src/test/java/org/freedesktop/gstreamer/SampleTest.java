@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2020 John Cortell
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,25 +19,25 @@
  */
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.*;
-
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.util.TestAssumptions;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SampleTest {
 
     public SampleTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         Gst.init(Gst.getVersion(), "SampleTest");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }

@@ -28,6 +28,7 @@ import org.freedesktop.gstreamer.Element;
 import org.freedesktop.gstreamer.FlowReturn;
 import org.freedesktop.gstreamer.Sample;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
+
 import static org.freedesktop.gstreamer.lowlevel.AppAPI.APP_API;
 
 /**
@@ -87,6 +88,15 @@ public class AppSink extends BaseSink {
     }
 
     /**
+     * Gets the {@link Caps} configured on this AppSink
+     *
+     * @return the Caps accepted by this sink
+     */
+    public Caps getCaps() {
+        return APP_API.gst_app_sink_get_caps(this);
+    }
+
+    /**
      * Sets the {@link Caps} on the AppSink.
      * <p>
      * After calling this method, the sink will only accept Caps that match
@@ -98,15 +108,6 @@ public class AppSink extends BaseSink {
     @Override
     public void setCaps(Caps caps) {
         APP_API.gst_app_sink_set_caps(this, caps);
-    }
-
-    /**
-     * Gets the {@link Caps} configured on this AppSink
-     *
-     * @return the Caps accepted by this sink
-     */
-    public Caps getCaps() {
-        return APP_API.gst_app_sink_get_caps(this);
     }
 
     /**
@@ -168,19 +169,6 @@ public class AppSink extends BaseSink {
     }
 
     /**
-     * Signal emitted when this {@link AppSink} got EOS.
-     */
-    public static interface EOS {
-
-        /**
-         * EOS signal
-         *
-         * @param elem AppSink
-         */
-        public void eos(AppSink elem);
-    }
-
-    /**
      * Adds a listener for the <code>eos</code> signal.
      *
      * @param listener
@@ -201,20 +189,6 @@ public class AppSink extends BaseSink {
      */
     public void disconnect(EOS listener) {
         disconnect(EOS.class, listener);
-    }
-
-    /**
-     * Signal emitted when this {@link AppSink} when a new Sample is ready.
-     */
-    public static interface NEW_SAMPLE {
-
-        /**
-         * New Sample signal
-         *
-         * @param elem AppSink
-         * @return FlowReturn
-         */
-        public FlowReturn newSample(AppSink elem);
     }
 
     /**
@@ -244,20 +218,6 @@ public class AppSink extends BaseSink {
     }
 
     /**
-     * Signal emitted when this {@link AppSink} when a new buffer is ready.
-     */
-    public static interface NEW_PREROLL {
-
-        /**
-         * New preroll signal
-         *
-         * @param elem AppSink
-         * @return FlowReturn
-         */
-        public FlowReturn newPreroll(AppSink elem);
-    }
-
-    /**
      * Adds a listener for the <code>new-preroll</code> signal. If a blocking
      * behaviour is not desirable, setting the "emit-signals" property to TRUE
      * will make appsink emit the "new-buffer" and "new-preroll" signals when a
@@ -281,6 +241,47 @@ public class AppSink extends BaseSink {
      */
     public void disconnect(NEW_PREROLL listener) {
         disconnect(NEW_PREROLL.class, listener);
+    }
+
+    /**
+     * Signal emitted when this {@link AppSink} got EOS.
+     */
+    public interface EOS {
+
+        /**
+         * EOS signal
+         *
+         * @param elem AppSink
+         */
+        void eos(AppSink elem);
+    }
+
+    /**
+     * Signal emitted when this {@link AppSink} when a new Sample is ready.
+     */
+    public interface NEW_SAMPLE {
+
+        /**
+         * New Sample signal
+         *
+         * @param elem AppSink
+         * @return FlowReturn
+         */
+        FlowReturn newSample(AppSink elem);
+    }
+
+    /**
+     * Signal emitted when this {@link AppSink} when a new buffer is ready.
+     */
+    public interface NEW_PREROLL {
+
+        /**
+         * New preroll signal
+         *
+         * @param elem AppSink
+         * @return FlowReturn
+         */
+        FlowReturn newPreroll(AppSink elem);
     }
 
 }

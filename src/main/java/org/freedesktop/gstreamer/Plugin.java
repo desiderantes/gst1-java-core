@@ -1,19 +1,19 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wtay@chello.be>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -52,6 +52,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstPluginAPI.GSTPLUGIN_API;
  * repository in which case {@link #loadByName} can be needed to bring the
  * plugin into memory.
  * <p>
+ *
  * @see PluginFeature
  * @see ElementFactory
  */
@@ -154,7 +155,7 @@ public class Plugin extends GstObject {
     /**
      * Get the release date (and possibly time) in form of a string, if
      * available.
-     *
+     * <p>
      * For normal GStreamer plugin releases this will usually just be a date in
      * the form of "YYYY-MM-DD", while pre-releases and builds from git may
      * contain a time component after the date as well, in which case the string

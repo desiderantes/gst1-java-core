@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -7,13 +7,13 @@
  *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -105,7 +105,7 @@ public enum QueryType implements NativeEnum<QueryType> {
      * query the pipeline-local context from downstream or upstream (since 1.2)
      */
     CONTEXT(190, Flags.BOTH),
-    
+
     /**
      * the bitrate query (since 1.16)
      */
@@ -116,11 +116,11 @@ public enum QueryType implements NativeEnum<QueryType> {
 
     private final int value;
 
-    private QueryType(int num, int flags) {
+    QueryType(int num, int flags) {
         this.value = (num << SHIFT) | flags;
     }
 
-    private QueryType(int value) {
+    QueryType(int value) {
         this.value = value;
     }
 

@@ -1,18 +1,18 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2007 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wtay@chello.be>
  *                    2004 Wim Taymans <wim@fluendo.com>
- * 
- * This code is free software: you can redistribute it and/or modify it under 
+ *
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -81,13 +81,13 @@ import static org.freedesktop.gstreamer.lowlevel.GstClockAPI.GSTCLOCK_API;
  * plugins that have an internal clock but must operate with another clock
  * selected by the {@link Pipeline}.  They can track the offset and rate difference
  * of their internal clock relative to the master clock by using the
- * gst_clock_get_calibration() function. 
+ * gst_clock_get_calibration() function.
  * <p>
  * The master/slave synchronisation can be tuned with the "timeout", "window-size"
  * and "window-threshold" properties. The "timeout" property defines the interval
- * to sample the master clock and run the calibration functions. 
+ * to sample the master clock and run the calibration functions.
  * "window-size" defines the number of samples to use when calibrating and
- * "window-threshold" defines the minimum number of samples before the 
+ * "window-threshold" defines the minimum number of samples before the
  * calibration is performed.
  */
 public class Clock extends GstObject {
@@ -95,15 +95,15 @@ public class Clock extends GstObject {
 
     @Deprecated // should be package private
     public Clock(Initializer init) {
-        super(init); 
+        super(init);
     }
-    
+
     /**
-     * Sets the accuracy of the clock. 
+     * Sets the accuracy of the clock.
      * <p>
-     * Some clocks have the possibility to operate with different accuracy at 
-     * the expense of more resource usage. There is normally no need to change 
-     * the default resolution of a clock. The resolution of a clock can only be 
+     * Some clocks have the possibility to operate with different accuracy at
+     * the expense of more resource usage. There is normally no need to change
+     * the default resolution of a clock. The resolution of a clock can only be
      * changed if the clock has the GST_CLOCK_FLAG_CAN_SET_RESOLUTION flag set.
      *
      * @param resolution the new resolution of the clock.
@@ -112,7 +112,7 @@ public class Clock extends GstObject {
     public long setResolution(long resolution) {
         return GSTCLOCK_API.gst_clock_set_resolution(this, resolution);
     }
-    
+
     /**
      * Gets the accuracy of the clock. The accuracy of the clock is the granularity
      * of the values returned by {@link #getTime}.
@@ -122,32 +122,34 @@ public class Clock extends GstObject {
     public long getResolution() {
         return GSTCLOCK_API.gst_clock_get_resolution(this);
     }
-    
+
     /**
      * Gets the current time of the given clock. The time is always
      * monotonically increasing and adjusted according to the current
      * offset and rate.
-     *
+     * <p>
      * Returns: the time of the clock. Or GST_CLOCK_TIME_NONE when
      * giving wrong input.
+     *
      * @return the time of the clock. Or {@link ClockTime#NONE} when
      * given incorrect input.
      */
     public long getTime() {
         return GSTCLOCK_API.gst_clock_get_time(this);
     }
+
     /**
      * Gets the current internal time of this clock. The time is returned
      * unadjusted for the offset and the rate.
-     *
+     * <p>
      * Thread safe.
-     * 
+     *
      * @return the internal time of the clock. Or {@link ClockTime#NONE} when given wrong input.
      */
     public long getInternalTime() {
         return GSTCLOCK_API.gst_clock_get_internal_time(this);
     }
-    
+
     /**
      * Gets the master clock that this clock is slaved to or null when the clock is
      * not slaved to any master clock.
@@ -158,44 +160,45 @@ public class Clock extends GstObject {
     public Clock getMaster() {
         return GSTCLOCK_API.gst_clock_get_master(this);
     }
-    
+
     /**
      * Set master as the master clock for this clock. This clock will be automatically
      * calibrated so that {@link #getTime} reports the same time as the
-     * master clock.  
-     * 
+     * master clock.
+     * <p>
      * A clock provider that slaves its clock to a master can get the current
      * calibration values with {@link #getCalibration}.
-     *
+     * <p>
      * master can be null in which case clock will not be slaved anymore. It will
-     * however keep reporting its time adjusted with the last configured rate 
+     * however keep reporting its time adjusted with the last configured rate
      * and time offsets.
      *
-     * @param master a master Clock 
-     * @return true if the clock is capable of being slaved to a master clock. 
-     * Trying to set a master on a clock without the CAN_SET_MASTER flag will make 
+     * @param master a master Clock
+     * @return true if the clock is capable of being slaved to a master clock.
+     * Trying to set a master on a clock without the CAN_SET_MASTER flag will make
      * this function return false.
      */
     public boolean setMaster(Clock master) {
         return GSTCLOCK_API.gst_clock_set_master(this, master);
     }
-    
+
     /**
      * Gets the internal rate and reference time of clock. See {@link #setCalibration} for more information.
      * <p>
      * internal, external, rate_num, and rate_denom can be left NULL if the caller is not interested in the values.
-     *
+     * <p>
      * Thread safe.
-     * @param internal a reference internal time
-     * @param external a reference external time
-     * @param rateNumerator the numerator of the rate of the clock relative to its internal time
+     *
+     * @param internal        a reference internal time
+     * @param external        a reference external time
+     * @param rateNumerator   the numerator of the rate of the clock relative to its internal time
      * @param rateDenominator the denominator of the rate of the clock
      */
     @Deprecated
     public void getCalibration(long internal, long external, long rateNumerator, long rateDenominator) {
         GSTCLOCK_API.gst_clock_set_calibration(this, internal, external, rateNumerator, rateDenominator);
     }
-    
+
     /**
      * Gets the internal rate and reference time of clock. See
      * {@link #setCalibration} for more information.
@@ -212,9 +215,9 @@ public class Clock extends GstObject {
         return new Calibration(internalPtr[0], externalPtr[0],
                 rateNumPtr[0], rateDenomPtr[0]);
     }
-    
+
     /**
-     *  Adjusts the rate and time of this clock. A rate of 1/1 is the normal speed of
+     * Adjusts the rate and time of this clock. A rate of 1/1 is the normal speed of
      * the clock. Values bigger than 1/1 make the clock go faster.
      * <p>
      * internal and external are calibration parameters that arrange that
@@ -226,7 +229,7 @@ public class Clock extends GstObject {
      * follows:
      * <p>
      * <code>
-     *   time = (internal_time - internal) * rateNumerator/ rateDenominator + external
+     * time = (internal_time - internal) * rateNumerator/ rateDenominator + external
      * </code>
      * <p>
      * This formula is implemented in gst_clock_adjust_unlocked(). Of course, it
@@ -235,50 +238,51 @@ public class Clock extends GstObject {
      * Note that {@link #getTime} always returns increasing values so when you
      * move the clock backwards, getTime() will report the previous value
      * until the clock catches up.
-     *
+     * <p>
      * Thread safe.
-     * @param internal a reference internal time
-     * @param external a reference external time
-     * @param rateNumerator the numerator of the rate of the clock relative to its internal time
+     *
+     * @param internal        a reference internal time
+     * @param external        a reference external time
+     * @param rateNumerator   the numerator of the rate of the clock relative to its internal time
      * @param rateDenominator the denominator of the rate of the clock
      */
     public void setCalibration(long internal, long external, long rateNumerator, long rateDenominator) {
         GSTCLOCK_API.gst_clock_set_calibration(this, internal, external, rateNumerator, rateDenominator);
     }
-    
+
     /**
      * Gets a {@link ClockID} from this clock to trigger a single shot
      * notification at the requested time.
      * <p>
      * Thread safe.
-     * 
+     *
      * @param time The requested time
      * @return A {@link ClockID} that can be used to request the time notification.
      */
     public ClockID newSingleShotID(long time) {
         return GSTCLOCK_API.gst_clock_new_single_shot_id(this, time);
     }
-    
+
     /**
      * Gets an ID from this clock to trigger a periodic notification.
      * The periodeic notifications will be start at time start_time and
      * will then be fired with the given interval.
      * <p>
      * Thread safe.
-     * 
+     *
      * @param startTime The requested start time.
-     * @param interval The requested interval.
+     * @param interval  The requested interval.
      * @return A {@link ClockID} that can be used to request the time notification.
      */
     public ClockID newPeriodicID(long startTime, long interval) {
         return GSTCLOCK_API.gst_clock_new_periodic_id(this, startTime, interval);
     }
-    
+
     /**
      * Data storage for clock calibration.
      */
     public static final class Calibration {
-        
+
         private final long internal;
         private final long external;
         private final long rateNum;
@@ -293,7 +297,7 @@ public class Clock extends GstObject {
 
         /**
          * The internal time.
-         * 
+         *
          * @return internal time
          */
         public long internal() {
@@ -302,7 +306,7 @@ public class Clock extends GstObject {
 
         /**
          * The external time.
-         * 
+         *
          * @return external time
          */
         public long external() {
@@ -311,7 +315,7 @@ public class Clock extends GstObject {
 
         /**
          * The rate numerator.
-         * 
+         *
          * @return rate numerator
          */
         public long rateNum() {
@@ -320,7 +324,7 @@ public class Clock extends GstObject {
 
         /**
          * The rate denominator.
-         * 
+         *
          * @return rate denominator
          */
         public long rateDenom() {
@@ -358,10 +362,7 @@ public class Clock extends GstObject {
             if (this.rateNum != other.rateNum) {
                 return false;
             }
-            if (this.rateDenom != other.rateDenom) {
-                return false;
-            }
-            return true;
+            return this.rateDenom == other.rateDenom;
         }
 
         @Override
@@ -369,9 +370,9 @@ public class Clock extends GstObject {
             return "Calibration{" + "internal=" + internal + ", external=" + external
                     + ", rateNum=" + rateNum + ", rateDenom=" + rateDenom + '}';
         }
-        
-        
+
+
     }
-    
-    
+
+
 }

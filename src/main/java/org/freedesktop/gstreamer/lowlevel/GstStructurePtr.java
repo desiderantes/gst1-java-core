@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -22,24 +22,24 @@ import com.sun.jna.Pointer;
  * GstStructure pointer
  */
 public class GstStructurePtr extends GTypedPtr {
-    
+
     public GstStructurePtr() {
     }
-    
+
     public GstStructurePtr(Pointer ptr) {
         super(ptr);
     }
-    
+
     @Override
     public GType getGType() {
         // Quick getter for GType without allocation
         if (Native.SIZE_T_SIZE == 8) {
             return GType.valueOf(getPointer().getLong(0));
         } else if (Native.SIZE_T_SIZE == 4) {
-            return GType.valueOf( ((long) getPointer().getInt(0)) & 0xffffffffL );
+            return GType.valueOf(((long) getPointer().getInt(0)) & 0xffffffffL);
         } else {
             throw new IllegalStateException("SIZE_T size not supported: " + Native.SIZE_T_SIZE);
         }
     }
-    
+
 }

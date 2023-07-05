@@ -18,14 +18,13 @@
  */
 package org.freedesktop.gstreamer.query;
 
+import com.sun.jna.Pointer;
 import org.freedesktop.gstreamer.BufferPool;
 import org.freedesktop.gstreamer.Caps;
 import org.freedesktop.gstreamer.Structure;
+import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GstQueryAPI;
-
-import com.sun.jna.Pointer;
-import org.freedesktop.gstreamer.glib.Natives;
 
 /**
  * An allocation query for querying allocation properties.
@@ -34,7 +33,6 @@ import org.freedesktop.gstreamer.glib.Natives;
  * <a href="https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstQuery.html#gst-query-new-allocation"
  * >https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstQuery.html#gst-query-new-allocation</a>
  * <p>
- *
  */
 public class AllocationQuery extends Query {
 
@@ -50,7 +48,7 @@ public class AllocationQuery extends Query {
     /**
      * Create a new allocation query.
      *
-     * @param caps the negotiated {@link Caps}
+     * @param caps      the negotiated {@link Caps}
      * @param need_pool return a pool.
      */
     public AllocationQuery(Caps caps, boolean need_pool) {
@@ -88,8 +86,8 @@ public class AllocationQuery extends Query {
     /**
      * Set the pool parameters of the query.
      *
-     * @param pool the {@link BufferPool}
-     * @param size the buffer size
+     * @param pool        the {@link BufferPool}
+     * @param size        the buffer size
      * @param min_buffers the min buffers
      * @param max_buffers the max buffers
      */

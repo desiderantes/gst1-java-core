@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -22,28 +22,29 @@ import java.util.Set;
 
 /**
  * Interface for enums that represent native bit flags.
+ *
  * @param <T> type of flag enum
  */
 public interface NativeFlags<T extends Enum<T>> extends NativeEnum<T> {
 
-    public static <FLAG extends Enum<FLAG> & NativeFlags<FLAG>> int toInt(Set<FLAG> flags) {
+    static <FLAG extends Enum<FLAG> & NativeFlags<FLAG>> int toInt(Set<FLAG> flags) {
         int ret = 0;
         for (FLAG flag : flags) {
             ret |= flag.intValue();
         }
         return ret;
     }
-    
-    public static <FLAG extends Enum<FLAG> & NativeFlags<FLAG>> int toInt(EnumSet<FLAG> flags) {
+
+    static <FLAG extends Enum<FLAG> & NativeFlags<FLAG>> int toInt(EnumSet<FLAG> flags) {
         int ret = 0;
         for (FLAG flag : flags) {
             ret |= flag.intValue();
         }
         return ret;
     }
-            
-    public static <FLAG extends Enum<FLAG> & NativeFlags<FLAG>> EnumSet<FLAG>
-            fromInt(Class<FLAG> type, int val) {
+
+    static <FLAG extends Enum<FLAG> & NativeFlags<FLAG>> EnumSet<FLAG>
+    fromInt(Class<FLAG> type, int val) {
         EnumSet<FLAG> set = EnumSet.allOf(type);
         set.removeIf(f -> ((val & f.intValue()) == 0));
         return set;

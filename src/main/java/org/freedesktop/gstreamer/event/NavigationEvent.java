@@ -1,10 +1,10 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wim.taymans@chello.be>
  *                    2005 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ package org.freedesktop.gstreamer.event;
 import org.freedesktop.gstreamer.Structure;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GType;
+
 import static org.freedesktop.gstreamer.lowlevel.GstEventAPI.GSTEVENT_API;
 
 /**
@@ -55,34 +56,11 @@ public class NavigationEvent extends Event {
     }
 
     /**
-     * Gets a human-readable string representation of this navigation event.
-     *
-     * @return a string
-     */
-    @Override
-    public String toString() {
-        Structure s = getStructure();
-        String event = s.getString("event");
-        if (event.startsWith("key-")) {
-            return String.format("%s: [key=%s]",
-                    event, s.getString("key"));
-        } else if (event.startsWith("mouse-")) {
-            return String.format("%s: [x=%f, y=%f button=%x]",
-                    event,
-                    s.getDouble("pointer_x"), s.getDouble("pointer_y"),
-                    s.getInteger("button"));
-        } else {
-            return String.format("%s",
-                    s.getString("event"));
-        }
-    }
-
-    /**
      * Creates a mouse navigation event.
      *
-     * @param event the type of mouse event.
-     * @param x the X location of the mouse cursor
-     * @param y the Y location of the mouse cursor
+     * @param event  the type of mouse event.
+     * @param x      the X location of the mouse cursor
+     * @param y      the Y location of the mouse cursor
      * @param button the button(s) currently pressed
      * @return a new navigation event
      */
@@ -93,8 +71,8 @@ public class NavigationEvent extends Event {
     /**
      * Creates a mouse move navigation event.
      *
-     * @param x the X location of the mouse cursor
-     * @param y the Y location of the mouse cursor
+     * @param x      the X location of the mouse cursor
+     * @param y      the Y location of the mouse cursor
      * @param button the button(s) currently pressed
      * @return a new navigation event
      */
@@ -105,8 +83,8 @@ public class NavigationEvent extends Event {
     /**
      * Creates a mouse button press navigation event.
      *
-     * @param x the X location of the mouse cursor
-     * @param y the Y location of the mouse cursor
+     * @param x      the X location of the mouse cursor
+     * @param y      the Y location of the mouse cursor
      * @param button the button(s) currently pressed
      * @return a new navigation event
      */
@@ -117,8 +95,8 @@ public class NavigationEvent extends Event {
     /**
      * Creates a mouse button release navigation event.
      *
-     * @param x the X location of the mouse cursor
-     * @param y the Y location of the mouse cursor
+     * @param x      the X location of the mouse cursor
+     * @param y      the Y location of the mouse cursor
      * @param button the button(s) currently pressed
      * @return a new navigation event
      */
@@ -130,7 +108,7 @@ public class NavigationEvent extends Event {
      * Creates a new key navigation event.
      *
      * @param event the type of key event.
-     * @param key the ascii key code for the key.
+     * @param key   the ascii key code for the key.
      * @return a new navigation event
      */
     public static NavigationEvent createKeyEvent(String event, String key) {
@@ -155,6 +133,29 @@ public class NavigationEvent extends Event {
      */
     public static NavigationEvent createKeyReleaseEvent(String key) {
         return createKeyEvent("key-release", key);
+    }
+
+    /**
+     * Gets a human-readable string representation of this navigation event.
+     *
+     * @return a string
+     */
+    @Override
+    public String toString() {
+        Structure s = getStructure();
+        String event = s.getString("event");
+        if (event.startsWith("key-")) {
+            return String.format("%s: [key=%s]",
+                    event, s.getString("key"));
+        } else if (event.startsWith("mouse-")) {
+            return String.format("%s: [x=%f, y=%f button=%x]",
+                    event,
+                    s.getDouble("pointer_x"), s.getDouble("pointer_y"),
+                    s.getInteger("button"));
+        } else {
+            return String.format("%s",
+                    s.getString("event"));
+        }
     }
 
     private static final class MouseEvent extends NavigationEvent {

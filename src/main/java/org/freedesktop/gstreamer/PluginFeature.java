@@ -1,18 +1,18 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wtay@chello.be>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -21,6 +21,7 @@
 package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.glib.NativeEnum;
+
 import static org.freedesktop.gstreamer.lowlevel.GstObjectAPI.GSTOBJECT_API;
 import static org.freedesktop.gstreamer.lowlevel.GstPluginFeatureAPI.GSTPLUGINFEATURE_API;
 
@@ -38,50 +39,6 @@ import static org.freedesktop.gstreamer.lowlevel.GstPluginFeatureAPI.GSTPLUGINFE
 public class PluginFeature extends GstObject {
 
     public static final String GTYPE_NAME = "GstPluginFeature";
-
-    /**
-     * Element priority ranks. Defines the order in which the autoplugger (or
-     * similar rank-picking mechanisms, such as e.g.
-     * gst_element_make_from_uri()) will choose this element over an alternative
-     * one with the same function.
-     *
-     * These constants serve as a rough guidance for defining the rank of a
-     * GstPluginFeature. Any value is valid, including values bigger than
-     * GST_RANK_PRIMARY .
-     */
-    public enum Rank implements NativeEnum<Rank> {
-
-        /**
-         * Will be chosen last or not at all.
-         */
-        NONE(0),
-
-        /**
-         * Unlikely to be chosen.
-         */
-        MARGINAL(64),
-        
-        /**
-         * Likely to be chosen.
-         */
-        SECONDARY(128),
-        
-        /**
-         * Will be chosen first.
-         */
-        PRIMARY(256);
-
-        private final int value;
-
-        private Rank(int value) {
-            this.value = value;
-        }
-
-        @Override
-        public int intValue() {
-            return value;
-        }
-    }
 
     /**
      * Creates a new instance of PluginFeature
@@ -118,6 +75,15 @@ public class PluginFeature extends GstObject {
     }
 
     /**
+     * Gets the rank of a plugin feature.
+     *
+     * @return The rank of the feature.
+     */
+    public int getRank() {
+        return GSTPLUGINFEATURE_API.gst_plugin_feature_get_rank(this);
+    }
+
+    /**
      * Set the rank for the plugin feature. Specifies a rank for a plugin
      * feature, so that autoplugging uses the most appropriate feature.
      *
@@ -135,15 +101,6 @@ public class PluginFeature extends GstObject {
      */
     public void setRank(Rank rank) {
         setRank(rank.intValue());
-    }
-
-    /**
-     * Gets the rank of a plugin feature.
-     *
-     * @return The rank of the feature.
-     */
-    public int getRank() {
-        return GSTPLUGINFEATURE_API.gst_plugin_feature_get_rank(this);
     }
 
     /**
@@ -176,5 +133,49 @@ public class PluginFeature extends GstObject {
      */
     public Plugin getPlugin() {
         return GSTPLUGINFEATURE_API.gst_plugin_feature_get_plugin(this);
+    }
+
+    /**
+     * Element priority ranks. Defines the order in which the autoplugger (or
+     * similar rank-picking mechanisms, such as e.g.
+     * gst_element_make_from_uri()) will choose this element over an alternative
+     * one with the same function.
+     * <p>
+     * These constants serve as a rough guidance for defining the rank of a
+     * GstPluginFeature. Any value is valid, including values bigger than
+     * GST_RANK_PRIMARY .
+     */
+    public enum Rank implements NativeEnum<Rank> {
+
+        /**
+         * Will be chosen last or not at all.
+         */
+        NONE(0),
+
+        /**
+         * Unlikely to be chosen.
+         */
+        MARGINAL(64),
+
+        /**
+         * Likely to be chosen.
+         */
+        SECONDARY(128),
+
+        /**
+         * Will be chosen first.
+         */
+        PRIMARY(256);
+
+        private final int value;
+
+        Rank(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public int intValue() {
+            return value;
+        }
     }
 }

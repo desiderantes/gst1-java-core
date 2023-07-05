@@ -3,9 +3,10 @@ package org.freedesktop.gstreamer;
 import org.freedesktop.gstreamer.glib.NativeEnum;
 import org.freedesktop.gstreamer.webrtc.WebRTCICEGatheringState;
 import org.freedesktop.gstreamer.webrtc.WebRTCPeerConnectionState;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class WebRTCBinTest {
     @Test

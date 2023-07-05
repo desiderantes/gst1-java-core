@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2018 Antonio Morales
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -17,14 +17,13 @@
 
 package org.freedesktop.gstreamer;
 
+import com.sun.jna.Pointer;
+import org.freedesktop.gstreamer.glib.NativeObject;
+import org.freedesktop.gstreamer.lowlevel.GPointer;
+
 import java.nio.charset.StandardCharsets;
 
 import static org.freedesktop.gstreamer.lowlevel.GstSDPMessageAPI.GSTSDPMESSAGE_API;
-
-import org.freedesktop.gstreamer.glib.NativeObject;
-
-import com.sun.jna.Pointer;
-import org.freedesktop.gstreamer.lowlevel.GPointer;
 
 /**
  * Wrapping type and helper methods for dealing with SDP messages.
@@ -48,36 +47,29 @@ public class SDPMessage extends NativeObject {
     SDPMessage(Handle handle) {
         super(handle);
     }
-    
+
     /**
      * Creates a new instance of SDPMessage
      */
     public SDPMessage() {
         this(initHandle());
     }
-    
+
+    private static Handle initHandle() {
+        Pointer[] ptr = new Pointer[1];
+        GSTSDPMESSAGE_API.gst_sdp_message_new(ptr);
+        return new Handle(new GPointer(ptr[0]), true);
+    }
+
     /**
      * A SDP formatted string representation of SDPMessage.
-     *
+     * <p>
      * Used for offer/answer exchanges for real time communicationse
      *
      * @return the SDP string representation of SDPMessage.
      */
     public String toString() {
         return GSTSDPMESSAGE_API.gst_sdp_message_as_text(this);
-    }
-
-    /**
-     * Takes a SDP string and parses it and fills in all fields for SDPMessage.
-     *
-     * Look at https://tools.ietf.org/html/rfc4566 for more information on SDP
-     *
-     * @param sdpString the sdp string
-     */
-    public void parseBuffer(String sdpString) {
-        byte[] data = sdpString.getBytes(StandardCharsets.US_ASCII);
-        int length = sdpString.length();
-        GSTSDPMESSAGE_API.gst_sdp_message_parse_buffer(data, length, this);
     }
 
 //    /**
@@ -94,10 +86,17 @@ public class SDPMessage extends NativeObject {
 //        return new SDPMessage(initializer(ptr[0]));
 //    }
 
-    private static Handle initHandle() {
-        Pointer[] ptr = new Pointer[1];
-        GSTSDPMESSAGE_API.gst_sdp_message_new(ptr);
-        return new Handle(new GPointer(ptr[0]), true);
+    /**
+     * Takes a SDP string and parses it and fills in all fields for SDPMessage.
+     * <p>
+     * Look at https://tools.ietf.org/html/rfc4566 for more information on SDP
+     *
+     * @param sdpString the sdp string
+     */
+    public void parseBuffer(String sdpString) {
+        byte[] data = sdpString.getBytes(StandardCharsets.US_ASCII);
+        int length = sdpString.length();
+        GSTSDPMESSAGE_API.gst_sdp_message_parse_buffer(data, length, this);
     }
 
     private static final class Handle extends NativeObject.Handle {
@@ -110,6 +109,6 @@ public class SDPMessage extends NativeObject {
         protected void disposeNativeHandle(GPointer ptr) {
             GSTSDPMESSAGE_API.gst_sdp_message_free(ptr.getPointer());
         }
-        
+
     }
 }

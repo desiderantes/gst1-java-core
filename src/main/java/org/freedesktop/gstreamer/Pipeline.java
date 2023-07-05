@@ -1,18 +1,18 @@
-/* 
+/*
  * Copyright (c) 2021 Neil C Smith
  * Copyright (c) 2008 Wayne Meissner
  * Copyright (C) 2000 Erik Walthinsen <omega@cse.ogi.edu>
  *               2005 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -21,16 +21,17 @@
 package org.freedesktop.gstreamer;
 
 import com.sun.jna.Pointer;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 import org.freedesktop.gstreamer.event.SeekFlags;
 import org.freedesktop.gstreamer.event.SeekType;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
 import org.freedesktop.gstreamer.query.Query;
+
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 import static org.freedesktop.gstreamer.lowlevel.GstElementAPI.GSTELEMENT_API;
 import static org.freedesktop.gstreamer.lowlevel.GstPipelineAPI.GSTPIPELINE_API;
@@ -83,7 +84,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstQueryAPI.GSTQUERY_API;
  * the current clock time is sampled and used to configure the base time for the
  * elements when the pipeline is set to PLAYING again. This default behaviour
  * can be changed with the gst_pipeline_set_new_stream_time() method.
- *
+ * <p>
  * When sending a flushing seek event to a GstPipeline (see {@link #seek seek}),
  * it will make sure that the pipeline is properly PAUSED and resumed as well as
  * set the new stream time to 0 when the seek succeeded.
@@ -93,14 +94,14 @@ public class Pipeline extends Bin {
     public static final String GST_NAME = "pipeline";
     public static final String GTYPE_NAME = "GstPipeline";
 
-    private static Logger LOG = Logger.getLogger(Pipeline.class.getName());
-    
+    private static final Logger LOG = Logger.getLogger(Pipeline.class.getName());
+
     private final Handle handle;
 
     protected Pipeline(Initializer init) {
         this(new Handle(init.ptr.as(GstObjectPtr.class, GstObjectPtr::new), init.ownsHandle), init.needRef);
     }
-    
+
     Pipeline(Handle handle, boolean needRef) {
         super(handle, needRef);
         this.handle = handle;
@@ -129,6 +130,18 @@ public class Pipeline extends Bin {
     }
 
     /**
+     * Checks if the pipeline will automatically flush messages when going to
+     * the NULL state.
+     * <p>
+     * MT safe.
+     *
+     * @return true if the pipeline automatically flushes messages.
+     */
+    public boolean getAutoFlushBus() {
+        return GSTPIPELINE_API.gst_pipeline_get_auto_flush_bus(this);
+    }
+
+    /**
      * Usually, when a pipeline goes from READY to NULL state, it automatically
      * flushes all pending messages on the bus, which is done for refcounting
      * purposes, to break circular references.
@@ -145,22 +158,10 @@ public class Pipeline extends Bin {
      * MT safe.
      *
      * @param flush whether or not to automatically flush the bus when the
-     * pipeline goes from READY to NULL state
+     *              pipeline goes from READY to NULL state
      */
     public void setAutoFlushBus(boolean flush) {
         GSTPIPELINE_API.gst_pipeline_set_auto_flush_bus(this, flush);
-    }
-
-    /**
-     * Checks if the pipeline will automatically flush messages when going to
-     * the NULL state.
-     * <p>
-     * MT safe.
-     *
-     * @return true if the pipeline automatically flushes messages.
-     */
-    public boolean getAutoFlushBus() {
-        return GSTPIPELINE_API.gst_pipeline_get_auto_flush_bus(this);
     }
 
     /**
@@ -172,7 +173,6 @@ public class Pipeline extends Bin {
      * @param clock The {@link Clock} to use
      * @return true if the clock could be set on the pipeline, false if some
      * element did not accept the clock.
-     *
      */
     public boolean setClock(Clock clock) {
         return GSTPIPELINE_API.gst_pipeline_set_clock(this, clock);
@@ -196,8 +196,7 @@ public class Pipeline extends Bin {
      * MT safe
      *
      * @param clock The {@link Clock} to use. If clock is null, all clocking is
-     * disabled, and the pipeline will run as fast as possible.
-     *
+     *              disabled, and the pipeline will run as fast as possible.
      */
     public void useClock(Clock clock) {
         GSTPIPELINE_API.gst_pipeline_use_clock(this, clock);
@@ -275,27 +274,27 @@ public class Pipeline extends Bin {
      * playback segment current position with a {@link SeekType#SET} to the
      * desired position.
      *
-     * @param rate the new playback rate
-     * @param format the format of the seek values
+     * @param rate      the new playback rate
+     * @param format    the format of the seek values
      * @param seekFlags the seek flags
      * @param startType the type and flags for the new start position
-     * @param start the value of the new start position
-     * @param stopType the type and flags for the new stop position
-     * @param stop the value of the new stop position
+     * @param start     the value of the new start position
+     * @param stopType  the type and flags for the new stop position
+     * @param stop      the value of the new stop position
      * @return true if seek is successful
      */
     // for compatibility
     public boolean seek(double rate, Format format, EnumSet<SeekFlags> seekFlags,
-            SeekType startType, long start, SeekType stopType, long stop) {
+                        SeekType startType, long start, SeekType stopType, long stop) {
         return super.seek(rate, format, seekFlags, startType, start, stopType, stop);
     }
-    
+
     @Override
     public boolean seek(double rate, Format format, Set<SeekFlags> seekFlags,
-            SeekType startType, long start, SeekType stopType, long stop) {
+                        SeekType startType, long start, SeekType stopType, long stop) {
         return super.seek(rate, format, seekFlags, startType, start, stopType, stop);
     }
-    
+
     /**
      * Gets the current position in the media stream.
      *
@@ -352,11 +351,11 @@ public class Pipeline extends Bin {
         GSTQUERY_API.gst_query_parse_segment(qry, rate, fmt, start_value, stop_value);
         return new Segment(rate[0], fmt[0], start_value[0], stop_value[0]);
     }
-    
+
     static class Handle extends Bin.Handle {
-        
+
         private final AtomicReference<Bus> busRef;
-        
+
         public Handle(GstObjectPtr ptr, boolean ownsHandle) {
             super(ptr, ownsHandle);
             this.busRef = new AtomicReference<>();
@@ -380,7 +379,7 @@ public class Pipeline extends Bin {
                 bus.dispose();
             }
         }
-        
+
     }
-    
+
 }

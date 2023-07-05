@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright (c) 2021 Neil C Smith
  * Copyright (c) 2016 Isaac Raño Jares
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -34,6 +34,23 @@ public class GSocket extends GObject {
 
     GSocket(Initializer init) {
         super(init);
+    }
+
+    private static String extractAndClearError(GErrorStruct struct) {
+        struct.read();
+        String err = struct.getMessage();
+        GLIB_API.g_error_free(struct);
+        return err;
+    }
+
+    private static Initializer makeRawSocket(GSocketFamily family, GSocketType type, GSocketProtocol protocol) throws GLibException {
+        GErrorStruct reference = new GErrorStruct();
+        GErrorStruct[] errorArray = (GErrorStruct[]) reference.toArray(1);
+        Pointer socketPointer = GIO_API.g_socket_new(family.toGioValue(), type.toGioValue(), protocol.toGioValue(), reference.getPointer());
+        if (socketPointer == null) {
+            throw new GLibException(extractAndClearError(errorArray[0]));
+        }
+        return Natives.initializer(socketPointer);
     }
 
     public GSocket bind(String address, int port) {
@@ -87,23 +104,6 @@ public class GSocket extends GObject {
 
     public boolean isBlocking() {
         return (Boolean) get("blocking");
-    }
-
-    private static String extractAndClearError(GErrorStruct struct) {
-        struct.read();
-        String err = struct.getMessage();
-        GLIB_API.g_error_free(struct);
-        return err;
-    }
-
-    private static Initializer makeRawSocket(GSocketFamily family, GSocketType type, GSocketProtocol protocol) throws GLibException {
-        GErrorStruct reference = new GErrorStruct();
-        GErrorStruct[] errorArray = (GErrorStruct[]) reference.toArray(1);
-        Pointer socketPointer = GIO_API.g_socket_new(family.toGioValue(), type.toGioValue(), protocol.toGioValue(), reference.getPointer());
-        if (socketPointer == null) {
-            throw new GLibException(extractAndClearError(errorArray[0]));
-        }
-        return Natives.initializer(socketPointer);
     }
 
 }

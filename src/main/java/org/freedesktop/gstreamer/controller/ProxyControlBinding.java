@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -21,10 +21,10 @@ import org.freedesktop.gstreamer.ControlBinding;
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.GstObject;
 import org.freedesktop.gstreamer.glib.Natives;
-
-import static org.freedesktop.gstreamer.lowlevel.GstControllerAPI.GSTCONTROLLER_API;
 import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
 import org.freedesktop.gstreamer.lowlevel.GstProxyControlBindingPtr;
+
+import static org.freedesktop.gstreamer.lowlevel.GstControllerAPI.GSTCONTROLLER_API;
 
 /**
  * Attachment for forwarding control sources
@@ -36,13 +36,13 @@ import org.freedesktop.gstreamer.lowlevel.GstProxyControlBindingPtr;
  */
 @Gst.Since(minor = 12)
 public class ProxyControlBinding extends ControlBinding {
-    
+
     public static final String GTYPE_NAME = "GstProxyControlBinding";
 
     ProxyControlBinding(Initializer init) {
         this(new Handle(
-                init.ptr.as(GstProxyControlBindingPtr.class, GstProxyControlBindingPtr::new),
-                init.ownsHandle),
+                        init.ptr.as(GstProxyControlBindingPtr.class, GstProxyControlBindingPtr::new),
+                        init.ownsHandle),
                 init.needRef);
     }
 
@@ -55,15 +55,15 @@ public class ProxyControlBinding extends ControlBinding {
      * syncValues() requests from propertyName on object to the control
      * binding at refPropertyName on refObject .
      *
-     * @param object the object of the property
-     * @param propertyName the property-name to attach the control source
-     * @param refObject a GstObject to forward all ControlBinding requests to
+     * @param object          the object of the property
+     * @param propertyName    the property-name to attach the control source
+     * @param refObject       a GstObject to forward all ControlBinding requests to
      * @param refPropertyName the property name in refObject to control
      * @return new ProxyControlBinding
      */
     @Gst.Since(minor = 12)
     public static ProxyControlBinding create(GstObject object, String propertyName,
-            GstObject refObject, String refPropertyName) {
+                                             GstObject refObject, String refPropertyName) {
         GstProxyControlBindingPtr ptr = GSTCONTROLLER_API.gst_proxy_control_binding_new(
                 Natives.getPointer(object).as(GstObjectPtr.class, GstObjectPtr::new),
                 propertyName,
@@ -71,5 +71,5 @@ public class ProxyControlBinding extends ControlBinding {
                 refPropertyName);
         return new ProxyControlBinding(new Handle(ptr, true), false);
     }
-    
+
 }

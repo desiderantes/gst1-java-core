@@ -24,19 +24,17 @@ package org.freedesktop.gstreamer.glib;
  */
 public interface NativeEnum<T extends Enum<T>> {
 
-    public int intValue();
-
     /**
      * Convert a native int value to the specified NativeEnum type.
      *
-     * @param <T> enum type
-     * @param type enum class
+     * @param <T>      enum type
+     * @param type     enum class
      * @param intValue native int value
      * @return enum value
      * @throws IllegalArgumentException if no enum value matches the specified
-     * native int value
+     *                                  native int value
      */
-    public static <T extends Enum<T> & NativeEnum<T>> T fromInt(Class<T> type, int intValue) {
+    static <T extends Enum<T> & NativeEnum<T>> T fromInt(Class<T> type, int intValue) {
         for (T value : type.getEnumConstants()) {
             if (value.intValue() == intValue) {
                 return value;
@@ -52,13 +50,13 @@ public interface NativeEnum<T extends Enum<T>> {
      * a default value (or null) to be returned instead of throwing an exception
      * on invalid values.
      *
-     * @param <T> enum type
-     * @param type enum class
+     * @param <T>      enum type
+     * @param type     enum class
      * @param defValue default value to return if no match (may be null)
      * @param intValue native int value
      * @return enum value
      */
-    public static <T extends Enum<T> & NativeEnum<T>> T fromInt(Class<T> type, T defValue, int intValue) {
+    static <T extends Enum<T> & NativeEnum<T>> T fromInt(Class<T> type, T defValue, int intValue) {
         for (T value : type.getEnumConstants()) {
             if (value.intValue() == intValue) {
                 return value;
@@ -67,5 +65,7 @@ public interface NativeEnum<T extends Enum<T>> {
 
         return defValue;
     }
+
+    int intValue();
 
 }

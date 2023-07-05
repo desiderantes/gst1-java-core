@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2021 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -18,33 +18,35 @@
  */
 package org.freedesktop.gstreamer.elements;
 
-import java.net.URI;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import org.freedesktop.gstreamer.Caps;
 import org.freedesktop.gstreamer.ElementFactory;
 import org.freedesktop.gstreamer.GCTracker;
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.util.TestAssumptions;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import java.net.URI;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  * Tests for PlayBin.
  */
 public class PlayBinTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         Gst.init(Gst.getVersion(), "PlayBinTest");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
@@ -61,16 +63,15 @@ public class PlayBinTest {
                 PlayFlags.VIDEO
         );
         Set<PlayFlags> flags = playbin.getFlags();
-        assertEquals("PlayBin flags not expected defaults", defaultFlags, flags);
+        assertEquals(defaultFlags, flags, "PlayBin flags not expected defaults");
 
         flags.add(PlayFlags.VIS);
         flags.remove(PlayFlags.DEINTERLACE);
         playbin.setFlags(flags);
 
         flags = playbin.getFlags();
-        assertTrue("VIS flag not set", flags.contains(PlayFlags.VIS));
-        assertFalse("Deinterlace not removed from playbin flags",
-                flags.contains(PlayFlags.DEINTERLACE));
+        assertTrue(flags.contains(PlayFlags.VIS), "VIS flag not set");
+        assertFalse(flags.contains(PlayFlags.DEINTERLACE), "Deinterlace not removed from playbin flags");
 
         playbin.dispose();
 
@@ -103,10 +104,10 @@ public class PlayBinTest {
         src = null;
         playbin = null;
 
-        assertTrue("AppSrc not garbage collected", sourceTracker.waitGC());
-        assertTrue("AppSrc not destroyed", sourceTracker.waitDestroyed());
-        assertTrue("PlayBin not garbage collected", playbinTracker.waitGC());
-        assertTrue("PlayBin not destroyed", playbinTracker.waitDestroyed());
+        assertTrue(sourceTracker.waitGC(), "AppSrc not garbage collected");
+        assertTrue(sourceTracker.waitDestroyed(), "AppSrc not destroyed");
+        assertTrue(playbinTracker.waitGC(), "PlayBin not garbage collected");
+        assertTrue(playbinTracker.waitDestroyed(), "PlayBin not destroyed");
 
     }
 
@@ -137,10 +138,10 @@ public class PlayBinTest {
         src = null;
         playbin = null;
 
-        assertTrue("AppSrc not garbage collected", sourceTracker.waitGC());
-        assertTrue("AppSrc not destroyed", sourceTracker.waitDestroyed());
-        assertTrue("PlayBin not garbage collected", playbinTracker.waitGC());
-        assertTrue("PlayBin not destroyed", playbinTracker.waitDestroyed());
+        assertTrue(sourceTracker.waitGC(), "AppSrc not garbage collected");
+        assertTrue(sourceTracker.waitDestroyed(), "AppSrc not destroyed");
+        assertTrue(playbinTracker.waitGC(), "PlayBin not garbage collected");
+        assertTrue(playbinTracker.waitDestroyed(), "PlayBin not destroyed");
 
     }
 

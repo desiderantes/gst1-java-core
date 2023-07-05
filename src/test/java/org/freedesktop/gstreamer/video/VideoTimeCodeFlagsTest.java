@@ -18,38 +18,27 @@
  */
 package org.freedesktop.gstreamer.video;
 
-import java.util.Arrays;
-import java.util.Collection;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.Assert.assertEquals;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@RunWith(Parameterized.class)
 public class VideoTimeCodeFlagsTest {
-
-    private final VideoTimeCodeFlags flags;
-    private final int intValue;
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(
-                new Object[][]{
-//                        {VideoTimeCodeFlags.GST_VIDEO_TIME_CODE_FLAGS_NONE, 0},
-                        {VideoTimeCodeFlags.GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME, 1},
-                        {VideoTimeCodeFlags.GST_VIDEO_TIME_CODE_FLAGS_INTERLACED, 2}
-                });
+    static Stream<Arguments> data() {
+        return Stream.of(
+                //Arguments.of(VideoTimeCodeFlags.GST_VIDEO_TIME_CODE_FLAGS_NONE, 0),
+                Arguments.of(VideoTimeCodeFlags.GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME, 1),
+                Arguments.of(VideoTimeCodeFlags.GST_VIDEO_TIME_CODE_FLAGS_INTERLACED, 2)
+        );
     }
 
-    public VideoTimeCodeFlagsTest(VideoTimeCodeFlags flags, int intValue) {
-        this.flags = flags;
-        this.intValue = intValue;
-    }
-
-    @Test
-    public void testIntValue() {
-        assertEquals(intValue,flags.intValue());
+    @ParameterizedTest
+    @MethodSource("data")
+    public void testIntValue(VideoTimeCodeFlags flags, int intValue) {
+        assertEquals(intValue, flags.intValue());
     }
 }

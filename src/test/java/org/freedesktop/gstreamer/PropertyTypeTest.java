@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2020 Peter Körner
  * Copyright (c) 2020 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -21,13 +21,9 @@ package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.glib.NativeEnum;
 import org.freedesktop.gstreamer.util.TestAssumptions;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PropertyTypeTest {
 
@@ -35,24 +31,24 @@ public class PropertyTypeTest {
     private Element filesink;
     private Element convert;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
         Gst.init(Gst.getVersion(), "PropertyTypeTest");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void createElements() {
         audiotestsrc = ElementFactory.make("audiotestsrc", null);
         filesink = ElementFactory.make("filesink", null);
         convert = ElementFactory.make("audioconvert", null);
     }
 
-    @After
+    @AfterEach
     public void disposeElements() {
         audiotestsrc.dispose();
         filesink.dispose();
@@ -161,7 +157,7 @@ public class PropertyTypeTest {
 
         audiotestsrc.setAsString("wave", "Silence");
         assertEquals(4, audiotestsrc.get("wave"));
-        
+
         // unfortunately returned strings do not seem to be consistent across
         // different OS / builds - comment out pending a fix or removal
         //        assertEquals("Silence", audiotestsrc.getAsString("wave"));
@@ -180,17 +176,17 @@ public class PropertyTypeTest {
         // invalid value
         audiotestsrc.set("wave", -256);
         assertEquals(0, audiotestsrc.get("wave"));
-        
+
         // native enum
         audiotestsrc.set("wave", AudioTestSrcWave.SILENCE);
         assertEquals(AudioTestSrcWave.SILENCE.intValue(), audiotestsrc.get("wave"));
         //        assertEquals("Silence", audiotestsrc.getAsString("wave"));
-        
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void setEnumInvalidString() {
-        audiotestsrc.setAsString("wave", "FOO");
+        assertThrows(IllegalArgumentException.class, () -> audiotestsrc.setAsString("wave", "FOO"));
     }
 
     @Test
@@ -204,8 +200,8 @@ public class PropertyTypeTest {
         assertTrue(mixMatrix.contains("0.6"));
         assertTrue(mixMatrix.contains("0.8"));
     }
-    
-     private static enum AudioTestSrcWave implements NativeEnum<AudioTestSrcWave>{
+
+    private enum AudioTestSrcWave implements NativeEnum<AudioTestSrcWave> {
         SINE(0),
         SQUARE(1),
         SAW(2),
@@ -222,7 +218,7 @@ public class PropertyTypeTest {
 
         private final int value;
 
-        private AudioTestSrcWave(int value) {
+        AudioTestSrcWave(int value) {
             this.value = value;
         }
 
@@ -231,5 +227,5 @@ public class PropertyTypeTest {
             return value;
         }
     }
-    
+
 }

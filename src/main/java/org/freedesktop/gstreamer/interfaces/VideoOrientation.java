@@ -1,8 +1,8 @@
-/* 
+/*
  * Copyright (c) 2019 Neil c Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2009 Tamas Korodi <kotyo@zamba.fm>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -25,26 +25,24 @@ import org.freedesktop.gstreamer.Element;
 import static org.freedesktop.gstreamer.lowlevel.GstVideoOrientationAPI.GSTVIDEOORIENTATION_API;
 
 public class VideoOrientation extends GstInterface {
-	/**
-	 * Wraps the {@link Element} in a <tt>VideoOrientation</tt> interface
-	 * 
-	 * @param element
-	 *            the element to use as a <tt>VideoOrientation</tt>
-	 * @return a <tt>VideoOrientation</tt> for the element
-	 */
-	public static final VideoOrientation wrap(Element element) {
-		return new VideoOrientation(element);
-	}
+    /**
+     * Creates a new VideoOrientation instance
+     *
+     * @param element the element that implements the VideoOrientation interface
+     */
+    private VideoOrientation(Element element) {
+        super(element, GSTVIDEOORIENTATION_API.gst_video_orientation_get_type());
+    }
 
-	/**
-	 * Creates a new VideoOrientation instance
-	 * 
-	 * @param element
-	 *            the element that implements the VideoOrientation interface
-	 */
-	private VideoOrientation(Element element) {
-		super(element, GSTVIDEOORIENTATION_API.gst_video_orientation_get_type());
-	}
+    /**
+     * Wraps the {@link Element} in a <tt>VideoOrientation</tt> interface
+     *
+     * @param element the element to use as a <tt>VideoOrientation</tt>
+     * @return a <tt>VideoOrientation</tt> for the element
+     */
+    public static final VideoOrientation wrap(Element element) {
+        return new VideoOrientation(element);
+    }
 
 //	public boolean getHflip(boolean flip) {
 //		return GSTVIDEOORIENTATION_API.gst_video_orientation_get_hflip(this, flip);
@@ -62,19 +60,19 @@ public class VideoOrientation extends GstInterface {
 //		return GSTVIDEOORIENTATION_API.gst_video_orientation_get_vcenter(this, center);
 //	}
 
-	public boolean setHflip(boolean flip) {
-		return GSTVIDEOORIENTATION_API.gst_video_orientation_set_hflip(this, flip);
-	}
+    public boolean setHflip(boolean flip) {
+        return GSTVIDEOORIENTATION_API.gst_video_orientation_set_hflip(this, flip);
+    }
 
-	public boolean setVflip(boolean flip) {
-		return GSTVIDEOORIENTATION_API.gst_video_orientation_set_vflip(this, flip);
-	}
+    public boolean setVflip(boolean flip) {
+        return GSTVIDEOORIENTATION_API.gst_video_orientation_set_vflip(this, flip);
+    }
 
-	public boolean setHcenter(int center) {
-		return GSTVIDEOORIENTATION_API.gst_video_orientation_set_hcenter(this, center);
-	}
+    public boolean setHcenter(int center) {
+        return GSTVIDEOORIENTATION_API.gst_video_orientation_set_hcenter(this, center);
+    }
 
-	public boolean setVcenter(int center) {
-		return GSTVIDEOORIENTATION_API.gst_video_orientation_set_vcenter(this, center);
-	}
+    public boolean setVcenter(int center) {
+        return GSTVIDEOORIENTATION_API.gst_video_orientation_set_vcenter(this, center);
+    }
 }

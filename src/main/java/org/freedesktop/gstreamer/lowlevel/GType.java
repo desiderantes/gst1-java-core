@@ -19,12 +19,12 @@
 
 package org.freedesktop.gstreamer.lowlevel;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.sun.jna.FromNativeContext;
 import com.sun.jna.IntegerType;
 import com.sun.jna.Native;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GOBJECT_API;
 
@@ -33,13 +33,13 @@ import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GOBJECT_API;
  */
 @SuppressWarnings("serial")
 public class GType extends IntegerType {
-    /** Size of a native <code>GType</code>, in bytes. */
+    /**
+     * Size of a native <code>GType</code>, in bytes.
+     */
     public static final int SIZE = Native.SIZE_T_SIZE;
     private static final int G_TYPE_FUNDAMENTAL_SHIFT = 2;
 
     private static final Map<Long, GType> gTypeByValues = new ConcurrentHashMap<Long, GType>();
-    private static final Map<String, GType> gTypeByNames = new ConcurrentHashMap<String, GType>();
-    
     public static final GType INVALID = init(0);
     public static final GType NONE = init(1);
     public static final GType INTERFACE = init(2);
@@ -62,21 +62,13 @@ public class GType extends IntegerType {
     public static final GType PARAM = init(19);
     public static final GType OBJECT = init(20);
     public static final GType VARIANT = init(21);
-
+    private static final Map<String, GType> gTypeByNames = new ConcurrentHashMap<String, GType>();
     // descriptions set in lazy
     private GType parent;
     private String name;
-    
-    /**
-     * @param value the fundamental type number.
-     * @return the GType
-     */
-    private static GType init(int value) {
-        return valueOf(value << G_TYPE_FUNDAMENTAL_SHIFT);
-    }
-    
+
     protected GType(long t) {
-    	super(SIZE, t);
+        super(SIZE, t);
     }
 
     /**
@@ -86,24 +78,32 @@ public class GType extends IntegerType {
         this(0L);
     }
 
+    /**
+     * @param value the fundamental type number.
+     * @return the GType
+     */
+    private static GType init(int value) {
+        return valueOf((long) value << G_TYPE_FUNDAMENTAL_SHIFT);
+    }
+
     public static GType valueOf(long value) {
-    	return gTypeByValues.computeIfAbsent(value, GType::new);
+        return gTypeByValues.computeIfAbsent(value, GType::new);
     }
 
     public static GType valueOf(String typeName) {
-    	GType result = gTypeByNames.get(typeName);
-    	if (result == null) {
-    		result = GOBJECT_API.g_type_from_name(typeName);
-    		if (result.equals(INVALID)) {
-    			// no type has been registered yet
-    		} else {
-        		gTypeByNames.put(typeName, result);
-        		result.name = typeName;
-    		}
-    	}
-    	return result;
+        GType result = gTypeByNames.get(typeName);
+        if (result == null) {
+            result = GOBJECT_API.g_type_from_name(typeName);
+            if (result.equals(INVALID)) {
+                // no type has been registered yet
+            } else {
+                gTypeByNames.put(typeName, result);
+                result.name = typeName;
+            }
+        }
+        return result;
     }
-    
+
     // FIXME : to move in GstTypes
     public static GType valueOf(Class<?> javaType) {
         if (Integer.class == javaType || int.class == javaType) {
@@ -128,25 +128,26 @@ public class GType extends IntegerType {
 
     /**
      * Return the direct parent type of the current type.
+     *
      * @return the direct parent type or INVALID if the type has no parent
      */
     public GType getParentType() {
-    	if (this.parent == null) 
-    		this.parent = GOBJECT_API.g_type_parent(this);
-    	return this.parent;
+        if (this.parent == null)
+            this.parent = GOBJECT_API.g_type_parent(this);
+        return this.parent;
     }
-    
+
     public String getTypeName() {
-    	if (this.name == null) {
-    		this.name = GOBJECT_API.g_type_name(this);
-    		gTypeByNames.put(this.name, this);
-    	}
-    	return this.name;    	
+        if (this.name == null) {
+            this.name = GOBJECT_API.g_type_name(this);
+            gTypeByNames.put(this.name, this);
+        }
+        return this.name;
     }
-    
+
     @Override
     public String toString() {
         String gtypeName = this.equals(INVALID) ? "invalid" : this.getTypeName();
-    	return "[" + gtypeName + ":" + super.longValue() + "]";
+        return "[" + gtypeName + ":" + super.longValue() + "]";
     }
 }

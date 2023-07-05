@@ -1,17 +1,17 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wim.taymans@chello.be>
  *                    2005 Wim Taymans <wim@fluendo.com>
- * 
- * This code is free software: you can redistribute it and/or modify it under 
+ *
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -32,13 +32,15 @@ import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
  * >https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstEvent.html#GstEventType</a>
  * <p>
  * The custom event types can be used for private messages between elements
- * that can't be expressed using normal GStreamer buffer passing semantics. 
+ * that can't be expressed using normal GStreamer buffer passing semantics.
  * <p>
- * Custom events carry an arbitrary {@link Structure}.  Specific custom events 
+ * Custom events carry an arbitrary {@link Structure}.  Specific custom events
  * are distinguished by the name of the structure.
  */
 public enum EventType implements NativeEnum<EventType> {
-    /** Unknown event */
+    /**
+     * Unknown event
+     */
     @DefaultEnumValue UNKNOWN(0, 0),
 
     /* bidirectional events */
@@ -183,28 +185,27 @@ public enum EventType implements NativeEnum<EventType> {
     /**
      * Custom upstream or downstream out-of-band event.
      */
-    CUSTOM_BOTH_OOB(320, Flags.BOTH)
-    ;
-    
+    CUSTOM_BOTH_OOB(320, Flags.BOTH);
+
     private static final int SHIFT = 8;
-    
+
     private final int value;
-    
-    private EventType(int num, int flags) {
+
+    EventType(int num, int flags) {
         this.value = (num << SHIFT) | flags;
     }
-    
+
     @Override
     public int intValue() {
         return value;
     }
-    
+
     private static final class Flags {
-        public static final int UPSTREAM       = 1 << 0;
-        public static final int DOWNSTREAM     = 1 << 1;
-        public static final int SERIALIZED     = 1 << 2;
-        public static final int STICKY         = 1 << 3;
-        public static final int STICKY_MULTI   = 1 << 4;
+        public static final int UPSTREAM = 1 << 0;
+        public static final int DOWNSTREAM = 1 << 1;
+        public static final int SERIALIZED = 1 << 2;
+        public static final int STICKY = 1 << 3;
+        public static final int STICKY_MULTI = 1 << 4;
         public static final int BOTH = UPSTREAM | DOWNSTREAM;
     }
 }

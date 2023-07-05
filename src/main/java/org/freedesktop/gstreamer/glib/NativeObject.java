@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -18,29 +18,29 @@
  */
 package org.freedesktop.gstreamer.glib;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.sun.jna.Pointer;
-import java.lang.ref.ReferenceQueue;
-import java.util.Objects;
-import java.util.ServiceLoader;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GTypedPtr;
 import org.freedesktop.gstreamer.lowlevel.GstTypes;
+
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
+import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  *
@@ -54,7 +54,7 @@ public abstract class NativeObject implements AutoCloseable {
     final Handle handle;
     private final Pointer ptr;
 
-//    /**
+    //    /**
 //     * Creates a new instance of NativeObject
 //     */
     protected NativeObject(Handle handle) {
@@ -66,82 +66,6 @@ public abstract class NativeObject implements AutoCloseable {
         }
     }
 
-    /**
-     * Disown this object. The underlying native object will no longer be
-     * disposed of when this Java object is explicitly or implicitly disposed.
-     * <p>
-     * The underlying reference will remain valid.
-     */
-    public void disown() {
-        LOG.log(LIFECYCLE, "Disowning " + getRawPointer());
-        handle.ownsReference.set(false);
-    }
-
-    /**
-     * Implements {@link AutoCloseable#close()} by calling {@link #dispose() }.
-     * <p>
-     * If writing a NativeObject subclass you almost certainly want to override
-     * dispose() to customize behaviour unless you have a very specific reason
-     * that try-with-resources should work differently.
-     */
-    @Override
-    public void close() {
-        dispose();
-    }
-    
-    /**
-     * Dispose this object, and potentially clear (free, unref, etc.) the
-     * underlying native object if this object owns the reference.
-     * <p>
-     * After calling this method this object should not be used.
-     */
-    public void dispose() {
-        LOG.log(LIFECYCLE, "Disposing object " + getClass().getName() + " = " + handle);
-        handle.dispose();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof NativeObject && ((NativeObject) o).ptr.equals(ptr);
-    }
-
-    protected GPointer getPointer() {
-        GPointer ptr = handle.ptrRef.get();
-        if (ptr == null) {
-            throw new IllegalStateException("Native object has been disposed");
-        }
-        return ptr;
-    }
-
-    protected Pointer getRawPointer() {
-        GPointer ptr = handle.ptrRef.get();
-        if (ptr == null) {
-            throw new IllegalStateException("Native object has been disposed");
-        }
-        return ptr.getPointer();
-    }
-
-    @Override
-    public int hashCode() {
-        return ptr.hashCode();
-    }
-
-    /**
-     * Invalidate this object without clearing (free, unref, etc.) the
-     * underlying native object.
-     * <p>
-     * After calling this method this object should not be used.
-     */
-    public void invalidate() {
-        LOG.log(LIFECYCLE, () -> "Invalidating object " + this + " = " + getRawPointer());
-        handle.invalidate();
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(" + getRawPointer() + ")";
-    }
-
     static <T extends NativeObject> T objectFor(GPointer gptr, Class<T> cls, int refAdjust, boolean ownsHandle) {
 
         // Ignore null pointers
@@ -151,7 +75,7 @@ public abstract class NativeObject implements AutoCloseable {
 
         NativeObject obj = NativeObject.instanceFor(gptr.getPointer());
 
-        if (obj != null && cls.isInstance(obj)) {
+        if (cls.isInstance(obj)) {
             if (ownsHandle && !obj.handle.ownsReference()) {
                 obj.handle.ownsReference.set(true);
             } else if (refAdjust < 0) {
@@ -214,6 +138,97 @@ public abstract class NativeObject implements AutoCloseable {
     }
 
     /**
+     * Disown this object. The underlying native object will no longer be
+     * disposed of when this Java object is explicitly or implicitly disposed.
+     * <p>
+     * The underlying reference will remain valid.
+     */
+    public void disown() {
+        LOG.log(LIFECYCLE, "Disowning " + getRawPointer());
+        handle.ownsReference.set(false);
+    }
+
+    /**
+     * Implements {@link AutoCloseable#close()} by calling {@link #dispose() }.
+     * <p>
+     * If writing a NativeObject subclass you almost certainly want to override
+     * dispose() to customize behaviour unless you have a very specific reason
+     * that try-with-resources should work differently.
+     */
+    @Override
+    public void close() {
+        dispose();
+    }
+
+    /**
+     * Dispose this object, and potentially clear (free, unref, etc.) the
+     * underlying native object if this object owns the reference.
+     * <p>
+     * After calling this method this object should not be used.
+     */
+    public void dispose() {
+        LOG.log(LIFECYCLE, "Disposing object " + getClass().getName() + " = " + handle);
+        handle.dispose();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof NativeObject && ((NativeObject) o).ptr.equals(ptr);
+    }
+
+    protected GPointer getPointer() {
+        GPointer ptr = handle.ptrRef.get();
+        if (ptr == null) {
+            throw new IllegalStateException("Native object has been disposed");
+        }
+        return ptr;
+    }
+
+    protected Pointer getRawPointer() {
+        GPointer ptr = handle.ptrRef.get();
+        if (ptr == null) {
+            throw new IllegalStateException("Native object has been disposed");
+        }
+        return ptr.getPointer();
+    }
+
+    @Override
+    public int hashCode() {
+        return ptr.hashCode();
+    }
+
+    /**
+     * Invalidate this object without clearing (free, unref, etc.) the
+     * underlying native object.
+     * <p>
+     * After calling this method this object should not be used.
+     */
+    public void invalidate() {
+        LOG.log(LIFECYCLE, () -> "Invalidating object " + this + " = " + getRawPointer());
+        handle.invalidate();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" + getRawPointer() + ")";
+    }
+
+    /**
+     * Register implementations of this interface via the {@link ServiceLoader}
+     * mechanism to provide new native object registrations externally.
+     */
+    public interface TypeProvider {
+
+        /**
+         * A {@link Stream} of {@link TypeRegistration} to register.
+         *
+         * @return stream of type registrations
+         */
+        Stream<TypeRegistration<?>> types();
+
+    }
+
+    /**
      * A class for propagating low level pointer arguments up the constructor
      * chain.
      *
@@ -238,10 +253,10 @@ public abstract class NativeObject implements AutoCloseable {
         private static final ReferenceQueue<NativeObject> QUEUE = new ReferenceQueue<>();
         private static final ExecutorService REAPER
                 = Executors.newSingleThreadExecutor((r) -> {
-                    Thread t = new Thread(r, "NativeObject Reaper");
-                    t.setDaemon(true);
-                    return t;
-                });
+            Thread t = new Thread(r, "NativeObject Reaper");
+            t.setDaemon(true);
+            return t;
+        });
 
         static {
             REAPER.submit(() -> {
@@ -283,9 +298,9 @@ public abstract class NativeObject implements AutoCloseable {
         /**
          * Construct a Handle for the supplied native reference.
          *
-         * @param ptr native reference
+         * @param ptr           native reference
          * @param ownsReference whether the Handle owns the native reference and
-         * should dispose it when itself disposed.
+         *                      should dispose it when itself disposed.
          */
         public Handle(GPointer ptr, boolean ownsReference) {
             this.ptrRef = new AtomicReference<>(ptr);
@@ -384,9 +399,9 @@ public abstract class NativeObject implements AutoCloseable {
     /**
      * Registration for creating native object subclasses for specific GTypes.
      *
+     * @param <T> type
      * @see Natives#registration(java.lang.Class, java.lang.String,
      * java.util.function.Function)
-     * @param <T> type
      */
     public static class TypeRegistration<T extends NativeObject> {
 
@@ -411,21 +426,6 @@ public abstract class NativeObject implements AutoCloseable {
         public Function<Initializer, ? extends T> getFactory() {
             return factory;
         }
-
-    }
-
-    /**
-     * Register implementations of this interface via the {@link ServiceLoader}
-     * mechanism to provide new native object registrations externally.
-     */
-    public static interface TypeProvider {
-
-        /**
-         * A {@link Stream} of {@link TypeRegistration} to register.
-         *
-         * @return stream of type registrations
-         */
-        public Stream<TypeRegistration<?>> types();
 
     }
 }

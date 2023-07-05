@@ -1,17 +1,17 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 2003 Benjamin Otte
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -32,21 +32,31 @@ import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
  * <p>
  */
 public enum TagFlag implements NativeEnum<TagFlag> {
-    /** Undefined flag. */
+    /**
+     * Undefined flag.
+     */
     @DefaultEnumValue
     UNDEFINED(0),
-    /** Tag is meta data. */
+    /**
+     * Tag is meta data.
+     */
     META(1),
-    /** Tag is encoded. */
+    /**
+     * Tag is encoded.
+     */
     ENCODED(2),
-    /** Tag is decoded. */
+    /**
+     * Tag is decoded.
+     */
     DECODED(3),
-    /** Number of tag flags. */
+    /**
+     * Number of tag flags.
+     */
     COUNT(4);
-    
+
     private final int value;
-    
-    private TagFlag(int value) {
+
+    TagFlag(int value) {
         this.value = value;
     }
 

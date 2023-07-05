@@ -1,4 +1,4 @@
-/* 
+/*
  *
  * Copyright (c) 2019 Christophe Lafolet
  *
@@ -18,10 +18,10 @@
  */
 package org.freedesktop.gstreamer.message;
 
-import static org.freedesktop.gstreamer.lowlevel.GstMessageAPI.GSTMESSAGE_API;
-
 import org.freedesktop.gstreamer.GstObject;
 import org.freedesktop.gstreamer.glib.Natives;
+
+import static org.freedesktop.gstreamer.lowlevel.GstMessageAPI.GSTMESSAGE_API;
 
 /**
  * Message indicating that an element wants a specific context.
@@ -30,7 +30,7 @@ public class NeedContextMessage extends Message {
 
     /**
      * Creates a new Need-Context message.
-     * 
+     *
      * @param init internal initialization data.
      */
     NeedContextMessage(Initializer init) {
@@ -48,11 +48,11 @@ public class NeedContextMessage extends Message {
 
     /**
      * Gets the context type contained in this message.
-     * 
+     *
      * @return the context type.
      */
     public String getContextType() {
-        String context_type[] = new String[1];
+        String[] context_type = new String[1];
         boolean isOk = GSTMESSAGE_API.gst_message_parse_context_type(this, context_type);
         return isOk ? context_type[0] : null;
     }

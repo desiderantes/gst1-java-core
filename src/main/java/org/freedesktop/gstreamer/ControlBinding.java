@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -33,7 +33,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstControlBindingAPI.GSTCONTROL
 public class ControlBinding extends GstObject {
 
     public static final String GTYPE_NAME = "GstControlBinding";
-    
+
     private final Handle handle;
 
     protected ControlBinding(Handle handle, boolean needRef) {
@@ -43,8 +43,8 @@ public class ControlBinding extends GstObject {
 
     ControlBinding(Initializer init) {
         this(new Handle(
-                init.ptr.as(GstControlBindingPtr.class, GstControlBindingPtr::new),
-                init.ownsHandle),
+                        init.ptr.as(GstControlBindingPtr.class, GstControlBindingPtr::new),
+                        init.ownsHandle),
                 init.needRef);
     }
 
@@ -67,10 +67,10 @@ public class ControlBinding extends GstObject {
      * <p>
      * This function is useful if one wants to e.g. draw a graph of the control
      * curve or apply a control curve sample by sample.
-     * 
+     *
      * @param timestamp the time that should be processed
-     * @param interval the time spacing between subsequent values
-     * @param values array to fill with control values
+     * @param interval  the time spacing between subsequent values
+     * @param values    array to fill with control values
      * @return false if the given array could not be filled
      */
     public boolean getValueArray(long timestamp, long interval, Object[] values) {
@@ -88,27 +88,26 @@ public class ControlBinding extends GstObject {
         }
         return ok;
     }
-    
+
+    /**
+     * Check if the control binding is disabled.
+     *
+     * @return TRUE if the binding is inactive
+     */
+    public boolean isDisabled() {
+        return GSTCONTROLBINDING_API.gst_control_binding_is_disabled(handle.getPointer());
+
+    }
+
     /**
      * This function is used to disable a control binding for some time, i.e.
      * GstObject.syncValues() will do nothing.
-     * 
+     *
      * @param disabled whether to disable the controller or not
      */
     public void setDisabled(boolean disabled) {
         GSTCONTROLBINDING_API.gst_control_binding_set_disabled(handle.getPointer(), disabled);
     }
-    
-    /**
-     * Check if the control binding is disabled.
-     * 
-     * @return TRUE if the binding is inactive
-     */
-    public boolean isDisabled() {
-        return GSTCONTROLBINDING_API.gst_control_binding_is_disabled(handle.getPointer());
-        
-    }
-    
 
     protected static class Handle extends GstObject.Handle {
 

@@ -23,25 +23,22 @@ import org.freedesktop.gstreamer.Buffer;
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.SampleTester;
 import org.freedesktop.gstreamer.util.TestAssumptions;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static org.freedesktop.gstreamer.video.VideoTimeCodeFlags.GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class VideoTimeCodeMetaTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         Gst.init(Gst.getVersion());
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         Gst.deinit();
     }
@@ -52,19 +49,19 @@ public class VideoTimeCodeMetaTest {
         TestAssumptions.requireGstVersion(1, 14);
         SampleTester.test(sample -> {
             Buffer buffer = sample.getBuffer();
-            assertFalse("Default video not contains timecode metadata", buffer.hasMeta(VideoTimeCodeMeta.API));
+            assertFalse(buffer.hasMeta(VideoTimeCodeMeta.API), "Default video not contains timecode metadata");
         }, "videotestsrc do-timestamp=true ! appsink name=myappsink");
     }
 
     @Test
     public void testVideoTimeCodeMetaPal() {
         // timecodestamper is available since 1.10
-        TestAssumptions.requireGstVersion(1,10);
+        TestAssumptions.requireGstVersion(1, 10);
         TestAssumptions.requireElement("timecodestamper");
         SampleTester.test(sample -> {
             Buffer buffer = sample.getBuffer();
             if (Gst.testVersion(1, 14)) {
-                assertTrue("Video should contains timecode meta", buffer.hasMeta(VideoTimeCodeMeta.API));
+                assertTrue(buffer.hasMeta(VideoTimeCodeMeta.API), "Video should contains timecode meta");
             }
             VideoTimeCodeMeta meta = buffer.getMeta(VideoTimeCodeMeta.API);
             assertNotNull(meta);
@@ -93,7 +90,7 @@ public class VideoTimeCodeMetaTest {
         SampleTester.test(sample -> {
             Buffer buffer = sample.getBuffer();
             if (Gst.testVersion(1, 14)) {
-                assertTrue("Video should contains timecode meta", buffer.hasMeta(VideoTimeCodeMeta.API));
+                assertTrue(buffer.hasMeta(VideoTimeCodeMeta.API), "Video should contains timecode meta");
             }
             VideoTimeCodeMeta meta = buffer.getMeta(VideoTimeCodeMeta.API);
             assertNotNull(meta);
@@ -125,7 +122,7 @@ public class VideoTimeCodeMetaTest {
         SampleTester.test(sample -> {
             Buffer buffer = sample.getBuffer();
             if (Gst.testVersion(1, 14)) {
-                assertTrue("Video should contains timecode meta", buffer.hasMeta(VideoTimeCodeMeta.API));
+                assertTrue(buffer.hasMeta(VideoTimeCodeMeta.API), "Video should contains timecode meta");
             }
             VideoTimeCodeMeta meta = buffer.getMeta(VideoTimeCodeMeta.API);
             assertNotNull(meta);
@@ -142,7 +139,7 @@ public class VideoTimeCodeMetaTest {
             assertEquals(30000, timeCodeConfig.getNumerator());
             assertEquals(1001, timeCodeConfig.getDenominator());
             assertTrue(timeCodeConfig.getFlags().contains(GST_VIDEO_TIME_CODE_FLAGS_DROP_FRAME));
-            
+
         }, "videotestsrc ! video/x-raw,framerate=30000/1001 ! videoconvert ! timecodestamper drop-frame=true ! videoconvert ! appsink name=myappsink", 29);
     }
 
@@ -154,7 +151,7 @@ public class VideoTimeCodeMetaTest {
         SampleTester.test(sample -> {
             Buffer buffer = sample.getBuffer();
             if (Gst.testVersion(1, 14)) {
-                assertTrue("Video should contains timecode meta", buffer.hasMeta(VideoTimeCodeMeta.API));
+                assertTrue(buffer.hasMeta(VideoTimeCodeMeta.API), "Video should contains timecode meta");
             }
             VideoTimeCodeMeta meta = buffer.getMeta(VideoTimeCodeMeta.API);
             assertNotNull(meta);

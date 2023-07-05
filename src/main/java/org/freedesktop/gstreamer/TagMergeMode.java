@@ -1,8 +1,8 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 2003 Benjamin Otte
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -38,28 +38,42 @@ import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
  * and combination thereof.
  */
 public enum TagMergeMode implements NativeEnum<TagMergeMode> {
-    /** Undefined merge mode. */
+    /**
+     * Undefined merge mode.
+     */
     @DefaultEnumValue
     UNDEFINED(0),
-    /** Replace all tags (clear list and append). */
+    /**
+     * Replace all tags (clear list and append).
+     */
     REPLACE_ALL(1),
-    /** Replace tags */
+    /**
+     * Replace tags
+     */
     REPLACE(2),
-    /** Append tags */
+    /**
+     * Append tags
+     */
     APPEND(3),
-    /** Prepend tags */
+    /**
+     * Prepend tags
+     */
     PREPEND(4),
-    /** Keep existing tags */
+    /**
+     * Keep existing tags
+     */
     KEEP(5),
-    /** Keep all existing tags */
+    /**
+     * Keep all existing tags
+     */
     KEEP_ALL(6);
 
     private final int value;
-    
-    private TagMergeMode(int value) {
+
+    TagMergeMode(int value) {
         this.value = value;
     }
-    
+
     @Override
     public int intValue() {
         return value;

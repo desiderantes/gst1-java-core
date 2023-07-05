@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,24 +19,17 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import org.freedesktop.gstreamer.glib.Natives;
 
 import org.freedesktop.gstreamer.message.Message;
 import org.freedesktop.gstreamer.message.TagMessage;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *
  * @author wayne
  */
 public class ElementTest {
@@ -44,21 +37,21 @@ public class ElementTest {
     public ElementTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("ElementTest", new String[] {});
+        Gst.init("ElementTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
 
@@ -71,37 +64,43 @@ public class ElementTest {
     public void getPads() {
         Element element = ElementFactory.make("fakesink", "fs");
         List<Pad> pads = element.getPads();
-        assertTrue("no pads found", !pads.isEmpty());
+        assertFalse(pads.isEmpty(), "no pads found");
     }
+
     @Test
     public void getSinkPads() {
         Element element = ElementFactory.make("fakesink", "fs");
         List<Pad> pads = element.getSinkPads();
-        assertTrue("no pads found", !pads.isEmpty());
+        assertFalse(pads.isEmpty(), "no pads found");
     }
+
     @Test
     public void getSrcPads() {
         Element element = ElementFactory.make("fakesrc", "fs");
         List<Pad> pads = element.getSrcPads();
-        assertTrue("no pads found", !pads.isEmpty());
+        assertFalse(pads.isEmpty(), "no pads found");
     }
-    @Test 
+
+    @Test
     public void setState() {
         Element element = ElementFactory.make("fakesrc", "fs");
         // This should exercise EnumMapper.intValue()
         element.play();
         element.stop();
     }
-    @Test 
+
+    @Test
     public void getState() {
         Element element = ElementFactory.make("fakesrc", "fs");
         // This should exercise EnumMapper.intValue()
         element.play();
         State state = element.getState(-1);
-        assertEquals("Element state not set correctly", State.PLAYING, state);
+        assertEquals(State.PLAYING, state, "Element state not set correctly");
         element.stop();
     }
-    @Test public void postMessage() {
+
+    @Test
+    public void postMessage() {
         final TestPipe pipe = new TestPipe();
         final AtomicBoolean signalFired = new AtomicBoolean(false);
         //
@@ -109,38 +108,37 @@ public class ElementTest {
         // by the pipeline
         //
         final Message message = new TagMessage(pipe.src, new TagList());
-        pipe.getBus().connect(new Bus.MESSAGE() {
-
-            public void busMessage(Bus bus, Message msg) {
-                if (msg.equals(message)) {
-                    signalFired.set(true);
-                    pipe.quit();
-                }
+        pipe.getBus().connect((Bus.MESSAGE) (bus, msg) -> {
+            if (msg.equals(message)) {
+                signalFired.set(true);
+                pipe.quit();
             }
         });
         pipe.sink.postMessage(message);
         pipe.run();
-        assertTrue("Message not posted", signalFired.get());
+        assertTrue(signalFired.get(), "Message not posted");
     }
-    @Test public void testContext() {
+
+    @Test
+    public void testContext() {
         Element element = ElementFactory.make("fakesrc", "fs");
-        Assert.assertEquals(1, element.getRefCount());
-        
+        assertEquals(1, element.getRefCount());
+
         Context context = new Context("test");
-        Assert.assertEquals(1, context.getRefCount());
+        assertEquals(1, context.getRefCount());
         element.setContext(context);
-        Assert.assertEquals(2, context.getRefCount());
-        
+        assertEquals(2, context.getRefCount());
+
         Context anotherContext = element.getContext("test");
-        Assert.assertEquals(2, anotherContext.getRefCount());
-        Assert.assertNotNull(anotherContext);
-        Assert.assertEquals(context.getContextType(), anotherContext.getContextType());
-        
-        Assert.assertNull(element.getContext("test-something-else"));
-        
+        assertEquals(2, anotherContext.getRefCount());
+        assertNotNull(anotherContext);
+        assertEquals(context.getContextType(), anotherContext.getContextType());
+
+        assertNull(element.getContext("test-something-else"));
+
         element.dispose();
-        Assert.assertEquals(0, element.getRefCount());
-        Assert.assertEquals(1, context.getRefCount());
-        Assert.assertEquals(1, anotherContext.getRefCount());
+        assertEquals(0, element.getRefCount());
+        assertEquals(1, context.getRefCount());
+        assertEquals(1, anotherContext.getRefCount());
     }
 }

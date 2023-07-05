@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,21 +19,13 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- *
  * @author wayne
  */
 public class ClockTimeTest {
@@ -41,45 +33,49 @@ public class ClockTimeTest {
     public ClockTimeTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
 
-    @Test public void toSeconds() {
+    @Test
+    public void toSeconds() {
         final long TIME = TimeUnit.SECONDS.toNanos(0xdeadbeef);
-        assertEquals("toSeconds returned incorrect value", 
-                TimeUnit.NANOSECONDS.toSeconds(TIME), ClockTime.toSeconds(TIME)); 
+        assertEquals(TimeUnit.NANOSECONDS.toSeconds(TIME), ClockTime.toSeconds(TIME), "toSeconds returned incorrect value");
     }
-    @Test public void toMillis() {
+
+    @Test
+    public void toMillis() {
         final long TIME = TimeUnit.SECONDS.toNanos(0xdeadbeef);
-        assertEquals("toMillis returned incorrect value", 
-                TimeUnit.NANOSECONDS.toMillis(TIME), ClockTime.toMillis(TIME));        
+        assertEquals(TimeUnit.NANOSECONDS.toMillis(TIME), ClockTime.toMillis(TIME), "toMillis returned incorrect value");
     }
-    @Test public void toMicros() {
+
+    @Test
+    public void toMicros() {
         final long TIME = TimeUnit.SECONDS.toNanos(0xdeadbeef);
-        assertEquals("toMillis returned incorrect value", 
-                TimeUnit.NANOSECONDS.toMicros(TIME), ClockTime.toMicros(TIME));
+        assertEquals(TimeUnit.NANOSECONDS.toMicros(TIME), ClockTime.toMicros(TIME), "toMillis returned incorrect value");
     }
-    @Test public void toStringRepresentation() {
+
+    @Test
+    public void toStringRepresentation() {
         long hours = 3;
         long minutes = 27;
         long seconds = 13;
         long time = TimeUnit.HOURS.toNanos(hours) +
                 TimeUnit.MINUTES.toNanos(minutes) +
                 TimeUnit.SECONDS.toNanos(seconds);
-        assertEquals("ClockTime.toString() incorrect", "03:27:13", ClockTime.toString(time));
+        assertEquals("03:27:13", ClockTime.toString(time), "ClockTime.toString() incorrect");
     }
 //    @Test public void toNanos() {
 //        final long TIME = TimeUnit.SECONDS.toNanos(0xdeadbeef);

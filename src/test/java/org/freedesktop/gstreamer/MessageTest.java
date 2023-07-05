@@ -1,8 +1,8 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -20,29 +20,17 @@
  */
 package org.freedesktop.gstreamer;
 
+import org.freedesktop.gstreamer.message.*;
+import org.junit.jupiter.api.*;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import org.freedesktop.gstreamer.message.BufferingMessage;
-import org.freedesktop.gstreamer.message.DurationChangedMessage;
-import org.freedesktop.gstreamer.message.EOSMessage;
-import org.freedesktop.gstreamer.message.LatencyMessage;
-import org.freedesktop.gstreamer.message.Message;
-import org.freedesktop.gstreamer.message.MessageType;
-import org.freedesktop.gstreamer.message.SegmentDoneMessage;
-import org.freedesktop.gstreamer.message.StateChangedMessage;
-import org.freedesktop.gstreamer.message.TagMessage;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import static org.freedesktop.gstreamer.lowlevel.GstElementAPI.GSTELEMENT_API;
 import static org.freedesktop.gstreamer.lowlevel.GstMessageAPI.GSTMESSAGE_API;
 import static org.freedesktop.gstreamer.lowlevel.GstTagListAPI.GSTTAGLIST_API;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  *
@@ -52,21 +40,21 @@ public class MessageTest {
     public MessageTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         Gst.init("MessageTest");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
 
@@ -74,14 +62,14 @@ public class MessageTest {
     public void gst_message_new_eos() {
         Element fakesink = ElementFactory.make("fakesink", "sink");
         Message msg = GSTMESSAGE_API.gst_message_new_eos(fakesink);
-        assertTrue("gst_message_new_eos did not return an instance of EOSMessage", msg instanceof EOSMessage);
+        assertTrue(msg instanceof EOSMessage, "gst_message_new_eos did not return an instance of EOSMessage");
     }
 
     @Test
     public void EOSMessage_getSource() {
         Element fakesink = ElementFactory.make("fakesink", "sink");
         Message msg = GSTMESSAGE_API.gst_message_new_eos(fakesink);
-        assertEquals("Wrong source in message", fakesink, msg.getSource());
+        assertEquals(fakesink, msg.getSource(), "Wrong source in message");
     }
 
     @Test
@@ -103,10 +91,10 @@ public class MessageTest {
         pipe.run();
 
         Message msg = signalMessage.get();
-        assertNotNull("No message available on bus", msg);
-        assertEquals("Wrong message type", MessageType.EOS, msg.getType());
-        assertTrue("Message not intance of EOSMessage", msg instanceof EOSMessage);
-        assertEquals("Wrong source in message", pipe.pipe, msg.getSource());
+        assertNotNull(msg, "No message available on bus");
+        assertEquals(MessageType.EOS, msg.getType(), "Wrong message type");
+        assertTrue(msg instanceof EOSMessage, "Message not intance of EOSMessage");
+        assertEquals(pipe.pipe, msg.getSource(), "Wrong source in message");
         pipe.dispose();
     }
 
@@ -114,14 +102,14 @@ public class MessageTest {
     public void gst_message_new_percent() {
         Element fakesink = ElementFactory.make("fakesink", "sink");
         Message msg = GSTMESSAGE_API.gst_message_new_buffering(fakesink, 55);
-        assertTrue("gst_message_new_eos did not return an instance of BufferingMessage", msg instanceof BufferingMessage);
+        assertTrue(msg instanceof BufferingMessage, "gst_message_new_eos did not return an instance of BufferingMessage");
     }
 
     @Test
     public void BufferingMessage_getPercent() {
         Element fakesink = ElementFactory.make("fakesink", "sink");
         BufferingMessage msg = (BufferingMessage) GSTMESSAGE_API.gst_message_new_buffering(fakesink, 55);
-        assertEquals("Wrong source in message", 55, msg.getPercent());
+        assertEquals(55, msg.getPercent(), "Wrong source in message");
     }
 
     @Test
@@ -141,11 +129,11 @@ public class MessageTest {
         GSTELEMENT_API.gst_element_post_message(pipe.sink, new BufferingMessage(pipe.src, PERCENT));
         pipe.run();
         Message msg = signalMessage.get();
-        assertNotNull("No message available on bus", msg);
-        assertEquals("Wrong message type", MessageType.BUFFERING, msg.getType());
-        assertTrue("Message not instance of BufferingMessage", msg instanceof BufferingMessage);
-        assertEquals("Wrong source in message", pipe.src, msg.getSource());
-        assertEquals("Wrong percent value in message", PERCENT, ((BufferingMessage) msg).getPercent());
+        assertNotNull(msg, "No message available on bus");
+        assertEquals(MessageType.BUFFERING, msg.getType(), "Wrong message type");
+        assertTrue(msg instanceof BufferingMessage, "Message not instance of BufferingMessage");
+        assertEquals(pipe.src, msg.getSource(), "Wrong source in message");
+        assertEquals(PERCENT, ((BufferingMessage) msg).getPercent(), "Wrong percent value in message");
         pipe.dispose();
     }
 
@@ -153,7 +141,7 @@ public class MessageTest {
     public void gst_message_new_duration() {
         Element fakesink = ElementFactory.make("fakesink", "sink");
         Message msg = GSTMESSAGE_API.gst_message_new_duration_changed(fakesink);
-        assertTrue("gst_message_new_duration did not return an instance of DurationMessage", msg instanceof DurationChangedMessage);
+        assertTrue(msg instanceof DurationChangedMessage, "gst_message_new_duration did not return an instance of DurationMessage");
     }
 
     @Test
@@ -173,10 +161,10 @@ public class MessageTest {
         GSTELEMENT_API.gst_element_post_message(pipe.src, new DurationChangedMessage(pipe.src));
         pipe.play().run();
         Message msg = signalMessage.get();
-        assertNotNull("No message available on bus", msg);
-        assertEquals("Wrong message type", MessageType.DURATION_CHANGED, msg.getType());
-        assertTrue("Message not instance of EOSMessage", msg instanceof DurationChangedMessage);
-        assertEquals("Wrong source in message", pipe.src, msg.getSource());
+        assertNotNull(msg, "No message available on bus");
+        assertEquals(MessageType.DURATION_CHANGED, msg.getType(), "Wrong message type");
+        assertTrue(msg instanceof DurationChangedMessage, "Message not instance of EOSMessage");
+        assertEquals(pipe.src, msg.getSource(), "Wrong source in message");
         pipe.dispose();
     }
 
@@ -184,7 +172,7 @@ public class MessageTest {
     public void gst_message_new_tag() {
         Element src = ElementFactory.make("fakesrc", "src");
         Message msg = GSTMESSAGE_API.gst_message_new_tag(src, new TagList());
-        assertTrue("gst_message_new_tag did not return an instance of TagMessage", msg instanceof TagMessage);
+        assertTrue(msg instanceof TagMessage, "gst_message_new_tag did not return an instance of TagMessage");
     }
 
     @Test
@@ -195,14 +183,14 @@ public class MessageTest {
         GSTTAGLIST_API.gst_tag_list_add(tl, TagMergeMode.APPEND, "artist", MAGIC);
         TagMessage msg = (TagMessage) GSTMESSAGE_API.gst_message_new_tag(src, tl);
         tl = msg.getTagList();
-        assertEquals("Wrong artist in tag list", MAGIC, tl.getString("artist", 0));
+        assertEquals(MAGIC, tl.getString("artist", 0), "Wrong artist in tag list");
     }
 
     @Test
     public void gst_message_new_state_changed() {
         Element src = ElementFactory.make("fakesrc", "src");
         Message msg = GSTMESSAGE_API.gst_message_new_state_changed(src, State.READY, State.PLAYING, State.VOID_PENDING);
-        assertTrue("gst_message_new_state_changed did not return an instance of StateChangedMessage", msg instanceof StateChangedMessage);
+        assertTrue(msg instanceof StateChangedMessage, "gst_message_new_state_changed did not return an instance of StateChangedMessage");
     }
 
     @Test
@@ -215,9 +203,9 @@ public class MessageTest {
     public void StateChanged_get() {
         Element src = ElementFactory.make("fakesrc", "src");
         StateChangedMessage msg = (StateChangedMessage) GSTMESSAGE_API.gst_message_new_state_changed(src, State.READY, State.PLAYING, State.VOID_PENDING);
-        assertEquals("Wrong old state", State.READY, msg.getOldState());
-        assertEquals("Wrong new state", State.PLAYING, msg.getNewState());
-        assertEquals("Wrong pending state", State.VOID_PENDING, msg.getPendingState());
+        assertEquals(State.READY, msg.getOldState(), "Wrong old state");
+        assertEquals(State.PLAYING, msg.getNewState(), "Wrong new state");
+        assertEquals(State.VOID_PENDING, msg.getPendingState(), "Wrong pending state");
     }
 
     @Test
@@ -238,12 +226,12 @@ public class MessageTest {
                 new StateChangedMessage(pipe.src, State.READY, State.PLAYING, State.VOID_PENDING));
         pipe.run();
         Message msg = signalMessage.get();
-        assertNotNull("No message available on bus", msg);
-        assertEquals("Wrong message type", MessageType.STATE_CHANGED, msg.getType());
+        assertNotNull(msg, "No message available on bus");
+        assertEquals(MessageType.STATE_CHANGED, msg.getType(), "Wrong message type");
         StateChangedMessage smsg = (StateChangedMessage) msg;
-        assertEquals("Wrong old state", State.READY, smsg.getOldState());
-        assertEquals("Wrong new state", State.PLAYING, smsg.getNewState());
-        assertEquals("Wrong pending state", State.VOID_PENDING, smsg.getPendingState());
+        assertEquals(State.READY, smsg.getOldState(), "Wrong old state");
+        assertEquals(State.PLAYING, smsg.getNewState(), "Wrong new state");
+        assertEquals(State.VOID_PENDING, smsg.getPendingState(), "Wrong pending state");
         pipe.dispose();
     }
 
@@ -251,8 +239,8 @@ public class MessageTest {
     public void gst_message_new_segment_done() {
         Element src = ElementFactory.make("fakesrc", "src");
         Message msg = GSTMESSAGE_API.gst_message_new_segment_done(src, Format.TIME, 0xdeadbeef);
-        assertTrue("gst_message_new_segment_done did not return an instance of SegmentDoneMessage",
-                msg instanceof SegmentDoneMessage);
+        assertTrue(msg instanceof SegmentDoneMessage,
+                "gst_message_new_segment_done did not return an instance of SegmentDoneMessage");
     }
 
     @Test
@@ -265,8 +253,8 @@ public class MessageTest {
     public void parseSegmentDone() {
         Element src = ElementFactory.make("fakesrc", "src");
         SegmentDoneMessage msg = (SegmentDoneMessage) GSTMESSAGE_API.gst_message_new_segment_done(src, Format.TIME, 0xdeadbeef);
-        assertEquals("Wrong format", Format.TIME, msg.getFormat());
-        assertEquals("Wrong position", 0xdeadbeef, msg.getPosition());
+        assertEquals(Format.TIME, msg.getFormat(), "Wrong format");
+        assertEquals(0xdeadbeef, msg.getPosition(), "Wrong position");
     }
 
     @Test
@@ -288,11 +276,11 @@ public class MessageTest {
                 new SegmentDoneMessage(pipe.src, Format.TIME, POSITION));
         pipe.run();
         Message msg = signalMessage.get();
-        assertNotNull("No message available on bus", msg);
-        assertEquals("Wrong message type", MessageType.SEGMENT_DONE, msg.getType());
+        assertNotNull(msg, "No message available on bus");
+        assertEquals(MessageType.SEGMENT_DONE, msg.getType(), "Wrong message type");
         SegmentDoneMessage smsg = (SegmentDoneMessage) msg;
-        assertEquals("Wrong format", Format.TIME, smsg.getFormat());
-        assertEquals("Wrong position", POSITION, smsg.getPosition());
+        assertEquals(Format.TIME, smsg.getFormat(), "Wrong format");
+        assertEquals(POSITION, smsg.getPosition(), "Wrong position");
         pipe.dispose();
     }
 
@@ -315,8 +303,8 @@ public class MessageTest {
                 new LatencyMessage(pipe.src));
         pipe.run();
         Message msg = signalMessage.get();
-        assertNotNull("No message available on bus", msg);
-        assertEquals("Wrong message type", MessageType.LATENCY, msg.getType());
+        assertNotNull(msg, "No message available on bus");
+        assertEquals(MessageType.LATENCY, msg.getType(), "Wrong message type");
         @SuppressWarnings("unused")
         LatencyMessage smsg = (LatencyMessage) msg;
         pipe.dispose();

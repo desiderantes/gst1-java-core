@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -17,30 +17,32 @@
 package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.glib.GLib;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class GLibTest {
-    
+
     @Test
-    public void getEnv() {       
+    public void getEnv() {
         String user = GLib.getEnv("USER");
         String pwd = GLib.getEnv("PWD");
         System.out.println("user: " + user);
-        System.out.println("path: " + pwd);        
+        System.out.println("path: " + pwd);
     }
-    
+
     @Test
     public void setUnsetEnv() {
-        
+
         // set environment
         GLib.setEnv("TESTVAR", "foo", true);
-        
+
         // get environment
-        assertEquals("could not set TESTVAR!", GLib.getEnv("TESTVAR"), "foo");
-        
+        assertEquals("foo", GLib.getEnv("TESTVAR"), "could not set TESTVAR!");
+
         // unset
         GLib.unsetEnv("TESTVAR");
-        assertEquals("could not unset TESTVAR!", GLib.getEnv("TESTVAR"), null);
+        assertNull(GLib.getEnv("TESTVAR"), "could not unset TESTVAR!");
     }
 }

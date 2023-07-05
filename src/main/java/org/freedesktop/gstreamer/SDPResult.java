@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2018 Antonio Morales
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -26,24 +26,29 @@ import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
  * See upstream documentation at
  * <a href="https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gst-plugins-base-libs/html/gst-plugins-base-libs-GstSDPMessage.html#GstSDPResult"
  * >https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gst-plugins-base-libs/html/gst-plugins-base-libs-GstSDPMessage.html#GstSDPResult</a>
- * 
+ *
  * @see SDPMessage
  */
 public enum SDPResult implements NativeEnum<SDPResult> {
-    /** A successful return value*/
+    /**
+     * A successful return value
+     */
     OK(0),
-    /** A function to SDPMessage was given invalid parameters */
+    /**
+     * A function to SDPMessage was given invalid parameters
+     */
     @DefaultEnumValue
     EINVAL(-1);
 
     private final int value;
-    
+
     SDPResult(int value) {
         this.value = value;
     }
 
     /**
      * Gets the integer value of the enum
+     *
      * @return the integer value for this enum.
      */
     @Override

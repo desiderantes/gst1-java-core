@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2016 Christophe Lafolet
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -18,20 +18,17 @@
  */
 package org.freedesktop.gstreamer.elements;
 
+import org.freedesktop.gstreamer.*;
+import org.freedesktop.gstreamer.glib.NativeEnum;
+import org.freedesktop.gstreamer.lowlevel.GType;
+import org.freedesktop.gstreamer.lowlevel.GValueAPI;
+import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValueArray;
+import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
+import org.freedesktop.gstreamer.query.Query;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.freedesktop.gstreamer.Bin;
-import org.freedesktop.gstreamer.Caps;
-import org.freedesktop.gstreamer.Element;
-import org.freedesktop.gstreamer.ElementFactory;
-import org.freedesktop.gstreamer.Pad;
-import org.freedesktop.gstreamer.glib.NativeEnum;
-import org.freedesktop.gstreamer.query.Query;
-import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValueArray;
-import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
-import org.freedesktop.gstreamer.lowlevel.GType;
-import org.freedesktop.gstreamer.lowlevel.GValueAPI;
 
 /**
  * A {@link Bin} that decodes data from a URI into raw media. It selects a
@@ -54,20 +51,6 @@ public class URIDecodeBin extends Bin {
 
     URIDecodeBin(final Initializer init) {
         super(init);
-    }
-
-    /**
-     * Signal is emitted when a pad for which there is no further possible
-     * decoding is added to the {@link URIDecodeBin}.
-     */
-    public static interface UNKNOWN_TYPE {
-
-        /**
-         * @param element The element which has the new Pad.
-         * @param pad the new Pad.
-         * @param caps the caps of the pad that cannot be resolved.
-         */
-        public void unknownType(URIDecodeBin element, Pad pad, Caps caps);
     }
 
     /**
@@ -94,26 +77,6 @@ public class URIDecodeBin extends Bin {
     }
 
     /**
-     * Signal is emitted when a pad for which there is no further possible
-     * decoding is added to the {@link URIDecodeBin}.
-     */
-    public static interface AUTOPLUG_CONTINUE {
-
-        /**
-         * Autoplug continue signal.
-         *
-         * @param element The element which has the new Pad.
-         * @param pad the new Pad.
-         * @param caps the caps of the pad that cannot be resolved.
-         * @return TRUE if you wish decodebin to look for elements that can
-         * handle the given caps . If FALSE, those caps will be considered as
-         * final and the pad will be exposed as such (see 'pad-added' signal of
-         * {@link Element}).
-         */
-        public boolean autoplugContinue(URIDecodeBin element, Pad pad, Caps caps);
-    }
-
-    /**
      * Adds a listener for the <code>autoplug-continue</code> signal
      *
      * @param listener Listener to be called
@@ -134,28 +97,6 @@ public class URIDecodeBin extends Bin {
      */
     public void disconnect(AUTOPLUG_CONTINUE listener) {
         disconnect(AUTOPLUG_CONTINUE.class, listener);
-    }
-
-    /**
-     * This function is emitted when an array of possible factories for caps on
-     * pad is needed. {@link URIDecodeBin} will by default return an array with all
-     * compatible factories, sorted by rank.
-     * <p>
-     * If this function returns {@link Optional#EMPTY}, pad will be exposed as a
-     * final caps.
-     * <p>
-     * If this function returns an empty list, the pad will be considered as
-     * having an unhandled type media type.
-     */
-    public static interface AUTOPLUG_FACTORIES {
-
-        /**
-         * @param element The element which has the new Pad.
-         * @param pad the new Pad.
-         * @param caps the caps of the pad that cannot be resolved.
-         * @return
-         */
-        public Optional<List<ElementFactory>> autoplugFactories(URIDecodeBin element, Pad pad, Caps caps);
     }
 
     /**
@@ -185,29 +126,6 @@ public class URIDecodeBin extends Bin {
      */
     public void disconnect(AUTOPLUG_FACTORIES listener) {
         disconnect(AUTOPLUG_FACTORIES.class, listener);
-    }
-
-    /**
-     * Once {@link URIDecodeBin} has found the possible ElementFactory objects to
-     * try for caps on pad, this signal is emitted. The purpose of the signal is
-     * for the application to perform additional sorting or filtering on the
-     * element factory array.
-     *
-     * The callee should copy and modify factories.
-     */
-    public static interface AUTOPLUG_SORT {
-
-        /**
-         * Autoplug sort
-         *
-         * @param element The element which has the new Pad
-         * @param pad the new Pad
-         * @param caps the caps of the pad that cannot be resolved
-         * @param factories A List of possible {@link ElementFactory} to use
-         * @return resorted list or {@link Optional#EMPTY}
-         */
-        public Optional<List<ElementFactory>> autoplugSort(
-                URIDecodeBin element, Pad pad, Caps caps, List<ElementFactory> factories);
     }
 
     /**
@@ -247,59 +165,6 @@ public class URIDecodeBin extends Bin {
         disconnect(AUTOPLUG_SORT.class, listener);
     }
 
-    public enum AutoplugSelectResult implements NativeEnum<AutoplugSelectResult> {
-        TRY(0),
-        EXPOSE(1),
-        SKIP(2);
-
-        AutoplugSelectResult(final int value) {
-            this.value = value;
-        }
-
-        /**
-         * Gets the integer value of the enum.
-         *
-         * @return The integer value for this enum.
-         */
-        @Override
-        public int intValue() {
-            return value;
-        }
-        private final int value;
-    }
-
-    /**
-     * Once {@link URIDecodeBin} has found the possible ElementFactory objects to
-     * try for caps on pad, this signal is emitted. The purpose of the signal is
-     * for the application to perform additional filtering on the element
-     * factory array.
-     * <p>
-     * The signal handler should return a {@link AutoplugSelectResult} value
-     * indicating what decodebin should do next.
-     * <p>
-     * A value of {@link AutoplugSelectResult#TRY} will try to autoplug an
-     * element from factory.
-     * <p>
-     * A value of {@link AutoplugSelectResult#EXPOSE} will expose pad without
-     * plugging any element to it.
-     * <p>
-     * A value of {@link AutoplugSelectResult#SKIP} will skip factory and move
-     * to the next factory.
-     */
-    public static interface AUTOPLUG_SELECT {
-
-        /**
-         * @param element The decodebin
-         * @param pad the new Pad
-         * @param caps the caps of the pad
-         * @param factory the {@link ElementFactory} to use
-         * @return an {@link AutoplugSelectResult} that indicates the required
-         * operation. the default handler will always return
-         * {@link AutoplugSelectResult#TRY}
-         */
-        public AutoplugSelectResult autoplugSelect(final URIDecodeBin element, final Pad pad, final Caps caps, final ElementFactory factory);
-    }
-
     /**
      * Adds a listener for the <code>autoplug-select</code> signal
      *
@@ -321,22 +186,6 @@ public class URIDecodeBin extends Bin {
      */
     public void disconnect(final AUTOPLUG_SELECT listener) {
         disconnect(AUTOPLUG_SELECT.class, listener);
-    }
-
-    /**
-     * This signal is emitted whenever an autoplugged element that is not linked
-     * downstream yet and not exposed does a query. It can be used to tell the
-     * element about the downstream supported caps for example..
-     */
-    public static interface AUTOPLUG_QUERY {
-
-        /**
-         * @param element the decodebin.
-         * @param pad the pad.
-         * @param child the child element doing the query
-         * @param query the query.
-         */
-        public boolean autoplugQuery(URIDecodeBin element, Pad pad, Element child, Query query);
     }
 
     /**
@@ -363,18 +212,6 @@ public class URIDecodeBin extends Bin {
     }
 
     /**
-     * This signal is emitted once {@link URIDecodeBin} has finished decoding all
-     * the data.
-     */
-    public static interface DRAINED {
-
-        /**
-         * @param element The element
-         */
-        public void drained(URIDecodeBin element);
-    }
-
-    /**
      * Adds a listener for the <code>drained</code> signal
      *
      * @param listener Listener to be called
@@ -398,20 +235,6 @@ public class URIDecodeBin extends Bin {
     }
 
     /**
-     * Signal is emitted after the source has been created, so it can be
-     * configured by setting additionnal properties.
-     */
-    public static interface SOURCE_SETUP {
-
-        /**
-         *
-         * @param bin the container.
-         * @param elem the created source
-         */
-        public void sourceSetup(URIDecodeBin bin, Element elem);
-    }
-
-    /**
      * Adds a listener for the <code>source-setup</code> signal
      *
      * @param source-setup Listener to be called
@@ -432,6 +255,180 @@ public class URIDecodeBin extends Bin {
      */
     public void disconnect(final SOURCE_SETUP listener) {
         this.disconnect(SOURCE_SETUP.class, listener);
+    }
+
+    public enum AutoplugSelectResult implements NativeEnum<AutoplugSelectResult> {
+        TRY(0),
+        EXPOSE(1),
+        SKIP(2);
+
+        private final int value;
+
+        AutoplugSelectResult(final int value) {
+            this.value = value;
+        }
+
+        /**
+         * Gets the integer value of the enum.
+         *
+         * @return The integer value for this enum.
+         */
+        @Override
+        public int intValue() {
+            return value;
+        }
+    }
+
+    /**
+     * Signal is emitted when a pad for which there is no further possible
+     * decoding is added to the {@link URIDecodeBin}.
+     */
+    public interface UNKNOWN_TYPE {
+
+        /**
+         * @param element The element which has the new Pad.
+         * @param pad     the new Pad.
+         * @param caps    the caps of the pad that cannot be resolved.
+         */
+        void unknownType(URIDecodeBin element, Pad pad, Caps caps);
+    }
+
+    /**
+     * Signal is emitted when a pad for which there is no further possible
+     * decoding is added to the {@link URIDecodeBin}.
+     */
+    public interface AUTOPLUG_CONTINUE {
+
+        /**
+         * Autoplug continue signal.
+         *
+         * @param element The element which has the new Pad.
+         * @param pad     the new Pad.
+         * @param caps    the caps of the pad that cannot be resolved.
+         * @return TRUE if you wish decodebin to look for elements that can
+         * handle the given caps . If FALSE, those caps will be considered as
+         * final and the pad will be exposed as such (see 'pad-added' signal of
+         * {@link Element}).
+         */
+        boolean autoplugContinue(URIDecodeBin element, Pad pad, Caps caps);
+    }
+
+    /**
+     * This function is emitted when an array of possible factories for caps on
+     * pad is needed. {@link URIDecodeBin} will by default return an array with all
+     * compatible factories, sorted by rank.
+     * <p>
+     * If this function returns {@link Optional#EMPTY}, pad will be exposed as a
+     * final caps.
+     * <p>
+     * If this function returns an empty list, the pad will be considered as
+     * having an unhandled type media type.
+     */
+    public interface AUTOPLUG_FACTORIES {
+
+        /**
+         * @param element The element which has the new Pad.
+         * @param pad     the new Pad.
+         * @param caps    the caps of the pad that cannot be resolved.
+         * @return
+         */
+        Optional<List<ElementFactory>> autoplugFactories(URIDecodeBin element, Pad pad, Caps caps);
+    }
+
+    /**
+     * Once {@link URIDecodeBin} has found the possible ElementFactory objects to
+     * try for caps on pad, this signal is emitted. The purpose of the signal is
+     * for the application to perform additional sorting or filtering on the
+     * element factory array.
+     * <p>
+     * The callee should copy and modify factories.
+     */
+    public interface AUTOPLUG_SORT {
+
+        /**
+         * Autoplug sort
+         *
+         * @param element   The element which has the new Pad
+         * @param pad       the new Pad
+         * @param caps      the caps of the pad that cannot be resolved
+         * @param factories A List of possible {@link ElementFactory} to use
+         * @return resorted list or {@link Optional#EMPTY}
+         */
+        Optional<List<ElementFactory>> autoplugSort(
+                URIDecodeBin element, Pad pad, Caps caps, List<ElementFactory> factories);
+    }
+
+    /**
+     * Once {@link URIDecodeBin} has found the possible ElementFactory objects to
+     * try for caps on pad, this signal is emitted. The purpose of the signal is
+     * for the application to perform additional filtering on the element
+     * factory array.
+     * <p>
+     * The signal handler should return a {@link AutoplugSelectResult} value
+     * indicating what decodebin should do next.
+     * <p>
+     * A value of {@link AutoplugSelectResult#TRY} will try to autoplug an
+     * element from factory.
+     * <p>
+     * A value of {@link AutoplugSelectResult#EXPOSE} will expose pad without
+     * plugging any element to it.
+     * <p>
+     * A value of {@link AutoplugSelectResult#SKIP} will skip factory and move
+     * to the next factory.
+     */
+    public interface AUTOPLUG_SELECT {
+
+        /**
+         * @param element The decodebin
+         * @param pad     the new Pad
+         * @param caps    the caps of the pad
+         * @param factory the {@link ElementFactory} to use
+         * @return an {@link AutoplugSelectResult} that indicates the required
+         * operation. the default handler will always return
+         * {@link AutoplugSelectResult#TRY}
+         */
+        AutoplugSelectResult autoplugSelect(final URIDecodeBin element, final Pad pad, final Caps caps, final ElementFactory factory);
+    }
+
+    /**
+     * This signal is emitted whenever an autoplugged element that is not linked
+     * downstream yet and not exposed does a query. It can be used to tell the
+     * element about the downstream supported caps for example..
+     */
+    public interface AUTOPLUG_QUERY {
+
+        /**
+         * @param element the decodebin.
+         * @param pad     the pad.
+         * @param child   the child element doing the query
+         * @param query   the query.
+         */
+        boolean autoplugQuery(URIDecodeBin element, Pad pad, Element child, Query query);
+    }
+
+    /**
+     * This signal is emitted once {@link URIDecodeBin} has finished decoding all
+     * the data.
+     */
+    public interface DRAINED {
+
+        /**
+         * @param element The element
+         */
+        void drained(URIDecodeBin element);
+    }
+
+    /**
+     * Signal is emitted after the source has been created, so it can be
+     * configured by setting additionnal properties.
+     */
+    public interface SOURCE_SETUP {
+
+        /**
+         * @param bin  the container.
+         * @param elem the created source
+         */
+        void sourceSetup(URIDecodeBin bin, Element elem);
     }
 
 }

@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -17,7 +17,12 @@
  */
 package org.freedesktop.gstreamer.lowlevel;
 
-import static org.freedesktop.gstreamer.lowlevel.GlibAPI.GLIB_API;
+import com.sun.jna.Pointer;
+import org.freedesktop.gstreamer.Gst;
+import org.freedesktop.gstreamer.glib.GMainContext;
+import org.freedesktop.gstreamer.glib.GSource;
+import org.freedesktop.gstreamer.glib.Natives;
+import org.freedesktop.gstreamer.glib.RefCountedObject;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -25,13 +30,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import org.freedesktop.gstreamer.Gst;
-
-import com.sun.jna.Pointer;
-import org.freedesktop.gstreamer.glib.GMainContext;
-import org.freedesktop.gstreamer.glib.GSource;
-import org.freedesktop.gstreamer.glib.Natives;
-import org.freedesktop.gstreamer.glib.RefCountedObject;
+import static org.freedesktop.gstreamer.lowlevel.GlibAPI.GLIB_API;
 
 /**
  * The GLib main loop.
@@ -39,7 +38,21 @@ import org.freedesktop.gstreamer.glib.RefCountedObject;
 public class MainLoop extends RefCountedObject {
 
     private static final List<Runnable> bgTasks = new LinkedList<Runnable>();
-
+    private static final GlibAPI.GSourceFunc bgCallback = new GlibAPI.GSourceFunc() {
+        public boolean callback(Pointer source) {
+            //            System.out.println("Running g_idle callbacks");
+            List<Runnable> tasks = new ArrayList<Runnable>();
+            synchronized (bgTasks) {
+                tasks.addAll(bgTasks);
+                bgTasks.clear();
+            }
+            for (Runnable r : tasks) {
+                r.run();
+            }
+            GLIB_API.g_source_unref(source);
+            return false;
+        }
+    };
     private Thread bgThread;
 
     /**
@@ -47,7 +60,6 @@ public class MainLoop extends RefCountedObject {
      *
      * <p>
      * This will create a new main loop on the default gstreamer main context.
-     *
      */
     public MainLoop() {
         this(Natives.initializer(GLIB_API.g_main_loop_new(Gst.getMainContext(), false)));
@@ -140,21 +152,6 @@ public class MainLoop extends RefCountedObject {
             throw new RuntimeException(ex.getCause());
         }
     }
-    private static final GlibAPI.GSourceFunc bgCallback = new GlibAPI.GSourceFunc() {
-        public boolean callback(Pointer source) {
-            //            System.out.println("Running g_idle callbacks");
-            List<Runnable> tasks = new ArrayList<Runnable>();
-            synchronized (bgTasks) {
-                tasks.addAll(bgTasks);
-                bgTasks.clear();
-            }
-            for (Runnable r : tasks) {
-                r.run();
-            }
-            GLIB_API.g_source_unref(source);
-            return false;
-        }
-    };
 
     /**
      * Invokes a task on the main loop thread.

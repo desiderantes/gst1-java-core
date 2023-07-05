@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -39,7 +39,7 @@ public class BaseSink extends Element {
     // @TODO review - all properties are available by set / get mechanism
     // some other methods require the preroll lock, but we don't have a way to
     // access. Methods for subclasses should probably be protected.
-    
+
 //    public FlowReturn doPreroll(MiniObject obj) {
 //        return BASESINK_API.gst_base_sink_do_preroll(this, obj);
 //    }

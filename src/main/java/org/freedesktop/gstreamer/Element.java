@@ -1,20 +1,20 @@
-/* 
+/*
  * Copyright (c) 2021 Neil C Smith
  * Copyright (c) 2019 Christophe Lafolet
  * Copyright (c) 2009 Levente Farkas
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2004 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -22,9 +22,6 @@
  */
 package org.freedesktop.gstreamer;
 
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.freedesktop.gstreamer.event.Event;
 import org.freedesktop.gstreamer.event.SeekEvent;
 import org.freedesktop.gstreamer.event.SeekFlags;
@@ -38,8 +35,12 @@ import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
 import org.freedesktop.gstreamer.message.Message;
 import org.freedesktop.gstreamer.query.Query;
 
-import static org.freedesktop.gstreamer.lowlevel.GstElementAPI.GSTELEMENT_API;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GOBJECT_API;
+import static org.freedesktop.gstreamer.lowlevel.GstElementAPI.GSTELEMENT_API;
 
 /**
  * Abstract base class for all pipeline elements.
@@ -73,7 +74,6 @@ import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GOBJECT_API;
  * <p>
  * Each element has a state (see {@link State}). You can get and set the state
  * of an element with {@link #getState} and {@link #setState}.
- *
  */
 public class Element extends GstObject {
 
@@ -102,6 +102,98 @@ public class Element extends GstObject {
      */
     protected static Initializer makeRawElement(String factoryName, String elementName) {
         return Natives.initializer(ElementFactory.makeRawElement(factoryName, elementName));
+    }
+
+    /**
+     * Link together a list of elements.
+     * <p>
+     * Make sure you have added your elements to a bin or pipeline with
+     * {@link Bin#add} or {@link Bin#addMany} before trying to link them.
+     *
+     * @param elements The list of elements to link together.
+     * @return true if all elements successfully linked.
+     */
+    public static boolean linkMany(Element... elements) {
+        return GSTELEMENT_API.gst_element_link_many(elements);
+    }
+
+    /**
+     * Unlink a list of elements.
+     *
+     * @param elements The list of elements to link together
+     */
+    public static void unlinkMany(Element... elements) {
+        GSTELEMENT_API.gst_element_unlink_many(elements);
+    }
+
+
+//    /**
+//     * Chain together a series of elements, with this element as the first in the list. 
+//     * <p>
+//     * Make sure you have added your elements to a bin or pipeline with
+//     * {@link Bin#add} or {@link Bin#addMany} before trying to link them.
+//     *
+//     * @param elems The list of elements to be linked.
+//     * @return true if the elements could be linked, false otherwise.
+//     */
+//    public boolean link(Element... elems) {
+//        // Its much more efficient to copy the array and let the native code do the linking
+//        Element[] list = new Element[elems.length + 1];
+//        list[0] = this;
+//        System.arraycopy(elems, 0, list, 1, elems.length);
+//        return linkMany(list);
+//    }
+
+    /**
+     * Link together source and destination pads of two elements.
+     * <p>
+     * A side effect is that if one of the pads has no parent, it becomes a
+     * child of the parent of the other element. If they have different parents,
+     * the link fails.
+     *
+     * @param src         The {@link Element} containing the source {@link Pad}.
+     * @param srcPadName  The name of the source {@link Pad}. Can be null for any
+     *                    pad.
+     * @param dest        The {@link Element} containing the destination {@link Pad}.
+     * @param destPadName The name of the destination {@link Pad}. Can be null
+     *                    for any pad.
+     * @return true if the pads were successfully linked.
+     */
+    public static boolean linkPads(Element src, String srcPadName, Element dest, String destPadName) {
+        return GSTELEMENT_API.gst_element_link_pads(src, srcPadName, dest, destPadName);
+    }
+
+    /**
+     * Link together source and destination pads of two elements. A side effect
+     * is that if one of the pads has no parent, it becomes a child of the
+     * parent of the other element. If they have different parents, the link
+     * fails. If caps is not null, makes sure that the caps of the link is a
+     * subset of caps.
+     *
+     * @param src         The {@link Element} containing the source {@link Pad}.
+     * @param srcPadName  The name of the source {@link Pad}. Can be null for any
+     *                    pad.
+     * @param dest        The {@link Element} containing the destination {@link Pad}.
+     * @param destPadName The name of the destination {@link Pad}. Can be null
+     *                    for any pad.
+     * @param caps        The {@link Caps} to use to filter the link.
+     * @return true if the pads were successfully linked.
+     */
+    public static boolean linkPadsFiltered(Element src, String srcPadName,
+                                           Element dest, String destPadName, Caps caps) {
+        return GSTELEMENT_API.gst_element_link_pads_filtered(src, srcPadName, dest, destPadName, caps);
+    }
+
+    /**
+     * Unlink source and destination pads of two elements.
+     *
+     * @param src         The {@link Element} containing the source {@link Pad}.
+     * @param srcPadName  The name of the source {@link Pad}.
+     * @param dest        The {@link Element} containing the destination {@link Pad}.
+     * @param destPadName The name of the destination {@link Pad}.
+     */
+    public static void unlinkPads(Element src, String srcPadName, Element dest, String destPadName) {
+        GSTELEMENT_API.gst_element_unlink_pads(src, srcPadName, dest, destPadName);
     }
 
     /**
@@ -140,7 +232,7 @@ public class Element extends GstObject {
      * See {@link Element#linkPadsFiltered} if you need more control about
      * which pads are selected for linking.
      *
-     * @param dest The {@link Element} containing the destination pad.
+     * @param dest   The {@link Element} containing the destination pad.
      * @param filter The {@link Caps} to filter the link, or Null for no filter.
      * @return true if the elements could be linked, false otherwise.
      */
@@ -148,23 +240,6 @@ public class Element extends GstObject {
         return GSTELEMENT_API.gst_element_link_filtered(this, dest, filter);
     }
 
-
-//    /**
-//     * Chain together a series of elements, with this element as the first in the list. 
-//     * <p>
-//     * Make sure you have added your elements to a bin or pipeline with
-//     * {@link Bin#add} or {@link Bin#addMany} before trying to link them.
-//     *
-//     * @param elems The list of elements to be linked.
-//     * @return true if the elements could be linked, false otherwise.
-//     */
-//    public boolean link(Element... elems) {
-//        // Its much more efficient to copy the array and let the native code do the linking
-//        Element[] list = new Element[elems.length + 1];
-//        list[0] = this;
-//        System.arraycopy(elems, 0, list, 1, elems.length);
-//        return linkMany(list);
-//    }
     /**
      * Unlinks all source pads of this source element with all sink pads of the
      * sink element to which they are linked.
@@ -283,9 +358,8 @@ public class Element extends GstObject {
      * value for the state change to complete.
      *
      * @param timeout the amount of time to wait.
-     * @param units the units of the <tt>timeout</tt>.
+     * @param units   the units of the <tt>timeout</tt>.
      * @return The {@link State} the Element is currently in.
-     *
      */
     public State getState(long timeout, TimeUnit units) {
         State[] state = new State[1];
@@ -302,7 +376,6 @@ public class Element extends GstObject {
      *
      * @param timeout The amount of time in nanoseconds to wait.
      * @return The {@link State} the Element is currently in.
-     *
      */
     public State getState(long timeout) {
         State[] state = new State[1];
@@ -318,9 +391,8 @@ public class Element extends GstObject {
      * value for the state change to complete.
      *
      * @param timeout The amount of time in nanoseconds to wait.
-     * @param states an array to store the states in. Must be of sufficient size
-     * to hold two elements.
-     *
+     * @param states  an array to store the states in. Must be of sufficient size
+     *                to hold two elements.
      */
     public void getState(long timeout, State[] states) {
         State[] state = new State[1];
@@ -387,7 +459,7 @@ public class Element extends GstObject {
     public List<Pad> getSinkPads() {
         return padList(GSTELEMENT_API.gst_element_iterate_sink_pads(this));
     }
-    
+
     private List<Pad> padList(GstIteratorPtr iter) {
         return GstIterator.asList(iter, Pad.class);
     }
@@ -489,61 +561,10 @@ public class Element extends GstObject {
     }
 
     /**
-     * Signal emitted when an {@link Pad} is added to this {@link Element}
-     *
-     * @see #connect(PAD_ADDED)
-     * @see #disconnect(PAD_ADDED)
-     */
-    public static interface PAD_ADDED {
-
-        /**
-         * Called when a new {@link Pad} is added to an Element.
-         *
-         * @param element the element the pad was added to.
-         * @param pad the pad which was added.
-         */
-        public void padAdded(Element element, Pad pad);
-    }
-
-    /**
-     * Signal emitted when an {@link Pad} is removed from this {@link Element}
-     *
-     * @see #connect(PAD_REMOVED)
-     * @see #disconnect(PAD_REMOVED)
-     */
-    public static interface PAD_REMOVED {
-
-        /**
-         * Called when a new {@link Pad} is removed from an Element.
-         *
-         * @param element the element the pad was removed from.
-         * @param pad the pad which was removed.
-         */
-        public void padRemoved(Element element, Pad pad);
-    }
-
-    /**
-     * Signal emitted when this {@link Element} ceases to generated dynamic
-     * pads.
-     *
-     * @see #connect(NO_MORE_PADS)
-     * @see #disconnect(NO_MORE_PADS)
-     */
-    public static interface NO_MORE_PADS {
-
-        /**
-         * Called when an {@link Element} ceases to generated dynamic pads.
-         *
-         * @param element the element which posted this message.
-         */
-        public void noMorePads(Element element);
-    }
-
-    /**
      * Add a listener for the <code>pad-added</code> signal
      *
      * @param listener Listener to be called when a {@link Pad} is added to the
-     * {@link Element}.
+     *                 {@link Element}.
      */
     public void connect(final PAD_ADDED listener) {
         connect(PAD_ADDED.class, listener, new GstCallback() {
@@ -567,7 +588,7 @@ public class Element extends GstObject {
      * Add a listener for the <code>pad-added</code> signal
      *
      * @param listener Listener to be called when a {@link Pad} is removed from
-     * the {@link Element}.
+     *                 the {@link Element}.
      */
     public void connect(final PAD_REMOVED listener) {
         connect(PAD_REMOVED.class, listener, new GstCallback() {
@@ -591,7 +612,7 @@ public class Element extends GstObject {
      * Add a listener for the <code>no-more-pads</code> signal
      *
      * @param listener Listener to be called when the {@link Element} will has
-     * finished generating dynamic pads.
+     *                 finished generating dynamic pads.
      */
     public void connect(final NO_MORE_PADS listener) {
         connect(NO_MORE_PADS.class, listener, new GstCallback() {
@@ -609,84 +630,6 @@ public class Element extends GstObject {
      */
     public void disconnect(NO_MORE_PADS listener) {
         disconnect(NO_MORE_PADS.class, listener);
-    }
-
-    /**
-     * Link together a list of elements.
-     * <p>
-     * Make sure you have added your elements to a bin or pipeline with
-     * {@link Bin#add} or {@link Bin#addMany} before trying to link them.
-     *
-     * @param elements The list of elements to link together.
-     * @return true if all elements successfully linked.
-     */
-    public static boolean linkMany(Element... elements) {
-        return GSTELEMENT_API.gst_element_link_many(elements);
-    }
-
-    /**
-     * Unlink a list of elements.
-     *
-     * @param elements The list of elements to link together
-     *
-     */
-    public static void unlinkMany(Element... elements) {
-        GSTELEMENT_API.gst_element_unlink_many(elements);
-    }
-
-    /**
-     * Link together source and destination pads of two elements.
-     *
-     * A side effect is that if one of the pads has no parent, it becomes a
-     * child of the parent of the other element. If they have different parents,
-     * the link fails.
-     *
-     * @param src The {@link Element} containing the source {@link Pad}.
-     * @param srcPadName The name of the source {@link Pad}. Can be null for any
-     * pad.
-     * @param dest The {@link Element} containing the destination {@link Pad}.
-     * @param destPadName The name of the destination {@link Pad}. Can be null
-     * for any pad.
-     *
-     * @return true if the pads were successfully linked.
-     */
-    public static boolean linkPads(Element src, String srcPadName, Element dest, String destPadName) {
-        return GSTELEMENT_API.gst_element_link_pads(src, srcPadName, dest, destPadName);
-    }
-
-    /**
-     * Link together source and destination pads of two elements. A side effect
-     * is that if one of the pads has no parent, it becomes a child of the
-     * parent of the other element. If they have different parents, the link
-     * fails. If caps is not null, makes sure that the caps of the link is a
-     * subset of caps.
-     *
-     * @param src The {@link Element} containing the source {@link Pad}.
-     * @param srcPadName The name of the source {@link Pad}. Can be null for any
-     * pad.
-     * @param dest The {@link Element} containing the destination {@link Pad}.
-     * @param destPadName The name of the destination {@link Pad}. Can be null
-     * for any pad.
-     * @param caps The {@link Caps} to use to filter the link.
-     *
-     * @return true if the pads were successfully linked.
-     */
-    public static boolean linkPadsFiltered(Element src, String srcPadName,
-            Element dest, String destPadName, Caps caps) {
-        return GSTELEMENT_API.gst_element_link_pads_filtered(src, srcPadName, dest, destPadName, caps);
-    }
-
-    /**
-     * Unlink source and destination pads of two elements.
-     *
-     * @param src The {@link Element} containing the source {@link Pad}.
-     * @param srcPadName The name of the source {@link Pad}.
-     * @param dest The {@link Element} containing the destination {@link Pad}.
-     * @param destPadName The name of the destination {@link Pad}.
-     *
-     */
-    public static void unlinkPads(Element src, String srcPadName, Element dest, String destPadName) {
-        GSTELEMENT_API.gst_element_unlink_pads(src, srcPadName, dest, destPadName);
     }
 
     /**
@@ -732,11 +675,11 @@ public class Element extends GstObject {
 
     /**
      * Returns the start time of this element.
-     *
+     * <p>
      * The start time is the running time of the clock when this element was
      * last put to {@link State#PAUSED}. Usually the start_time is managed by a
      * toplevel element such as {@link Pipeline}.
-     *
+     * <p>
      * MT safe.
      *
      * @return the start time of this element.
@@ -749,7 +692,7 @@ public class Element extends GstObject {
      * Set the start time of an element. The start time of the element is the
      * running time of the element when it last went to the {@link State#PAUSED}
      * state. In {@link State#READY} or after a flushing seek, it is set to 0.
-     *
+     * <p>
      * Toplevel elements like GstPipeline will manage the start_time and
      * base_time on its children. Setting the start_time to
      * {@link long#NONE} on such a toplevel element will disable the
@@ -757,7 +700,7 @@ public class Element extends GstObject {
      * application manages the base_time itself, for example if you want to
      * synchronize capture from multiple pipelines, and you can also ensure that
      * the pipelines have the same clock.
-     *
+     * <p>
      * MT safe.
      *
      * @param time the start time to set
@@ -769,11 +712,11 @@ public class Element extends GstObject {
 
     /**
      * Performs a query on the element.
-     *
+     * <p>
      * For elements that don't implement a query handler, this function forwards
      * the query to a random srcpad or to the peer of a random linked sinkpad of
      * this element.
-     *
+     * <p>
      * Please note that some queries might need a running pipeline to work.
      *
      * @param query the Query to perform
@@ -823,7 +766,7 @@ public class Element extends GstObject {
         long[] dur = {0};
         return GSTELEMENT_API.gst_element_query_duration(this, format, dur) ? dur[0] : -1L;
     }
-    
+
     /**
      * Queries an element (usually top-level pipeline or playbin element) for
      * the stream position in nanoseconds. This will be a value between 0 and
@@ -839,24 +782,24 @@ public class Element extends GstObject {
         long[] pos = {0};
         return GSTELEMENT_API.gst_element_query_position(this, format, pos) ? pos[0] : -1L;
     }
-    
+
     /**
      * Sends a seek event to an element. See {@link SeekEvent} for the details
      * of the parameters. The seek event is sent to the element using the native
      * equivalent of {@link #sendEvent(org.freedesktop.gstreamer.event.Event)}.
      *
-     * @param rate the new playback rate
-     * @param format the format of the seek values
+     * @param rate      the new playback rate
+     * @param format    the format of the seek values
      * @param seekFlags the seek flags
      * @param startType the type and flags for the new start position
-     * @param start the value of the new start position
-     * @param stopType the type and flags for the new stop position
-     * @param stop the value of the new stop position
+     * @param start     the value of the new start position
+     * @param stopType  the type and flags for the new stop position
+     * @param stop      the value of the new stop position
      * @return true if seek operation succeeded. Flushing seeks will trigger a
      * preroll, which will emit an ASYNC_DONE message
      */
     public boolean seek(double rate, Format format, Set<SeekFlags> seekFlags,
-            SeekType startType, long start, SeekType stopType, long stop) {
+                        SeekType startType, long start, SeekType stopType, long stop) {
 
         return GSTELEMENT_API.gst_element_seek(this, rate, format,
                 NativeFlags.toInt(seekFlags), startType, start, stopType, stop);
@@ -879,11 +822,11 @@ public class Element extends GstObject {
      * the element supports seek in READY, it will always return TRUE when it
      * receives the event in the READY state.
      *
-     * @param format a {@link Format} to seek in, such as {@link Format#TIME}
-     * @param seekFlags seek options; playback applications will usually want to
-     * use {@link SeekFlags#FLUSH} and {@link SeekFlags#KEY_UNIT} here
+     * @param format       a {@link Format} to seek in, such as {@link Format#TIME}
+     * @param seekFlags    seek options; playback applications will usually want to
+     *                     use {@link SeekFlags#FLUSH} and {@link SeekFlags#KEY_UNIT} here
      * @param seekPosition position to seek to (relative to the start); if you
-     * are doing a seek in format TIME this value is in nanoseconds
+     *                     are doing a seek in format TIME this value is in nanoseconds
      * @return true if seek operation succeeded. Flushing seeks will trigger a
      * preroll, which will emit an ASYNC_DONE message
      */
@@ -891,7 +834,58 @@ public class Element extends GstObject {
         return GSTELEMENT_API.gst_element_seek_simple(this, format,
                 NativeFlags.toInt(seekFlags), seekPosition);
     }
-    
+
+    /**
+     * Signal emitted when an {@link Pad} is added to this {@link Element}
+     *
+     * @see #connect(PAD_ADDED)
+     * @see #disconnect(PAD_ADDED)
+     */
+    public interface PAD_ADDED {
+
+        /**
+         * Called when a new {@link Pad} is added to an Element.
+         *
+         * @param element the element the pad was added to.
+         * @param pad     the pad which was added.
+         */
+        void padAdded(Element element, Pad pad);
+    }
+
+    /**
+     * Signal emitted when an {@link Pad} is removed from this {@link Element}
+     *
+     * @see #connect(PAD_REMOVED)
+     * @see #disconnect(PAD_REMOVED)
+     */
+    public interface PAD_REMOVED {
+
+        /**
+         * Called when a new {@link Pad} is removed from an Element.
+         *
+         * @param element the element the pad was removed from.
+         * @param pad     the pad which was removed.
+         */
+        void padRemoved(Element element, Pad pad);
+    }
+
+    /**
+     * Signal emitted when this {@link Element} ceases to generated dynamic
+     * pads.
+     *
+     * @see #connect(NO_MORE_PADS)
+     * @see #disconnect(NO_MORE_PADS)
+     */
+    public interface NO_MORE_PADS {
+
+        /**
+         * Called when an {@link Element} ceases to generated dynamic pads.
+         *
+         * @param element the element which posted this message.
+         */
+        void noMorePads(Element element);
+    }
+
     static class Handle extends GstObject.Handle {
 
         public Handle(GstObjectPtr ptr, boolean ownsHandle) {

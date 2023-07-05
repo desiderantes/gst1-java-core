@@ -23,7 +23,7 @@ import org.freedesktop.gstreamer.Meta;
 
 import static org.freedesktop.gstreamer.lowlevel.GstVideoAPI.GstVideoTimeCodeMetaStruct;
 
- /**
+/**
  * Extra buffer metadata describing the GstVideoTimeCode of the frame.
  * <p>
  * See upstream documentation at
@@ -32,7 +32,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstVideoAPI.GstVideoTimeCodeMet
  */
 @Gst.Since(minor = 10)
 public class VideoTimeCodeMeta extends Meta {
-    
+
     /**
      * Meta.API for VideoTimeCodeMeta.
      */
@@ -43,7 +43,7 @@ public class VideoTimeCodeMeta extends Meta {
      * Underlying GType name.
      */
     public static final String GTYPE_NAME = "GstVideoTimeCodeMeta";
-    
+
     private final VideoTimeCode timeCode;
 
     VideoTimeCodeMeta(Initializer init) {

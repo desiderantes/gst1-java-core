@@ -21,15 +21,15 @@
  */
 package org.freedesktop.gstreamer.elements;
 
+import com.sun.jna.ptr.LongByReference;
 import org.freedesktop.gstreamer.Buffer;
 import org.freedesktop.gstreamer.Caps;
-import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
-import static org.freedesktop.gstreamer.lowlevel.AppAPI.APP_API;
-
-import com.sun.jna.ptr.LongByReference;
 import org.freedesktop.gstreamer.FlowReturn;
 import org.freedesktop.gstreamer.Format;
 import org.freedesktop.gstreamer.glib.NativeEnum;
+import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
+
+import static org.freedesktop.gstreamer.lowlevel.AppAPI.APP_API;
 
 /**
  * A source {@link Element} that provides an easy way for applications to insert
@@ -112,17 +112,6 @@ public class AppSrc extends BaseSrc {
     }
 
     /**
-     * Set the capabilities on the appsrc element. This function takes a copy of
-     * the caps structure. After calling this method, the source will only
-     * produce caps that match caps . caps must be fixed and the caps on the
-     * buffers must match the caps or left NULL.
-     */
-    @Override
-    public void setCaps(Caps caps) {
-        APP_API.gst_app_src_set_caps(this, caps);
-    }
-
-    /**
      * Get the configured Caps on the AppSrc.
      *
      * @return the caps
@@ -132,13 +121,14 @@ public class AppSrc extends BaseSrc {
     }
 
     /**
-     * Set the size of the stream in bytes. A value of -1 means that the size is
-     * not known.
-     *
-     * @param size the size to set, or -1 if not known
+     * Set the capabilities on the appsrc element. This function takes a copy of
+     * the caps structure. After calling this method, the source will only
+     * produce caps that match caps . caps must be fixed and the caps on the
+     * buffers must match the caps or left NULL.
      */
-    public void setSize(long size) {
-        APP_API.gst_app_src_set_size(this, size);
+    @Override
+    public void setCaps(Caps caps) {
+        APP_API.gst_app_src_set_caps(this, caps);
     }
 
     /**
@@ -152,13 +142,13 @@ public class AppSrc extends BaseSrc {
     }
 
     /**
-     * Set the stream type on appsrc . For seekable streams, the "seek" signal
-     * must be connected to.
+     * Set the size of the stream in bytes. A value of -1 means that the size is
+     * not known.
      *
-     * @param type stream type
+     * @param size the size to set, or -1 if not known
      */
-    public void setStreamType(AppSrc.StreamType type) {
-        APP_API.gst_app_src_set_stream_type(this, type);
+    public void setSize(long size) {
+        APP_API.gst_app_src_set_size(this, size);
     }
 
     /**
@@ -171,14 +161,13 @@ public class AppSrc extends BaseSrc {
     }
 
     /**
-     * Set the maximum amount of bytes that can be queued in appsrc . After the
-     * maximum amount of bytes are queued, appsrc will emit the "enough-data"
-     * signal.
+     * Set the stream type on appsrc . For seekable streams, the "seek" signal
+     * must be connected to.
      *
-     * @param max number of bytes to queue
+     * @param type stream type
      */
-    public void setMaxBytes(long max) {
-        APP_API.gst_app_src_set_max_bytes(this, max);
+    public void setStreamType(AppSrc.StreamType type) {
+        APP_API.gst_app_src_set_stream_type(this, type);
     }
 
     /**
@@ -188,6 +177,17 @@ public class AppSrc extends BaseSrc {
      */
     public long getMaxBytes() {
         return APP_API.gst_app_src_get_max_bytes(this);
+    }
+
+    /**
+     * Set the maximum amount of bytes that can be queued in appsrc . After the
+     * maximum amount of bytes are queued, appsrc will emit the "enough-data"
+     * signal.
+     *
+     * @param max number of bytes to queue
+     */
+    public void setMaxBytes(long max) {
+        APP_API.gst_app_src_set_max_bytes(this, max);
     }
 
     /**
@@ -220,7 +220,7 @@ public class AppSrc extends BaseSrc {
      * <p>
      * When the block property is TRUE, this function can block until free space
      * becomes available in the queue.
-     * 
+     *
      * @param buffer a {@link Buffer} to push
      * @return GST_FLOW_OK when the buffer was successfully queued.
      * GST_FLOW_FLUSHING when appsrc is not PAUSED or PLAYING. GST_FLOW_EOS when
@@ -233,27 +233,12 @@ public class AppSrc extends BaseSrc {
     /**
      * Indicates to the appsrc element that the last buffer queued in the
      * element is the last buffer of the stream.
-     * 
+     *
      * @return GST_FLOW_OK when the EOS was successfuly queued. GST_FLOW_FLUSHING when
      * appsrc is not PAUSED or PLAYING.
      */
     public FlowReturn endOfStream() {
         return APP_API.gst_app_src_end_of_stream(this);
-    }
-
-    /**
-     * Signal that the source has enough data. It is recommended that the
-     * application stops calling push-buffer until the need-data signal is
-     * emitted again to avoid excessive buffer queueing.
-     */
-    public static interface ENOUGH_DATA {
-
-        /**
-         * Enough data signal
-         *
-         * @param elem the appsrc element that emitted the signal
-         */
-        public void enoughData(AppSrc elem);
     }
 
     /**
@@ -280,27 +265,6 @@ public class AppSrc extends BaseSrc {
     }
 
     /**
-     * Signal that the source needs more data. In the callback or from another
-     * thread you should call push-buffer or end-of-stream.
-     * <p>
-     * length is just a hint and when it is set to -1, any number of bytes can
-     * be pushed into appsrc .
-     * <p>
-     * You can call push-buffer multiple times until the enough-data signal is
-     * fired.
-     */
-    public static interface NEED_DATA {
-
-        /**
-         * Need data signal
-         *
-         * @param elem the appsrc element that emitted the signal
-         * @param size the amount of bytes needed, or -1. This is just a hint.
-         */
-        public void needData(AppSrc elem, int size);
-    }
-
-    /**
      * Adds a listener for the <code>need-data</code> signal
      *
      * @param listener Listener to be called when appsrc needs data.
@@ -321,24 +285,6 @@ public class AppSrc extends BaseSrc {
      */
     public void disconnect(NEED_DATA listener) {
         disconnect(NEED_DATA.class, listener);
-    }
-
-    /**
-     * Seek to the given offset, expressed in terms of the {@link Format} set on
-     * the AppSrc. The next push-buffer should produce buffers from the new
-     * offset . This callback is only called for seekable stream types.
-     */
-    public static interface SEEK_DATA {
-
-        /**
-         * Seek data signal.
-         *
-         * @param elem the appsrc element that emitted the signal
-         * @param position the offset to seek to, expressed in the
-         * {@link Format} set on the AppSrc
-         * @return true if the seek succeeded
-         */
-        public boolean seekData(AppSrc elem, long position);
     }
 
     /**
@@ -389,7 +335,7 @@ public class AppSrc extends BaseSrc {
 
         private final int value;
 
-        private StreamType(int value) {
+        StreamType(int value) {
             this.value = value;
         }
 
@@ -398,5 +344,59 @@ public class AppSrc extends BaseSrc {
             return value;
         }
 
+    }
+
+    /**
+     * Signal that the source has enough data. It is recommended that the
+     * application stops calling push-buffer until the need-data signal is
+     * emitted again to avoid excessive buffer queueing.
+     */
+    public interface ENOUGH_DATA {
+
+        /**
+         * Enough data signal
+         *
+         * @param elem the appsrc element that emitted the signal
+         */
+        void enoughData(AppSrc elem);
+    }
+
+    /**
+     * Signal that the source needs more data. In the callback or from another
+     * thread you should call push-buffer or end-of-stream.
+     * <p>
+     * length is just a hint and when it is set to -1, any number of bytes can
+     * be pushed into appsrc .
+     * <p>
+     * You can call push-buffer multiple times until the enough-data signal is
+     * fired.
+     */
+    public interface NEED_DATA {
+
+        /**
+         * Need data signal
+         *
+         * @param elem the appsrc element that emitted the signal
+         * @param size the amount of bytes needed, or -1. This is just a hint.
+         */
+        void needData(AppSrc elem, int size);
+    }
+
+    /**
+     * Seek to the given offset, expressed in terms of the {@link Format} set on
+     * the AppSrc. The next push-buffer should produce buffers from the new
+     * offset . This callback is only called for seekable stream types.
+     */
+    public interface SEEK_DATA {
+
+        /**
+         * Seek data signal.
+         *
+         * @param elem     the appsrc element that emitted the signal
+         * @param position the offset to seek to, expressed in the
+         *                 {@link Format} set on the AppSrc
+         * @return true if the seek succeeded
+         */
+        boolean seekData(AppSrc elem, long position);
     }
 }

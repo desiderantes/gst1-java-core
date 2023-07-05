@@ -19,13 +19,12 @@
  */
 package org.freedesktop.gstreamer.video;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import org.freedesktop.gstreamer.lowlevel.GstVideoAPI;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 public class VideoTimeCodeTest {
@@ -36,7 +35,7 @@ public class VideoTimeCodeTest {
 
     private VideoTimeCode timeCode;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         timeCodeStruct = new GstVideoAPI.GstVideoTimeCodeStruct();
         configStruct = new GstVideoAPI.GstVideoTimeCodeConfigStruct.ByValue();
@@ -65,21 +64,21 @@ public class VideoTimeCodeTest {
 
     @Test
     public void testGetHours() {
-        assertEquals(1,timeCode.getHours());
+        assertEquals(1, timeCode.getHours());
     }
 
     @Test
     public void testGetMinutes() {
-        assertEquals(2,timeCode.getMinutes());
+        assertEquals(2, timeCode.getMinutes());
     }
 
     @Test
     public void testGetSeconds() {
-        assertEquals(3,timeCode.getSeconds());
+        assertEquals(3, timeCode.getSeconds());
     }
 
     @Test
     public void testGetFrames() {
-        assertEquals(4,timeCode.getFrames());
+        assertEquals(4, timeCode.getFrames());
     }
 }

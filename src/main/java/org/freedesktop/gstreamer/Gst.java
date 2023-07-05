@@ -1,17 +1,17 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2018 Antonio Morales
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -19,116 +19,70 @@
  */
 package org.freedesktop.gstreamer;
 
-import org.freedesktop.gstreamer.query.Query;
-import org.freedesktop.gstreamer.message.Message;
-import org.freedesktop.gstreamer.event.Event;
-import org.freedesktop.gstreamer.glib.GError;
-
-import static org.freedesktop.gstreamer.lowlevel.GstAPI.GST_API;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
-
-import org.freedesktop.gstreamer.glib.MainContextExecutorService;
-import org.freedesktop.gstreamer.lowlevel.GstAPI.GErrorStruct;
-import org.freedesktop.gstreamer.lowlevel.GstTypes;
-import org.freedesktop.gstreamer.glib.NativeObject;
-
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import org.freedesktop.gstreamer.controller.Controllers;
+import org.freedesktop.gstreamer.elements.Elements;
+import org.freedesktop.gstreamer.event.Event;
+import org.freedesktop.gstreamer.glib.*;
+import org.freedesktop.gstreamer.lowlevel.GstAPI.GErrorStruct;
+import org.freedesktop.gstreamer.lowlevel.GstTypes;
+import org.freedesktop.gstreamer.message.Message;
+import org.freedesktop.gstreamer.query.Query;
+import org.freedesktop.gstreamer.video.Video;
+import org.freedesktop.gstreamer.webrtc.WebRTC;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.ServiceLoader;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
-import org.freedesktop.gstreamer.controller.Controllers;
-import org.freedesktop.gstreamer.elements.Elements;
-import org.freedesktop.gstreamer.glib.GLib;
-import org.freedesktop.gstreamer.glib.GMainContext;
-import org.freedesktop.gstreamer.video.Video;
 
-import static org.freedesktop.gstreamer.lowlevel.GstParseAPI.GSTPARSE_API;
 import static org.freedesktop.gstreamer.glib.Natives.registration;
 import static org.freedesktop.gstreamer.lowlevel.GlibAPI.GLIB_API;
-
-import org.freedesktop.gstreamer.webrtc.WebRTC;
+import static org.freedesktop.gstreamer.lowlevel.GstAPI.GST_API;
+import static org.freedesktop.gstreamer.lowlevel.GstParseAPI.GSTPARSE_API;
 
 /**
  * Media library supporting arbitrary formats and filter graphs.
  */
 public final class Gst {
-    
+
     private final static Logger LOG = Logger.getLogger(Gst.class.getName());
     private final static AtomicInteger INIT_COUNT = new AtomicInteger(0);
     private final static boolean CHECK_VERSIONS = !Boolean.getBoolean("gstreamer.suppressVersionChecks");
     private final static boolean DISABLE_EXTERNAL = Boolean.getBoolean("gstreamer.disableExternalTypes");
-    
+    // Make the gstreamer executor threads daemon, so they don't stop the main
+    // program from exiting
+    private static final ThreadFactory threadFactory = new ThreadFactory() {
+        private final AtomicInteger counter = new AtomicInteger(0);
+
+        @Override
+        public Thread newThread(Runnable task) {
+            final String name = "gstreamer service thread " + counter.incrementAndGet();
+            Thread t = new Thread(task, name);
+            t.setDaemon(true);
+            t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
+    };
     private static ScheduledExecutorService executorService;
     private static volatile CountDownLatch quit = new CountDownLatch(1);
     private static GMainContext mainContext;
     private static boolean useDefaultContext = false;
-    private static List<Runnable> shutdownTasks = Collections.synchronizedList(new ArrayList<Runnable>());
+    private static final List<Runnable> shutdownTasks = Collections.synchronizedList(new ArrayList<Runnable>());
     // set minorVersion to a value guaranteed to be >= anything else unless set in init()
     private static int minorVersion = Integer.MAX_VALUE;
-    
-    private static class NativeArgs {
-        
-        public IntByReference argcRef;
-        public PointerByReference argvRef;
-        Memory[] argsCopy;
-        Memory argvMemory;
-        
-        public NativeArgs(String progname, String[] args) {
-            //
-            // Allocate some native memory to pass the args down to the native layer
-            //
-            argsCopy = new Memory[args.length + 2];
-            argvMemory = new Memory(argsCopy.length * Native.POINTER_SIZE);
-
-            //
-            // Insert the program name as argv[0]
-            //
-            Memory arg = new Memory(progname.getBytes().length + 4);
-            arg.setString(0, progname);
-            argsCopy[0] = arg;
-            
-            for (int i = 0; i < args.length; i++) {
-                arg = new Memory(args[i].getBytes().length + 1);
-                arg.setString(0, args[i]);
-                argsCopy[i + 1] = arg;
-            }
-            argvMemory.write(0, argsCopy, 0, argsCopy.length);
-            argvRef = new PointerByReference(argvMemory);
-            argcRef = new IntByReference(args.length + 1);
-        }
-        
-        String[] toStringArray() {
-            //
-            // Unpack the native arguments back into a String array
-            //
-            List<String> args = new ArrayList<String>();
-            Pointer argv = argvRef.getValue();
-            for (int i = 1; i < argcRef.getValue(); i++) {
-                Pointer arg = argv.getPointer(i * Native.POINTER_SIZE);
-                if (arg != null) {
-                    args.add(arg.getString(0));
-                }
-            }
-            return args.toArray(new String[args.size()]);
-        }
-    }
 
     private Gst() {
     }
@@ -185,7 +139,7 @@ public final class Gst {
      *
      * @return true if the GStreamer library already initialized.
      */
-    public static synchronized final boolean isInitialized() {
+    public static synchronized boolean isInitialized() {
         return INIT_COUNT.get() > 0;
     }
 
@@ -208,13 +162,13 @@ public final class Gst {
 
     /**
      * Create a new pipeline based on command line syntax.
-     *
+     * <p>
      * Please note that you might get a return value that is not NULL even
      * though the error is set. In this case there was a recoverable parsing
      * error and you can try to play the pipeline.
      *
      * @param pipelineDescription the command line describing the pipeline
-     * @param errors a list that any errors will be added to
+     * @param errors              a list that any errors will be added to
      * @return a new element on success. If more than one top-level element is
      * specified by the pipeline_description , all elements are put into a
      * Pipeline, which then is returned.
@@ -235,13 +189,13 @@ public final class Gst {
                 LOG.log(Level.WARNING, extractError(err[0]).getMessage());
             }
         }
-        
+
         return pipeline;
     }
 
     /**
      * Create a new pipeline based on command line syntax.
-     *
+     * <p>
      * Please note that you might get a return value that is not NULL even
      * though the error is set. In this case there was a recoverable parsing
      * error and you can try to play the pipeline.
@@ -258,14 +212,14 @@ public final class Gst {
 
     /**
      * Create a new element based on command line syntax.
-     *
+     * <p>
      * error will contain an error message if an erroneous pipeline is
      * specified. An error does not mean that the pipeline could not be
      * constructed.
      *
      * @param pipelineDescription An array of strings containing the command
-     * line describing the pipeline.
-     * @param errors a list that any errors will be added to
+     *                            line describing the pipeline.
+     * @param errors              a list that any errors will be added to
      * @return a new element on success.
      * @throws GstException if the pipeline / element could not be created
      */
@@ -284,19 +238,19 @@ public final class Gst {
                 LOG.log(Level.WARNING, extractError(err[0]).getMessage());
             }
         }
-        
+
         return pipeline;
     }
 
     /**
      * Create a new element based on command line syntax.
-     *
+     * <p>
      * error will contain an error message if an erroneous pipeline is
      * specified. An error does not mean that the pipeline could not be
      * constructed.
      *
      * @param pipelineDescription An array of strings containing the command
-     * line describing the pipeline.
+     *                            line describing the pipeline.
      * @return a new element on success.
      * @throws GstException if the pipeline / element could not be created
      */
@@ -306,22 +260,22 @@ public final class Gst {
 
     /**
      * Creates a bin from a text bin description.
-     *
+     * <p>
      * This function allows creation of a bin based on the syntax used in the
      * gst-launch utillity.
      *
-     * @param binDescription the command line describing the bin
+     * @param binDescription    the command line describing the bin
      * @param ghostUnlinkedPads whether to create ghost pads for the bin from
-     * any unlinked pads
-     * @param errors list that any errors will be added to
+     *                          any unlinked pads
+     * @param errors            list that any errors will be added to
      * @return The new Bin.
      * @throws GstException if the bin could not be created
      */
     public static Bin parseBinFromDescription(String binDescription, boolean ghostUnlinkedPads, List<GError> errors) {
-        
+
         Pointer[] err = {null};
         Bin bin = GSTPARSE_API.gst_parse_bin_from_description(binDescription, ghostUnlinkedPads, err);
-        
+
         if (bin == null) {
             throw new GstException(extractError(err[0]));
         }
@@ -334,26 +288,26 @@ public final class Gst {
                 LOG.log(Level.WARNING, extractError(err[0]).getMessage());
             }
         }
-        
+
         return bin;
     }
 
     /**
      * Creates a bin from a text bin description.
-     *
+     * <p>
      * This function allows creation of a bin based on the syntax used in the
      * gst-launch utillity.
      *
-     * @param binDescription the command line describing the bin
+     * @param binDescription    the command line describing the bin
      * @param ghostUnlinkedPads whether to create ghost pads for the bin from
-     * any unlinked pads
+     *                          any unlinked pads
      * @return The new Bin.
      * @throws GstException if the bin could not be created
      */
     public static Bin parseBinFromDescription(String binDescription, boolean ghostUnlinkedPads) {
         return parseBinFromDescription(binDescription, ghostUnlinkedPads, null);
     }
-    
+
     private static GError extractError(Pointer errorPtr) {
         GErrorStruct struct = new GErrorStruct(errorPtr);
         struct.read();
@@ -415,7 +369,7 @@ public final class Gst {
      *
      * @throws org.freedesktop.gstreamer.GstException
      */
-    public static final void init() throws GstException {
+    public static void init() throws GstException {
         init(Version.BASELINE, "gst1-java-core");
     }
 
@@ -427,7 +381,7 @@ public final class Gst {
      * @param requiredVersion
      * @throws org.freedesktop.gstreamer.GstException
      */
-    public static final void init(Version requiredVersion) throws GstException {
+    public static void init(Version requiredVersion) throws GstException {
         init(requiredVersion, "gst1-java-core");
     }
 
@@ -444,12 +398,12 @@ public final class Gst {
      * required version.
      *
      * @param progname the java program name.
-     * @param args the java argument list.
+     * @param args     the java argument list.
      * @return the list of arguments with any gstreamer specific options
      * stripped out.
      * @throws org.freedesktop.gstreamer.GstException
      */
-    public static synchronized final String[] init(String progname, String... args) throws GstException {
+    public static synchronized String[] init(String progname, String... args) throws GstException {
         return init(Version.BASELINE, progname, args);
     }
 
@@ -460,15 +414,15 @@ public final class Gst {
      * standard plugins.
      *
      * @param requestedVersion the minimum requested GStreamer version.
-     * @param progname the java program name.
-     * @param args the java argument list.
+     * @param progname         the java program name.
+     * @param args             the java argument list.
      * @return the list of arguments with any gstreamer specific options
      * stripped out.
      * @throws org.freedesktop.gstreamer.GstException
      */
-    public static synchronized final String[] init(Version requestedVersion,
-            String progname, String... args) throws GstException {
-        
+    public static synchronized String[] init(Version requestedVersion,
+                                             String progname, String... args) throws GstException {
+
         if (CHECK_VERSIONS) {
             Version availableVersion = getVersion();
             if (requestedVersion.getMajor() != 1 || availableVersion.getMajor() != 1) {
@@ -490,27 +444,27 @@ public final class Gst {
         if (INIT_COUNT.getAndIncrement() > 0) {
             if (CHECK_VERSIONS) {
                 if (requestedVersion.getMinor() > minorVersion) {
-                    minorVersion = (int) requestedVersion.getMinor();
+                    minorVersion = requestedVersion.getMinor();
                 }
             }
             return args;
         }
-        
+
         NativeArgs argv = new NativeArgs(progname, args);
-        
+
         Pointer[] error = {null};
         if (!GST_API.gst_init_check(argv.argcRef, argv.argvRef, error)) {
             INIT_COUNT.decrementAndGet();
             throw new GstException(extractError(error[0]));
         }
-        
+
         LOG.fine("after gst_init, argc=" + argv.argcRef.getValue());
-        
+
         Version runningVersion = getVersion();
         if (runningVersion.getMajor() != 1) {
             LOG.warning("gst1-java-core only supports GStreamer 1.x");
         }
-        
+
         if (useDefaultContext) {
             mainContext = GMainContext.getDefaultContext();
             executorService = new MainContextExecutorService(mainContext);
@@ -520,11 +474,11 @@ public final class Gst {
         }
         quit = new CountDownLatch(1);
         loadAllClasses();
-        
+
         if (CHECK_VERSIONS) {
             minorVersion = requestedVersion.getMinor();
         }
-        
+
         return argv.toStringArray();
     }
 
@@ -536,11 +490,11 @@ public final class Gst {
      * application as the resources will automatically be freed when the program
      * terminates. This function is therefore mostly used by testsuites and
      * other memory profiling tools.</b>
-     *
+     * <p>
      * After this call GStreamer (including this method) should not be used
      * anymore.
      */
-    public static synchronized final void deinit() {
+    public static synchronized void deinit() {
         //
         // Only perform real shutdown if called as many times as Gst.init() is
         //
@@ -566,7 +520,7 @@ public final class Gst {
             }
         } catch (InterruptedException ex) {
         }
-        
+
         mainContext = null;
         System.gc(); // Make sure any dangling objects are unreffed before calling deinit().
         GST_API.gst_deinit();
@@ -623,37 +577,19 @@ public final class Gst {
      * @return boolean whether the version requirement can be satisfied
      */
     public static boolean testVersion(int major, int minor) {
-        if (CHECK_VERSIONS && (major != 1 || minor > minorVersion)) {
-            return false;
-        }
-        return true;
+        return !CHECK_VERSIONS || (major == 1 && minor <= minorVersion);
     }
 
-    // Make the gstreamer executor threads daemon, so they don't stop the main 
-    // program from exiting
-    private static final ThreadFactory threadFactory = new ThreadFactory() {
-        private final AtomicInteger counter = new AtomicInteger(0);
-
-        @Override
-        public Thread newThread(Runnable task) {
-            final String name = "gstreamer service thread " + counter.incrementAndGet();
-            Thread t = new Thread(task, name);
-            t.setDaemon(true);
-            t.setPriority(Thread.NORM_PRIORITY);
-            return t;
-        }
-    };
-    
     private static synchronized void loadAllClasses() {
         Stream.of(new GLib.Types(),
-                new Types(),
-                new Event.Types(),
-                new Message.Types(),
-                new Query.Types(),
-                new Controllers(),
-                new Elements(),
-                new WebRTC.Types(),
-                new Video.Types())
+                        new Types(),
+                        new Event.Types(),
+                        new Message.Types(),
+                        new Query.Types(),
+                        new Controllers(),
+                        new Elements(),
+                        new WebRTC.Types(),
+                        new Video.Types())
                 .flatMap(NativeObject.TypeProvider::types)
                 .forEachOrdered(GstTypes::register);
         if (!DISABLE_EXTERNAL) {
@@ -667,9 +603,70 @@ public final class Gst {
             }
         }
     }
-    
+
+    /**
+     * Annotation on classes, methods or fields to show the required GStreamer
+     * version. This should particularly be used where the version required is
+     * higher than the current baseline supported version (GStreamer 1.8)
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    public @interface Since {
+
+        int major() default 1;
+
+        int minor();
+    }
+
+    private static class NativeArgs {
+
+        public IntByReference argcRef;
+        public PointerByReference argvRef;
+        Memory[] argsCopy;
+        Memory argvMemory;
+
+        public NativeArgs(String progname, String[] args) {
+            //
+            // Allocate some native memory to pass the args down to the native layer
+            //
+            argsCopy = new Memory[args.length + 2];
+            argvMemory = new Memory((long) argsCopy.length * Native.POINTER_SIZE);
+
+            //
+            // Insert the program name as argv[0]
+            //
+            Memory arg = new Memory(progname.getBytes().length + 4);
+            arg.setString(0, progname);
+            argsCopy[0] = arg;
+
+            for (int i = 0; i < args.length; i++) {
+                arg = new Memory(args[i].getBytes().length + 1);
+                arg.setString(0, args[i]);
+                argsCopy[i + 1] = arg;
+            }
+            argvMemory.write(0, argsCopy, 0, argsCopy.length);
+            argvRef = new PointerByReference(argvMemory);
+            argcRef = new IntByReference(args.length + 1);
+        }
+
+        String[] toStringArray() {
+            //
+            // Unpack the native arguments back into a String array
+            //
+            List<String> args = new ArrayList<String>();
+            Pointer argv = argvRef.getValue();
+            for (int i = 1; i < argcRef.getValue(); i++) {
+                Pointer arg = argv.getPointer((long) i * Native.POINTER_SIZE);
+                if (arg != null) {
+                    args.add(arg.getString(0));
+                }
+            }
+            return args.toArray(new String[args.size()]);
+        }
+    }
+
     public static class Types implements NativeObject.TypeProvider {
-        
+
         @Override
         public Stream<NativeObject.TypeRegistration<?>> types() {
             return Stream.of(
@@ -697,21 +694,7 @@ public final class Gst {
                     registration(TagList.class, TagList.GTYPE_NAME, TagList::new)
             );
         }
-        
+
     }
 
-    /**
-     * Annotation on classes, methods or fields to show the required GStreamer
-     * version. This should particularly be used where the version required is
-     * higher than the current baseline supported version (GStreamer 1.8)
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Documented
-    public static @interface Since {
-        
-        public int major() default 1;
-        
-        public int minor();
-    }
-    
 }

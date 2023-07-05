@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -29,7 +29,7 @@ import org.freedesktop.gstreamer.Element;
  * <p>
  */
 public class BaseTransform extends Element {
-    
+
     public static final String GTYPE_NAME = "GstBaseTransform";
 
     protected BaseTransform(Initializer init) {

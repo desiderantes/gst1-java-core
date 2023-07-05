@@ -8,17 +8,23 @@ import org.freedesktop.gstreamer.glib.NativeEnum;
  * Available since GStreamer 1.14
  */
 @Gst.Since(minor = 14)
-public enum  WebRTCICEGatheringState implements NativeEnum<WebRTCICEGatheringState> {
-    /** New gathering */
+public enum WebRTCICEGatheringState implements NativeEnum<WebRTCICEGatheringState> {
+    /**
+     * New gathering
+     */
     NEW(0),
-    /** Gathering in progress */
+    /**
+     * Gathering in progress
+     */
     GATHERING(1),
-    /** Gathering completed */
+    /**
+     * Gathering completed
+     */
     COMPLETE(2);
 
     private final int value;
 
-    private WebRTCICEGatheringState(int value) {
+    WebRTCICEGatheringState(int value) {
         this.value = value;
     }
 

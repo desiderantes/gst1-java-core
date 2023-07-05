@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2009 Levente Farkas
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -20,14 +20,8 @@ package org.freedesktop.gstreamer.lowlevel;
 
 //import org.freedesktop.gstreamer.controller.ControlSource;
 //import org.freedesktop.gstreamer.controller.InterpolationControlSource;
-import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValue;
-import org.freedesktop.gstreamer.lowlevel.GlibAPI.GList;
-import org.freedesktop.gstreamer.lowlevel.GlibAPI.GSList;
 
 import com.sun.jna.Library;
-import com.sun.jna.Pointer;
-import java.util.Arrays;
-import java.util.List;
 
 // @TODO review in line with https://gitlab.freedesktop.org/gstreamer/gstreamer/blob/master/libs/gst/controller/gstinterpolationcontrolsource.h
 

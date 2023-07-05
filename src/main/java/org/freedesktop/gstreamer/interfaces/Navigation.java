@@ -1,8 +1,8 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2009 Tamas Korodi <kotyo@zamba.fm>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -26,36 +26,34 @@ import org.freedesktop.gstreamer.Structure;
 import static org.freedesktop.gstreamer.lowlevel.GstNavigationAPI.GSTNAVIGATION_API;
 
 public class Navigation extends GstInterface {
-	/**
-	 * Wraps the {@link Element} in a <tt>Navigation</tt> interface
-	 * 
-	 * @param element
-	 *            the element to use as a <tt>Navigation</tt>
-	 * @return a <tt>Navigation</tt> for the element
-	 */
-	public static final Navigation wrap(Element element) {
-		return new Navigation(element);
-	}
+    /**
+     * Creates a new Navigation instance
+     *
+     * @param element the element that implements the Navigation interface
+     */
+    private Navigation(Element element) {
+        super(element, GSTNAVIGATION_API.gst_navigation_get_type());
+    }
 
-	/**
-	 * Creates a new Navigation instance
-	 * 
-	 * @param element
-	 *            the element that implements the Navigation interface
-	 */
-	private Navigation(Element element) {
-		super(element, GSTNAVIGATION_API.gst_navigation_get_type());
-	}
+    /**
+     * Wraps the {@link Element} in a <tt>Navigation</tt> interface
+     *
+     * @param element the element to use as a <tt>Navigation</tt>
+     * @return a <tt>Navigation</tt> for the element
+     */
+    public static final Navigation wrap(Element element) {
+        return new Navigation(element);
+    }
 
-	public void sendEvent(Structure structure) {
-		GSTNAVIGATION_API.gst_navigation_send_event(this, structure);
-	}
+    public void sendEvent(Structure structure) {
+        GSTNAVIGATION_API.gst_navigation_send_event(this, structure);
+    }
 
-	public void sendKeyEvent(String event, String key) {
-		GSTNAVIGATION_API.gst_navigation_send_key_event(this, event, key);
-	}
+    public void sendKeyEvent(String event, String key) {
+        GSTNAVIGATION_API.gst_navigation_send_key_event(this, event, key);
+    }
 
-	public void sendMouseEvent(String event, int button, double x, double y) {
-		GSTNAVIGATION_API.gst_navigation_send_mouse_event(this, event, button, x, y);
-	}
+    public void sendMouseEvent(String event, int button, double x, double y) {
+        GSTNAVIGATION_API.gst_navigation_send_mouse_event(this, event, button, x, y);
+    }
 }

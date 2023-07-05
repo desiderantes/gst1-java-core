@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2018 Neil C Smith
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -22,48 +22,39 @@ package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.glib.GError;
 import org.freedesktop.gstreamer.glib.GObject;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.freedesktop.gstreamer.glib.Natives;
+import org.freedesktop.gstreamer.lowlevel.GObjectAPI.GObjectStruct;
+import org.freedesktop.gstreamer.lowlevel.GObjectPtr;
+import org.junit.jupiter.api.*;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import org.freedesktop.gstreamer.glib.Natives;
 
-import org.freedesktop.gstreamer.lowlevel.GObjectAPI.GObjectStruct;
-import org.freedesktop.gstreamer.lowlevel.GObjectPtr;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *
  * @author wayne
  */
 public class PipelineTest {
-    
+
     public PipelineTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("PipelineTest", new String[] {});
+        Gst.init("PipelineTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -77,16 +68,17 @@ public class PipelineTest {
         }
         return struct.ref_count == refcnt;
     }
-    
+
     @Test
     public void testPipelineGC() throws Exception {
         Pipeline p = new Pipeline("test pipeline");
         int refcnt = new GObjectStruct((GObjectPtr) Natives.getPointer(p)).ref_count;
-        assertEquals("Refcount should be 1", refcnt, 1);
+        assertEquals(1, refcnt, "Refcount should be 1");
         WeakReference<GObject> pref = new WeakReference<GObject>(p);
         p = null;
-        assertTrue("pipe not disposed", GCTracker.waitGC(pref));
+        assertTrue(GCTracker.waitGC(pref), "pipe not disposed");
     }
+
     @Test
     public void testBusGC() throws Exception {
         Pipeline pipe = new Pipeline("test playbin");
@@ -97,100 +89,100 @@ public class PipelineTest {
         assertTrue(refcnt > 1);
         // reget the Bus - should return the same object and not increment ref count
         Bus bus2 = pipe.getBus();
-        assertTrue("Did not get same Bus object", bus == bus2);
+        assertSame(bus, bus2, "Did not get same Bus object");
         struct.read(); // update struct fields
-        assertEquals("ref_count not equal", refcnt, struct.ref_count);   
+        assertEquals(refcnt, struct.ref_count, "ref_count not equal");
         bus2 = null;
-        
+
         WeakReference<Bus> bref = new WeakReference<Bus>(bus);
-        bus = null;      
+        bus = null;
         // Since the pipeline holds a reference to the GstBus, the proxy should not be disposed
-        assertFalse("bus disposed prematurely", GCTracker.waitGC(bref));
-        assertFalse("ref_count decremented prematurely", waitRefCnt(struct, refcnt - 1));
-        
+        assertFalse(GCTracker.waitGC(bref), "bus disposed prematurely");
+        assertFalse(waitRefCnt(struct, refcnt - 1), "ref_count decremented prematurely");
+
         WeakReference<GObject> pref = new WeakReference<GObject>(pipe);
         pipe.stop();
         pipe = null;
-        assertTrue("pipe not disposed", GCTracker.waitGC(pref));
+        assertTrue(GCTracker.waitGC(pref), "pipe not disposed");
         struct.read();
         System.out.println("bus ref_count=" + struct.ref_count);
         bus = null;
-        assertTrue("bus not disposed " + struct.ref_count, GCTracker.waitGC(bref));
+        assertTrue(GCTracker.waitGC(bref), "bus not disposed " + struct.ref_count);
         // This is a bit dangerous, since that memory could have been reused
 //        assertTrue("ref_count not decremented", waitRefCnt(struct, 0));
     } /* Test of getBus method, of class Pipeline. */
-    
-    
+
+
     @Test
     public void testParseLaunch() {
         ArrayList<GError> errors = new ArrayList<GError>();
         Pipeline pipeline = (Pipeline) Gst.parseLaunch("fakesrc ! fakesink", errors);
-        assertNotNull("Pipeline not created", pipeline);
-        assertEquals("parseLaunch with error!", errors.size(), 0);
+        assertNotNull(pipeline, "Pipeline not created");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
     }
-    
+
     @Test
     public void testParseLaunchSingleElement() {
         ArrayList<GError> errors = new ArrayList<GError>();
         Element element = Gst.parseLaunch("fakesink", errors);
-        assertNotNull("Element not created", element);
-        assertFalse("Single element returned in Pipeline", element instanceof Pipeline);
-        assertEquals("parseLaunch with error!", errors.size(), 0);
+        assertNotNull(element, "Element not created");
+        assertFalse(element instanceof Pipeline, "Single element returned in Pipeline");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
     }
 
     @Test
     public void testParseLaunchElementCount() {
         ArrayList<GError> errors = new ArrayList<GError>();
         Pipeline pipeline = (Pipeline) Gst.parseLaunch("fakesrc ! fakesink", errors);
-        assertEquals("Number of elements in pipeline incorrect", 2, pipeline.getElements().size());
-        assertEquals("parseLaunch with error!", errors.size(), 0);
+        assertEquals(2, pipeline.getElements().size(), "Number of elements in pipeline incorrect");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
     }
-    
+
     @Test
     public void testParseLaunchSrcElement() {
         ArrayList<GError> errors = new ArrayList<GError>();
         Pipeline pipeline = (Pipeline) Gst.parseLaunch("fakesrc ! fakesink", errors);
-        assertEquals("First element not a fakesrc", "fakesrc", pipeline.getSources().get(0).getFactory().getName());
-        assertEquals("parseLaunch with error!", errors.size(), 0);
+        assertEquals("fakesrc", pipeline.getSources().get(0).getFactory().getName(), "First element not a fakesrc");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
     }
-    
+
     @Test
     public void testParseLaunchSinkElement() {
         ArrayList<GError> errors = new ArrayList<GError>();
         Pipeline pipeline = (Pipeline) Gst.parseLaunch("fakesrc ! fakesink", errors);
-        assertEquals("First element not a fakesink", "fakesink", pipeline.getSinks().get(0).getFactory().getName());
-        assertEquals("parseLaunch with error!", errors.size(), 0);
+        assertEquals("fakesink", pipeline.getSinks().get(0).getFactory().getName(), "First element not a fakesink");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
     }
-    
+
     @Test
     public void testParseLaunchStringArr() {
         ArrayList<GError> errors = new ArrayList<GError>();
-        Pipeline pipeline = (Pipeline) Gst.parseLaunch(new String[] {"fakesrc", "fakesink"}, errors);
-        assertNotNull("Pipeline not created", pipeline);
-        assertEquals("parseLaunch with error!", errors.size(), 0);
-    } 
-    
+        Pipeline pipeline = (Pipeline) Gst.parseLaunch(new String[]{"fakesrc", "fakesink"}, errors);
+        assertNotNull(pipeline, "Pipeline not created");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
+    }
+
     @Test
     public void testParseLaunchStringArrElementCount() {
         ArrayList<GError> errors = new ArrayList<GError>();
-        Pipeline pipeline = (Pipeline) Gst.parseLaunch(new String[] {"fakesrc", "fakesink"}, errors);
-        assertEquals("Number of elements in pipeline incorrect", 2, pipeline.getElements().size());
-        assertEquals("parseLaunch with error!", errors.size(), 0);
+        Pipeline pipeline = (Pipeline) Gst.parseLaunch(new String[]{"fakesrc", "fakesink"}, errors);
+        assertEquals(2, pipeline.getElements().size(), "Number of elements in pipeline incorrect");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
     }
-    
+
     @Test
     public void testParseLaunchStringArrSrcElement() {
         ArrayList<GError> errors = new ArrayList<GError>();
-        Pipeline pipeline = (Pipeline) Gst.parseLaunch(new String[] {"fakesrc", "fakesink"}, errors);
-        assertEquals("First element not a fakesrc", "fakesrc", pipeline.getSources().get(0).getFactory().getName());
-        assertEquals("parseLaunch with error!", errors.size(), 0);
+        Pipeline pipeline = (Pipeline) Gst.parseLaunch(new String[]{"fakesrc", "fakesink"}, errors);
+        assertEquals("fakesrc", pipeline.getSources().get(0).getFactory().getName(), "First element not a fakesrc");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
     }
-    
+
     @Test
     public void testParseLaunchStringArrSinkElement() {
         ArrayList<GError> errors = new ArrayList<GError>();
-        Pipeline pipeline = (Pipeline) Gst.parseLaunch(new String[] {"fakesrc", "fakesink"}, errors);
-        assertEquals("First element not a fakesink", "fakesink", pipeline.getSinks().get(0).getFactory().getName());
-        assertEquals("parseLaunch with error!", errors.size(), 0);
+        Pipeline pipeline = (Pipeline) Gst.parseLaunch(new String[]{"fakesrc", "fakesink"}, errors);
+        assertEquals("fakesink", pipeline.getSinks().get(0).getFactory().getName(), "First element not a fakesink");
+        assertEquals(0, errors.size(), "parseLaunch with error!");
     }
 }

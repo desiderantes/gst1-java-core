@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,8 +19,10 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+import org.freedesktop.gstreamer.glib.MainContextExecutorService;
+import org.freedesktop.gstreamer.lowlevel.MainLoop;
+import org.junit.jupiter.api.*;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -28,69 +30,41 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.freedesktop.gstreamer.glib.MainContextExecutorService;
-import org.freedesktop.gstreamer.lowlevel.MainLoop;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- *
  * @author wayne
  */
 public class ExecutorServiceTest {
 
+    private static MainLoop loop;
+
     public ExecutorServiceTest() {
     }
-    private static MainLoop loop;
-    @BeforeClass
+
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("ExecutorServiceTest", new String[] {});
+        Gst.init("ExecutorServiceTest");
         (loop = new MainLoop()).startInBackground();
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         loop.quit();
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
-    private static class TestExec {
-        private final CountDownLatch latch = new CountDownLatch(1);
-        final MainContextExecutorService exec = new MainContextExecutorService(Gst.getMainContext());
-        final AtomicBoolean fired = new AtomicBoolean(false);
-        public TestExec run() { 
-            // Create a timer to quit out of the test so it does not hang
-            try {
-                latch.await(250, TimeUnit.MILLISECONDS);
-            } catch (Exception ex) {}
-            return this;
-        }
-        public void execute(Runnable run) {
-            exec.execute(run);
-        }
-        public void quit() {
-            latch.countDown();
-        }
-        public void fired() {
-            fired.set(true);
-            quit();
-        }
-        public boolean hasFired() {
-            return fired.get();
-        }
-    }
-    
-    @Test public void execute() {
+
+    @Test
+    public void execute() {
         final TestExec exec = new TestExec();
         exec.execute(new Runnable() {
 
@@ -99,9 +73,11 @@ public class ExecutorServiceTest {
             }
         });
         exec.run();
-        assertTrue("Runnable not called", exec.hasFired());
+        assertTrue(exec.hasFired(), "Runnable not called");
     }
-    @Test public void submit() throws Exception {
+
+    @Test
+    public void submit() throws Exception {
         final TestExec exec = new TestExec();
         final Integer MAGIC = 0xdeadbeef;
         Callable<Integer> callable = new Callable<Integer>() {
@@ -113,11 +89,13 @@ public class ExecutorServiceTest {
         };
         Future<Integer> f = exec.exec.submit(callable);
         exec.run();
-        assertTrue("Callable not called", exec.hasFired());
-        assertEquals("Wrong value returned from Callable", MAGIC, f.get());
-        
+        assertTrue(exec.hasFired(), "Callable not called");
+        assertEquals(MAGIC, f.get(), "Wrong value returned from Callable");
+
     }
-    @Test public void oneShotTimeout() {
+
+    @Test
+    public void oneShotTimeout() {
         final TestExec exec = new TestExec();
         exec.exec.schedule(new Runnable() {
 
@@ -125,39 +103,69 @@ public class ExecutorServiceTest {
                 exec.fired();
             }
         }, 100, TimeUnit.MILLISECONDS);
-        
+
         exec.run();
-        assertTrue("Runnable not called", exec.hasFired());
+        assertTrue(exec.hasFired(), "Runnable not called");
     }
-    @Test public void timeoutWithReturnValue() throws Exception {
+
+    @Test
+    public void timeoutWithReturnValue() throws Exception {
         final TestExec exec = new TestExec();
         final Integer MAGIC = 0xdeadbeef;
-        Callable<Integer> callable = new Callable<Integer>() {
-
-            public Integer call() throws Exception {
-                exec.fired();
-                return MAGIC;
-            }
+        Callable<Integer> callable = () -> {
+            exec.fired();
+            return MAGIC;
         };
         Future<Integer> f = exec.exec.schedule(callable, 100, TimeUnit.MILLISECONDS);
-        
+
         exec.run();
-        assertTrue("Runnable not called", exec.hasFired());
-        assertEquals("Wrong value returned from Callable", MAGIC, f.get());
+        assertTrue(exec.hasFired(), "Runnable not called");
+        assertEquals(MAGIC, f.get(), "Wrong value returned from Callable");
     }
-    @Test public void periodicTimeout() {
+
+    @Test
+    public void periodicTimeout() {
         final TestExec exec = new TestExec();
         final AtomicBoolean called = new AtomicBoolean(false);
-        exec.exec.scheduleAtFixedRate(new Runnable() {
-
-            public void run() {
-                if (called.getAndSet(true)) {
-                    exec.fired();
-                }
+        exec.exec.scheduleAtFixedRate(() -> {
+            if (called.getAndSet(true)) {
+                exec.fired();
             }
         }, 10, 10, TimeUnit.MILLISECONDS);
-        
+
         exec.run();
-        assertTrue("Runnable not called", exec.hasFired());
+        assertTrue(exec.hasFired(), "Runnable not called");
+    }
+
+    private static class TestExec {
+        final MainContextExecutorService exec = new MainContextExecutorService(Gst.getMainContext());
+        final AtomicBoolean fired = new AtomicBoolean(false);
+        private final CountDownLatch latch = new CountDownLatch(1);
+
+        public TestExec run() {
+            // Create a timer to quit out of the test so it does not hang
+            try {
+                latch.await(250, TimeUnit.MILLISECONDS);
+            } catch (Exception ex) {
+            }
+            return this;
+        }
+
+        public void execute(Runnable run) {
+            exec.execute(run);
+        }
+
+        public void quit() {
+            latch.countDown();
+        }
+
+        public void fired() {
+            fired.set(true);
+            quit();
+        }
+
+        public boolean hasFired() {
+            return fired.get();
+        }
     }
 }

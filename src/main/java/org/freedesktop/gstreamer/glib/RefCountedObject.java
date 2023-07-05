@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2007, 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -39,14 +39,13 @@ public abstract class RefCountedObject extends NativeObject {
         super(handle);
 
     }
-    
+
     protected RefCountedObject(Handle handle, boolean needRef) {
         super(handle);
         if (needRef) {
             handle.ref();
         }
     }
-    
 
 
     // overridden in subclasses

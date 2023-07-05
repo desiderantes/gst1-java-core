@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,45 +19,43 @@
  */
 package org.freedesktop.gstreamer;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import org.freedesktop.gstreamer.lowlevel.GlibAPI;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GErrorStruct;
 import org.freedesktop.gstreamer.message.EOSMessage;
 import org.freedesktop.gstreamer.message.Message;
 import org.freedesktop.gstreamer.message.MessageType;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.freedesktop.gstreamer.lowlevel.GstElementAPI.GSTELEMENT_API;
 import static org.freedesktop.gstreamer.lowlevel.GstMessageAPI.GSTMESSAGE_API;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class BusTest {
 
     public BusTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         Gst.init("BusTest");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -85,7 +83,7 @@ public class BusTest {
         pipe.run();
         pipe.getBus().disconnect(eosSignal);
 
-        assertTrue("EOS signal not received", signalFired.get());
+        assertTrue(signalFired.get(), "EOS signal not received");
         pipe.dispose();
     }
 
@@ -103,10 +101,10 @@ public class BusTest {
         pipe.getBus().connect(stateChanged);
         pipe.play().run();
         pipe.getBus().disconnect(stateChanged);
-        assertTrue("STATE_CHANGED signal not received", signalFired.get());
+        assertTrue(signalFired.get(), "STATE_CHANGED signal not received");
         pipe.dispose();
     }
-    
+
     @Test
     public void asyncDone() {
         final TestPipe pipe = new TestPipe("asyncDone");
@@ -119,7 +117,7 @@ public class BusTest {
         pipe.getBus().connect(asyncDone);
         pipe.play().run();
         pipe.getBus().disconnect(asyncDone);
-        assertTrue("ASYNC_DONE message not received", signalFired.get());
+        assertTrue(signalFired.get(), "ASYNC_DONE message not received");
         pipe.dispose();
     }
 
@@ -143,8 +141,8 @@ public class BusTest {
         pipe.play().run();
         pipe.getBus().disconnect(errorSignal);
         pipe.dispose();
-        assertTrue("ERROR signal not received", signalFired.get());
-        assertEquals("Incorrect source object on signal", pipe.src, signalSource.get());
+        assertTrue(signalFired.get(), "ERROR signal not received");
+        assertEquals(pipe.src, signalSource.get(), "Incorrect source object on signal");
         GlibAPI.GLIB_API.g_error_free(msg);
     }
 
@@ -169,8 +167,8 @@ public class BusTest {
         pipe.run();
         pipe.getBus().disconnect(signal);
         pipe.dispose();
-        assertTrue("WARNING signal not received", signalFired.get());
-        assertEquals("Incorrect source object on signal", pipe.src, signalSource.get());
+        assertTrue(signalFired.get(), "WARNING signal not received");
+        assertEquals(pipe.src, signalSource.get(), "Incorrect source object on signal");
         GlibAPI.GLIB_API.g_error_free(msg);
     }
 
@@ -195,8 +193,8 @@ public class BusTest {
         pipe.run();
         pipe.getBus().disconnect(signal);
         pipe.dispose();
-        assertTrue("INFO signal not received", signalFired.get());
-        assertEquals("Incorrect source object on signal", pipe.src, signalSource.get());
+        assertTrue(signalFired.get(), "INFO signal not received");
+        assertEquals(pipe.src, signalSource.get(), "Incorrect source object on signal");
         GlibAPI.GLIB_API.g_error_free(msg);
     }
 
@@ -221,9 +219,9 @@ public class BusTest {
         pipe.play().run();
         pipe.getBus().disconnect(signal);
         pipe.dispose();
-        assertTrue("BUFFERING signal not received", signalFired.get());
-        assertEquals("Wrong percent value received for signal", PERCENT, signalValue.get());
-        assertEquals("Incorrect source object on signal", pipe.src, signalSource.get());
+        assertTrue(signalFired.get(), "BUFFERING signal not received");
+        assertEquals(PERCENT, signalValue.get(), "Wrong percent value received for signal");
+        assertEquals(pipe.src, signalSource.get(), "Incorrect source object on signal");
     }
 
     @Test
@@ -245,8 +243,8 @@ public class BusTest {
         pipe.play().run();
         pipe.getBus().disconnect(signal);
         pipe.dispose();
-        assertTrue("TAG signal not received", signalFired.get());
-        assertEquals("Incorrect source object on signal", pipe.src, signalSource.get());
+        assertTrue(signalFired.get(), "TAG signal not received");
+        assertEquals(pipe.src, signalSource.get(), "Incorrect source object on signal");
     }
 
     @Test
@@ -265,10 +263,10 @@ public class BusTest {
         pipe.play().run();
         pipe.getBus().disconnect(signal);
         pipe.dispose();
-        assertTrue("DURATION signal not received", signalFired.get());
-        assertEquals("Incorrect source object on signal", pipe.src, signalSource.get());
+        assertTrue(signalFired.get(), "DURATION signal not received");
+        assertEquals(pipe.src, signalSource.get(), "Incorrect source object on signal");
     }
-    
+
     @Test
     public void segmentDone() {
         final TestPipe pipe = new TestPipe("segmentDone");
@@ -283,15 +281,15 @@ public class BusTest {
         };
 
         pipe.getBus().connect(segmentDone);
-        
+
         final long POSITION = 0xdeadbeef;
         GSTELEMENT_API.gst_element_post_message(pipe.src,
                 GSTMESSAGE_API.gst_message_new_segment_done(pipe.src, Format.TIME, POSITION));
         pipe.run();
-        
-        assertTrue("No segment done message received", signalFired.get());
-        assertEquals("Wrong format", Format.TIME, formatReceived.get());
-        assertEquals("Wrong position", POSITION, positionReceived.get());
+
+        assertTrue(signalFired.get(), "No segment done message received");
+        assertEquals(Format.TIME, formatReceived.get(), "Wrong format");
+        assertEquals(POSITION, positionReceived.get(), "Wrong position");
         pipe.dispose();
     }
 
@@ -312,11 +310,11 @@ public class BusTest {
         pipe.dispose();
 
         Message message = firstMessage.getAndSet(null);
-        assertNotNull("No message received", message);
+        assertNotNull(message, "No message received");
         GCTracker gc = new GCTracker(message);
         message = null;
-        assertTrue("Message not garbage collected", gc.waitGC());
-        assertTrue("Message not destroyed", gc.waitDestroyed());
+        assertTrue(gc.waitGC(), "Message not garbage collected");
+        assertTrue(gc.waitDestroyed(), "Message not destroyed");
     }
 
     @Test
@@ -325,25 +323,25 @@ public class BusTest {
 
         final AtomicBoolean signalFired = new AtomicBoolean(false);
         final AtomicReference<GstObject> signalSource = new AtomicReference<>();
-        
+
         Bus.MESSAGE listener = (Bus bus, Message msg) -> {
             signalFired.set(true);
             signalSource.set(msg.getSource());
             pipe.quit();
         };
-        
+
         pipe.getBus().connect(listener);
         Message message = new EOSMessage(pipe.src);
         pipe.getBus().post(message);
         pipe.run();
-        assertTrue("Message not posted", signalFired.get());
-        assertEquals("Wrong source in message", pipe.src, signalSource.get());
+        assertTrue(signalFired.get(), "Message not posted");
+        assertEquals(pipe.src, signalSource.get(), "Wrong source in message");
         pipe.dispose();
 
         GCTracker gc = new GCTracker(message);
         message = null;
-        assertTrue("Message not garbage collected", gc.waitGC());
-        assertTrue("Message not destroyed", gc.waitDestroyed());
+        assertTrue(gc.waitGC(), "Message not garbage collected");
+        assertTrue(gc.waitDestroyed(), "Message not destroyed");
     }
 
     @Test
@@ -371,13 +369,13 @@ public class BusTest {
 
         Message message = firstMessageSync.getAndSet(null);
         Message asyncMessage = firstMessageAsync.getAndSet(null);
-        assertNotNull("No message received", message);
-        assertTrue("Sync and listeners messages not equal", message == asyncMessage);
+        assertNotNull(message, "No message received");
+        assertSame(message, asyncMessage, "Sync and listeners messages not equal");
         GCTracker gc = new GCTracker(message);
         message = null;
         asyncMessage = null;
-        assertTrue("Message not garbage collected", gc.waitGC());
-        assertTrue("Message not destroyed", gc.waitDestroyed());
+        assertTrue(gc.waitGC(), "Message not garbage collected");
+        assertTrue(gc.waitDestroyed(), "Message not destroyed");
     }
 
     @Test
@@ -404,14 +402,14 @@ public class BusTest {
         pipe.getBus().disconnect(listener);
         pipe.dispose();
 
-        assertNull("Removed sync handler received message",
-                firstMessageSync.getAndSet(null));
+        assertNull(firstMessageSync.getAndSet(null),
+                "Removed sync handler received message");
         Message message = firstMessageAsync.getAndSet(null);
-        assertNotNull("No message received", message);
+        assertNotNull(message, "No message received");
         GCTracker gc = new GCTracker(message);
         message = null;
-        assertTrue("Message not garbage collected", gc.waitGC());
-        assertTrue("Message not destroyed", gc.waitDestroyed());
+        assertTrue(gc.waitGC(), "Message not garbage collected");
+        assertTrue(gc.waitDestroyed(), "Message not destroyed");
     }
 
     @Test
@@ -438,14 +436,14 @@ public class BusTest {
         pipe.dispose();
 
         Message message = firstMessage.getAndSet(null);
-        assertNotNull("No message received", message);
+        assertNotNull(message, "No message received");
 
-        assertFalse("State changed fired after removal", stateChangedFired.get());
+        assertFalse(stateChangedFired.get(), "State changed fired after removal");
 
         GCTracker gc = new GCTracker(message);
         message = null;
-        assertTrue("Message not garbage collected", gc.waitGC());
-        assertTrue("Message not destroyed", gc.waitDestroyed());
+        assertTrue(gc.waitGC(), "Message not garbage collected");
+        assertTrue(gc.waitDestroyed(), "Message not destroyed");
     }
 
     @Test
@@ -479,7 +477,7 @@ public class BusTest {
         pipe.getBus().disconnect(msgListener);
         pipe.getBus().disconnect(errListener);
 
-        assertTrue("Custom message not received", signalFired.get());
+        assertTrue(signalFired.get(), "Custom message not received");
         pipe.dispose();
     }
 

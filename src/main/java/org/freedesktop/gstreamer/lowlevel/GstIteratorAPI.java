@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2021 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -22,10 +22,12 @@ package org.freedesktop.gstreamer.lowlevel;
  * GstIterator functions
  */
 public interface GstIteratorAPI extends com.sun.jna.Library {
-    
+
     GstIteratorAPI GSTITERATOR_API = GstNative.load(GstIteratorAPI.class);
 
     void gst_iterator_free(GstIteratorPtr iter);
+
     int gst_iterator_next(GstIteratorPtr iter, GValueAPI.GValue next);
+
     void gst_iterator_resync(GstIteratorPtr iter);
 }

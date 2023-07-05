@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -41,7 +41,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstControllerAPI.GSTCONTROLLER_
  * All functions are MT-safe.
  */
 public class InterpolationControlSource extends TimedValueControlSource {
-    
+
     public static final String GTYPE_NAME = "GstInterpolationControlSource";
 
     /**
@@ -50,12 +50,12 @@ public class InterpolationControlSource extends TimedValueControlSource {
     public InterpolationControlSource() {
         this(new Handle(GSTCONTROLLER_API.gst_interpolation_control_source_new(), true), false);
     }
-    
+
     InterpolationControlSource(Initializer init) {
         this(new Handle(
-                init.ptr.as(GstInterpolationControlSourcePtr.class,
-                        GstInterpolationControlSourcePtr::new),
-                init.ownsHandle),
+                        init.ptr.as(GstInterpolationControlSourcePtr.class,
+                                GstInterpolationControlSourcePtr::new),
+                        init.ownsHandle),
                 init.needRef);
     }
 
@@ -64,19 +64,8 @@ public class InterpolationControlSource extends TimedValueControlSource {
     }
 
     /**
-     * Interpolation mode to use.
-     * 
-     * @param mode
-     * @return this
-     */
-    public InterpolationControlSource setMode(InterpolationMode mode) {
-        set("mode", mode.intValue());
-        return this;
-    }
-    
-    /**
      * Current interpolation mode.
-     * 
+     *
      * @return mode
      */
     public InterpolationMode getMode() {
@@ -87,8 +76,18 @@ public class InterpolationControlSource extends TimedValueControlSource {
         }
         return InterpolationMode.NONE;
     }
-    
-    
+
+    /**
+     * Interpolation mode to use.
+     *
+     * @param mode
+     * @return this
+     */
+    public InterpolationControlSource setMode(InterpolationMode mode) {
+        set("mode", mode.intValue());
+        return this;
+    }
+
     private static class Handle extends TimedValueControlSource.Handle {
 
         public Handle(GstInterpolationControlSourcePtr ptr, boolean ownsHandle) {

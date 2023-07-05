@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@
 package org.freedesktop.gstreamer.lowlevel;
 
 import com.sun.jna.Structure;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +28,10 @@ import java.util.List;
  */
 public class GValueStruct extends Structure {
     public volatile int g_type;
-    /** Creates a new instance of GValueStruct */
+
+    /**
+     * Creates a new instance of GValueStruct
+     */
     public GValueStruct() {
     }
 

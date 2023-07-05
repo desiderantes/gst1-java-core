@@ -19,19 +19,17 @@
  */
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Utility class for unit testing API that operates on a Buffer.
  * <p>
- * Call {@link BufferTester#test(Consumer)} and pass a callback which will
+ * Call {@link BufferProbeTester#test(Consumer)} and pass a callback which will
  * perform the test on a Buffer it is supplied. The callback runs in a Pad data
  * probe. The buffer is produced by a simple, ephemeral pipeline that is fed by
  * a video test source.
@@ -47,10 +45,10 @@ public class BufferProbeTester {
     }
 
     public static void test(Consumer<Buffer> callback, String pipelineDescription, int skipFrames) {
-        assertNotNull("Pipeline description can not be null", pipelineDescription);
-        assertFalse("Pipeline description can not be empty", pipelineDescription.isEmpty());
+        assertNotNull(pipelineDescription, "Pipeline description can not be null");
+        assertFalse(pipelineDescription.isEmpty(), "Pipeline description can not be empty");
         Pipeline pipe = (Pipeline) Gst.parseLaunch(pipelineDescription);
-        assertNotNull("Unable to create Pipeline from pipeline description: ", pipe);
+        assertNotNull(pipe, "Unable to create Pipeline from pipeline description: ");
 
         Element sink = pipe.getElementByName("sink");
         Pad pad = sink.getStaticPad("sink");
@@ -61,13 +59,10 @@ public class BufferProbeTester {
 
         // Wait for the sample to arrive and for the client supplied test function to
         // complete
-        try {
-            probe.await(5000);
-        } catch (Exception ex) {
-            fail("Unexpected exception waiting for buffer\n" + ex);
-        } finally {
-            pipe.stop();
-        }
+        assertDoesNotThrow(() -> probe.await(5000), "Unexpected exception waiting for buffer\n");
+
+        pipe.stop();
+
 
         // If the test threw an exception on the sample listener thread, throw it here
         // (on the main thread)

@@ -1,30 +1,24 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (C) 2014 Tom Greenwood <tgreenwood@cafex.com>
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) 2004 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * version 3 along with this work.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.freedesktop.gstreamer;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.sun.jna.Callback;
 import com.sun.jna.CallbackThreadInitializer;
@@ -34,7 +28,6 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import org.freedesktop.gstreamer.glib.NativeEnum;
-
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GErrorStruct;
 import org.freedesktop.gstreamer.lowlevel.GstBusAPI;
@@ -43,6 +36,12 @@ import org.freedesktop.gstreamer.lowlevel.GstBusPtr;
 import org.freedesktop.gstreamer.lowlevel.GstMessagePtr;
 import org.freedesktop.gstreamer.message.Message;
 import org.freedesktop.gstreamer.message.MessageType;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.freedesktop.gstreamer.lowlevel.GlibAPI.GLIB_API;
 import static org.freedesktop.gstreamer.lowlevel.GstBusAPI.GSTBUS_API;
@@ -79,11 +78,9 @@ public class Bus extends GstObject {
 
     private static final Logger LOG = Logger.getLogger(Bus.class.getName());
     private static final SyncCallback SYNC_CALLBACK = new SyncCallback();
-
-    private volatile BusSyncHandler syncHandler = null;
-
     private final Object lock = new Object();
     private final List<MessageProxy<?>> messageProxies = new CopyOnWriteArrayList<>();
+    private volatile BusSyncHandler syncHandler = null;
     private boolean watchAdded = false;
 
     /**
@@ -99,7 +96,7 @@ public class Bus extends GstObject {
 
     /**
      * Instructs the bus to flush out any queued messages.
-     *
+     * <p>
      * If flushing, flush out any messages queued in the bus. Will flush future
      * messages until {@link #setFlushing} is called with false.
      *
@@ -113,7 +110,7 @@ public class Bus extends GstObject {
      * Add a listener for end-of-stream messages.
      *
      * @param listener The listener to be called when end-of-stream is
-     * encountered.
+     *                 encountered.
      */
     public void connect(final EOS listener) {
         connect(EOS.class, listener, new BusCallback() {
@@ -137,7 +134,7 @@ public class Bus extends GstObject {
      * Add a listener for error messages.
      *
      * @param listener The listener to be called when an error in the stream is
-     * encountered.
+     *                 encountered.
      */
     public void connect(final ERROR listener) {
         connect(ERROR.class, listener, new BusCallback() {
@@ -166,7 +163,7 @@ public class Bus extends GstObject {
      * Add a listener for warning messages.
      *
      * @param listener The listener to be called when an {@link Element} emits a
-     * warning.
+     *                 warning.
      */
     public void connect(final WARNING listener) {
         connect(WARNING.class, listener, new BusCallback() {
@@ -195,7 +192,7 @@ public class Bus extends GstObject {
      * Add a listener for informational messages.
      *
      * @param listener The listener to be called when an {@link Element} emits a
-     * an informational message.
+     *                 an informational message.
      */
     public void connect(final INFO listener) {
         connect(INFO.class, listener, new BusCallback() {
@@ -224,7 +221,7 @@ public class Bus extends GstObject {
      * Add a listener for {@link State} changes in the Pipeline.
      *
      * @param listener The listener to be called when the Pipeline changes
-     * state.
+     *                 state.
      */
     public void connect(final STATE_CHANGED listener) {
         connect(STATE_CHANGED.class, listener, new BusCallback() {
@@ -333,7 +330,7 @@ public class Bus extends GstObject {
      * Add a listener for {@link SEGMENT_START} messages in the Pipeline.
      *
      * @param listener The listener to be called when the Pipeline has started a
-     * segment.
+     *                 segment.
      */
     public void connect(final SEGMENT_START listener) {
         connect(SEGMENT_START.class, listener, new BusCallback() {
@@ -362,7 +359,7 @@ public class Bus extends GstObject {
      * Add a listener for {@link SEGMENT_DONE} messages in the Pipeline.
      *
      * @param listener The listener to be called when the Pipeline has finished
-     * a segment.
+     *                 a segment.
      */
     public void connect(final SEGMENT_DONE listener) {
         connect(SEGMENT_DONE.class, listener, new BusCallback() {
@@ -391,7 +388,7 @@ public class Bus extends GstObject {
      * Add a listener for {@link ASYNC_DONE} messages in the Pipeline.
      *
      * @param listener The listener to be called when the an element has
-     * finished an async state change.
+     *                 finished an async state change.
      */
     public void connect(final ASYNC_DONE listener) {
         connect(ASYNC_DONE.class, listener, new BusCallback() {
@@ -416,7 +413,7 @@ public class Bus extends GstObject {
      * Add a listener for all messages posted on the Bus.
      *
      * @param listener The listener to be called when a {@link Message} is
-     * posted.
+     *                 posted.
      */
     public void connect(final MESSAGE listener) {
         connect(MESSAGE.class, listener, new BusCallback() {
@@ -430,9 +427,9 @@ public class Bus extends GstObject {
     /**
      * Add a listener for messages of type {@code signal} posted on the Bus.
      *
-     * @param signal the signal to connect to.
+     * @param signal   the signal to connect to.
      * @param listener The listener to be called when a {@link Message} is
-     * posted.
+     *                 posted.
      */
     public void connect(String signal, final MESSAGE listener) {
         //
@@ -470,6 +467,24 @@ public class Bus extends GstObject {
     }
 
     /**
+     * Clear the synchronous handler.
+     * <p>
+     * This is a convenience method equivalent to {@code setSyncHandler(null)}
+     */
+    public void clearSyncHandler() {
+        setSyncHandler(null);
+    }
+
+    /**
+     * Get the current synchronous handler.
+     *
+     * @return current sync handler, or null
+     */
+    public BusSyncHandler getSyncHandler() {
+        return syncHandler;
+    }
+
+    /**
      * Sets the synchronous handler (message listener) on the bus. The handler
      * will be called every time a new message is posted on the bus. Note that
      * the handler will be called in the same thread context as the posting
@@ -492,31 +507,13 @@ public class Bus extends GstObject {
     }
 
     /**
-     * Clear the synchronous handler.
-     * <p>
-     * This is a convenience method equivalent to {@code setSyncHandler(null)}
-     */
-    public void clearSyncHandler() {
-        setSyncHandler(null);
-    }
-
-    /**
-     * Get the current synchronous handler.
-     *
-     * @return current sync handler, or null
-     */
-    public BusSyncHandler getSyncHandler() {
-        return syncHandler;
-    }
-
-    /**
      * Connects to a signal.
-     *
+     * <p>
      * The signal name is deduced from the listenerClass name.
      *
      * @param listenerClass the class of the listener.
-     * @param listener the listener to associate with the {@code callback}
-     * @param callback The callback to call when the signal is emitted.
+     * @param listener      the listener to associate with the {@code callback}
+     * @param callback      The callback to call when the signal is emitted.
      */
     private <T> void connect(Class<T> listenerClass, T listener, BusCallback callback) {
         String className = listenerClass.getSimpleName();
@@ -535,15 +532,15 @@ public class Bus extends GstObject {
      * This differs to {@link GObject#connect} in that it hooks up Bus signals
      * to the sync callback, not the generic GObject signal mechanism.
      *
-     * @param <T> listener type
-     * @param signal the name of the signal to connect to.
+     * @param <T>           listener type
+     * @param signal        the name of the signal to connect to.
      * @param listenerClass the class of the {@code listener}
-     * @param listener the listener to associate with the {@code callback}
-     * @param callback the callback to call when the signal is emitted.
+     * @param listener      the listener to associate with the {@code callback}
+     * @param callback      the callback to call when the signal is emitted.
      */
     @Override
     public <T> void connect(String signal, Class<T> listenerClass, T listener,
-            final Callback callback) {
+                            final Callback callback) {
         if (listenerClass.getEnclosingClass() != Bus.class) {
             super.connect(signal, listenerClass, listener, callback);
         } else {
@@ -558,9 +555,9 @@ public class Bus extends GstObject {
     }
 
     private synchronized <T> void addMessageProxy(MessageType type,
-            Class<T> listenerClass,
-            T listener,
-            BusCallback callback) {
+                                                  Class<T> listenerClass,
+                                                  T listener,
+                                                  BusCallback callback) {
         messageProxies.add(new MessageProxy(type, listenerClass, listener, callback));
         addWatch();
     }
@@ -588,7 +585,6 @@ public class Bus extends GstObject {
      * uses the default main context to signal that there are messages waiting
      * on the bus. Since that is used by the GTK L&F under swing, we never get
      * those notifications, and the messages just queue up.
-     *
      */
     private void dispatchMessage(GstBusPtr busPtr, GstMessagePtr msgPtr) {
         messageProxies.forEach(p -> {
@@ -637,7 +633,7 @@ public class Bus extends GstObject {
 
     /**
      * Signal emitted when end-of-stream is reached in a pipeline.
-     *
+     * <p>
      * The application will only receive this message in the PLAYING state and
      * every time it sets a pipeline to PLAYING that is in the EOS state. The
      * application can perform a flushing seek in the pipeline, which will undo
@@ -646,14 +642,14 @@ public class Bus extends GstObject {
      * @see #connect(EOS)
      * @see #disconnect(EOS)
      */
-    public static interface EOS {
+    public interface EOS {
 
         /**
          * Called when a {@link Pipeline} element posts a end-of-stream message.
          *
          * @param source the element which posted the message.
          */
-        public void endOfStream(GstObject source);
+        void endOfStream(GstObject source);
     }
 
     /**
@@ -665,16 +661,16 @@ public class Bus extends GstObject {
      * @see #connect(ERROR)
      * @see #disconnect(ERROR)
      */
-    public static interface ERROR {
+    public interface ERROR {
 
         /**
          * Called when a {@link Pipeline} element posts an error message.
          *
-         * @param source the element which posted the message.
-         * @param code a numeric code representing the error.
+         * @param source  the element which posted the message.
+         * @param code    a numeric code representing the error.
          * @param message a string representation of the error.
          */
-        public void errorMessage(GstObject source, int code, String message);
+        void errorMessage(GstObject source, int code, String message);
     }
 
     /**
@@ -683,16 +679,16 @@ public class Bus extends GstObject {
      * @see #connect(WARNING)
      * @see #disconnect(WARNING)
      */
-    public static interface WARNING {
+    public interface WARNING {
 
         /**
          * Called when a {@link Pipeline} element posts an warning message.
          *
-         * @param source the element which posted the message.
-         * @param code a numeric code representing the warning.
+         * @param source  the element which posted the message.
+         * @param code    a numeric code representing the warning.
          * @param message a string representation of the warning.
          */
-        public void warningMessage(GstObject source, int code, String message);
+        void warningMessage(GstObject source, int code, String message);
     }
 
     /**
@@ -701,17 +697,17 @@ public class Bus extends GstObject {
      * @see #connect(INFO)
      * @see #disconnect(INFO)
      */
-    public static interface INFO {
+    public interface INFO {
 
         /**
          * Called when a {@link Pipeline} element posts an informational
          * message.
          *
-         * @param source the element which posted the message.
-         * @param code a numeric code representing the informational message.
+         * @param source  the element which posted the message.
+         * @param code    a numeric code representing the informational message.
          * @param message a string representation of the informational message.
          */
-        public void infoMessage(GstObject source, int code, String message);
+        void infoMessage(GstObject source, int code, String message);
     }
 
     /**
@@ -720,15 +716,15 @@ public class Bus extends GstObject {
      * @see #connect(TAG)
      * @see #disconnect(TAG)
      */
-    public static interface TAG {
+    public interface TAG {
 
         /**
          * Called when a {@link Pipeline} element finds media meta-data.
          *
-         * @param source the element which posted the message.
+         * @param source  the element which posted the message.
          * @param tagList a list of media meta-data.
          */
-        public void tagsFound(GstObject source, TagList tagList);
+        void tagsFound(GstObject source, TagList tagList);
     }
 
     /**
@@ -737,18 +733,18 @@ public class Bus extends GstObject {
      * @see #connect(STATE_CHANGED)
      * @see #disconnect(STATE_CHANGED)
      */
-    public static interface STATE_CHANGED {
+    public interface STATE_CHANGED {
 
         /**
          * Called when a {@link Pipeline} element executes a {@link State}
          * change.
          *
-         * @param source the element which posted the message.
-         * @param old the old state that the element is changing from.
+         * @param source  the element which posted the message.
+         * @param old     the old state that the element is changing from.
          * @param current the new (current) state the element is changing to.
          * @param pending the pending (target) state.
          */
-        public void stateChanged(GstObject source, State old, State current, State pending);
+        void stateChanged(GstObject source, State old, State current, State pending);
     }
 
     /**
@@ -757,7 +753,7 @@ public class Bus extends GstObject {
      * @see #connect(BUFFERING)
      * @see #disconnect(BUFFERING)
      */
-    public static interface BUFFERING {
+    public interface BUFFERING {
 
         /**
          * Called when a {@link Pipeline} element needs to buffer data before it
@@ -774,10 +770,10 @@ public class Bus extends GstObject {
          * receiving a message with {@code percent} set to 100, which can happen
          * after the pipeline completed prerolling.
          *
-         * @param source the element which posted the message.
+         * @param source  the element which posted the message.
          * @param percent the percentage of buffering that has completed.
          */
-        public void bufferingData(GstObject source, int percent);
+        void bufferingData(GstObject source, int percent);
     }
 
     /**
@@ -796,14 +792,14 @@ public class Bus extends GstObject {
      * @see #connect(DURATION)
      * @see #disconnect(DURATION)
      */
-    public static interface DURATION_CHANGED {
+    public interface DURATION_CHANGED {
 
         /**
          * Called when a new duration message is posted on the Bus.
          *
          * @param source the element which posted the message.
          */
-        public void durationChanged(GstObject source);
+        void durationChanged(GstObject source);
     }
 
     /**
@@ -813,9 +809,9 @@ public class Bus extends GstObject {
      * This message is not received by the application but is used for
      * maintenance reasons in container elements.
      */
-    public static interface SEGMENT_START {
+    public interface SEGMENT_START {
 
-        public void segmentStart(GstObject source, Format format, long position);
+        void segmentStart(GstObject source, Format format, long position);
     }
 
     /**
@@ -829,16 +825,16 @@ public class Bus extends GstObject {
      * @see #connect(SEGMENT_DONE)
      * @see #disconnect(SEGMENT_DONE)
      */
-    public static interface SEGMENT_DONE {
+    public interface SEGMENT_DONE {
 
         /**
          * Called when a segment-done message has been posted.
          *
-         * @param source the element which posted the message.
-         * @param format the format of the position being done.
+         * @param source   the element which posted the message.
+         * @param format   the format of the position being done.
          * @param position the position of the segment being done.
          */
-        public void segmentDone(GstObject source, Format format, long position);
+        void segmentDone(GstObject source, Format format, long position);
     }
 
     /**
@@ -850,14 +846,14 @@ public class Bus extends GstObject {
      * @see #connect(ASYNC_DONE)
      * @see #disconnect(ASYNC_DONE)
      */
-    public static interface ASYNC_DONE {
+    public interface ASYNC_DONE {
 
         /**
          * Called when a segment-done message has been posted.
          *
          * @param source the element which posted the message.
          */
-        public void asyncDone(GstObject source);
+        void asyncDone(GstObject source);
     }
 
     /**
@@ -869,15 +865,15 @@ public class Bus extends GstObject {
      * @see #connect(MESSAGE)
      * @see #disconnect(MESSAGE)
      */
-    public static interface MESSAGE {
+    public interface MESSAGE {
 
         /**
          * Called when a {@link Element} posts a {@link Message} on the Bus.
          *
-         * @param bus the Bus the message was posted on.
+         * @param bus     the Bus the message was posted on.
          * @param message the message that was posted.
          */
-        public void busMessage(Bus bus, Message message);
+        void busMessage(Bus bus, Message message);
     }
 
     private static class MessageProxy<T> {

@@ -3,16 +3,16 @@
  * Copyright (c) 2009 Levente Farkas
  * Copyright (C) 2007 Wayne Meissner
  * Copyright (C) <2003> David A. Schleef <ds@schleef.org>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -22,6 +22,7 @@ package org.freedesktop.gstreamer;
 
 
 import org.freedesktop.gstreamer.glib.Natives;
+
 import static org.freedesktop.gstreamer.lowlevel.GstCapsAPI.GSTCAPS_API;
 
 /**
@@ -49,7 +50,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstCapsAPI.GSTCAPS_API;
  * A Caps can be constructed with the following code fragment:
  * <p>
  * <code>
- *  Caps caps = Caps.fromString("video/x-raw-rgb, bpp=32, depth=24, width=640, height=480");
+ * Caps caps = Caps.fromString("video/x-raw-rgb, bpp=32, depth=24, width=640, height=480");
  * </code>
  * <p>
  * A Caps is fixed when it has no properties with ranges or lists. Use
@@ -100,6 +101,57 @@ public class Caps extends MiniObject {
     }
 
     /**
+     * Creates a new Caps that indicates that it is compatible with any media
+     * format.
+     *
+     * @return The new Caps.
+     */
+    public static Caps anyCaps() {
+        return new Caps(Natives.initializer(GSTCAPS_API.ptr_gst_caps_new_any()));
+    }
+
+    /**
+     * Creates a new Caps that is empty. That is, the returned Caps contains no
+     * media formats.
+     *
+     * @return The new Caps.
+     */
+    public static Caps emptyCaps() {
+        return new Caps(Natives.initializer(GSTCAPS_API.ptr_gst_caps_new_empty()));
+    }
+
+    /**
+     * Construct a new Caps from a string representation. Example:
+     * <p>
+     * <code>
+     * Caps caps = Caps.fromString("video/x-raw, format=RGB, bpp=32, depth=24, width=640, height=480");
+     * </code>
+     *
+     * @param caps The string representation of the caps.
+     * @return The new Caps.
+     */
+    public static Caps fromString(String caps) {
+        return new Caps(Natives.initializer(GSTCAPS_API.ptr_gst_caps_from_string(caps)));
+    }
+
+    /**
+     * Merge two {@link Caps} together.
+     * <p>
+     * Appends the structures contained in caps2 to caps1 if they are not yet
+     * expressed by caps1 . The structures in caps2 are not copied -- they are
+     * transferred to a writable copy of caps1 , and then caps2 is freed. If
+     * either caps is ANY, the resulting caps will be ANY.
+     * </p>
+     *
+     * @param caps1 the {@link Caps} that will take the new entries.
+     * @param caps2 the {@link Caps} to merge in
+     * @return merged Caps
+     */
+    public static Caps merge(Caps caps1, Caps caps2) {
+        return GSTCAPS_API.gst_caps_merge(caps1, caps2);
+    }
+
+    /**
      * Append the structures contained in caps to this caps object. The
      * structures in caps are not copied -- they are transferred to this caps.
      * <p>
@@ -123,7 +175,7 @@ public class Caps extends MiniObject {
 
     /**
      * Create a new Caps as a copy of the this caps.
-     *
+     * <p>
      * The new Caps will be a copy of this caps, with all the internal
      * structures copied as well.
      *
@@ -143,7 +195,7 @@ public class Caps extends MiniObject {
 
     /**
      * Get a {@link Structure} contained in this caps.
-     *
+     * <p>
      * Finds the structure in @caps that has the index @index, and returns it.
      *
      * @param index The index of the structure to get.
@@ -166,7 +218,6 @@ public class Caps extends MiniObject {
      * to both this Caps and the other Caps.
      *
      * @param other The {@link Caps} to intersect with this one.
-     *
      * @return The new {@link Caps}
      */
     public Caps intersect(Caps other) {
@@ -256,7 +307,6 @@ public class Caps extends MiniObject {
     }
 
     /**
-     *
      * Returns a writable copy of this caps.
      * <p>
      * This method will invalidate the native side of this caps object, so it
@@ -273,7 +323,7 @@ public class Caps extends MiniObject {
 
     /**
      * Normalize the Caps.
-     *
+     * <p>
      * Creates a new {@link Caps} that represents the same set of formats as
      * this Caps, but contains no lists. Each list is expanded into separate
      * {@link Structure}s
@@ -344,7 +394,7 @@ public class Caps extends MiniObject {
 
     /**
      * Destructively discard all but the first structure from this caps.
-     *
+     * <p>
      * Useful when fixating. This caps must be writable.
      *
      * @return truncated copy of the Caps
@@ -353,57 +403,6 @@ public class Caps extends MiniObject {
 //        this.ref();
         Natives.ref(this);
         return GSTCAPS_API.gst_caps_truncate(this);
-    }
-
-    /**
-     * Creates a new Caps that indicates that it is compatible with any media
-     * format.
-     *
-     * @return The new Caps.
-     */
-    public static Caps anyCaps() {
-        return new Caps(Natives.initializer(GSTCAPS_API.ptr_gst_caps_new_any()));
-    }
-
-    /**
-     * Creates a new Caps that is empty. That is, the returned Caps contains no
-     * media formats.
-     *
-     * @return The new Caps.
-     */
-    public static Caps emptyCaps() {
-        return new Caps(Natives.initializer(GSTCAPS_API.ptr_gst_caps_new_empty()));
-    }
-
-    /**
-     * Construct a new Caps from a string representation. Example:
-     * <p>
-     * <code>
-     *  Caps caps = Caps.fromString("video/x-raw, format=RGB, bpp=32, depth=24, width=640, height=480");
-     * </code>
-     *
-     * @param caps The string representation of the caps.
-     * @return The new Caps.
-     */
-    public static Caps fromString(String caps) {
-        return new Caps(Natives.initializer(GSTCAPS_API.ptr_gst_caps_from_string(caps)));
-    }
-
-    /**
-     * Merge two {@link Caps} together.
-     * <p>
-     * Appends the structures contained in caps2 to caps1 if they are not yet
-     * expressed by caps1 . The structures in caps2 are not copied -- they are
-     * transferred to a writable copy of caps1 , and then caps2 is freed. If
-     * either caps is ANY, the resulting caps will be ANY.
-     * </p>
-     *
-     * @param caps1 the {@link Caps} that will take the new entries.
-     * @param caps2 the {@link Caps} to merge in
-     * @return merged Caps
-     */
-    public static Caps merge(Caps caps1, Caps caps2) {
-        return GSTCAPS_API.gst_caps_merge(caps1, caps2);
     }
 
 }

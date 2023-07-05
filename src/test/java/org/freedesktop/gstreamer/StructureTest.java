@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
- * Copyright (C) 2009 Tamas Korodi <kotyo@zamba.fm> 
+ * Copyright (C) 2009 Tamas Korodi <kotyo@zamba.fm>
  * Copyright (C) 2007 Wayne Meissner
- * 
- * This code is free software: you can redistribute it and/or modify it under 
+ *
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -21,33 +21,33 @@ package org.freedesktop.gstreamer;
 import org.freedesktop.gstreamer.glib.GCancellable;
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GValueAPI;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.freedesktop.gstreamer.util.TestAssumptions;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import org.freedesktop.gstreamer.util.TestAssumptions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class StructureTest {
 
     private Structure structure;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
         Gst.init(Gst.getVersion(), "StructureTest");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         structure = new Structure("nazgul");
     }
@@ -114,19 +114,19 @@ public class StructureTest {
         structure.setValue("integers", GType.valueOf(GValueAPI.GValueArray.GTYPE_NAME), ar);
         int[] in = new int[2];
         int[] ints = structure.getIntegers("integers", in);
-        assertTrue(in == ints);
+        assertSame(in, ints);
         assertEquals(32, ints[0]);
         assertEquals(-49, ints[1]);
 
         in = new int[1];
         ints = structure.getIntegers("integers", in);
-        assertFalse(in == ints);
+        assertNotSame(in, ints);
         assertEquals(32, ints[0]);
         assertEquals(-49, ints[1]);
 
         structure.setInteger("single_integer", 18);
         int[] single = structure.getIntegers("single_integer", in);
-        assertTrue(in == single);
+        assertSame(in, single);
         assertEquals(18, single[0]);
     }
 
@@ -147,19 +147,19 @@ public class StructureTest {
         structure.setValue("doubles", GType.valueOf(GValueAPI.GValueArray.GTYPE_NAME), ar);
         double[] in = new double[2];
         double[] doubles = structure.getDoubles("doubles", in);
-        assertTrue(in == doubles);
+        assertSame(in, doubles);
         assertEquals(3.25, doubles[0], 0.001);
         assertEquals(79.6, doubles[1], 0.001);
 
         in = new double[1];
         doubles = structure.getDoubles("doubles", in);
-        assertFalse(in == doubles);
+        assertNotSame(in, doubles);
         assertEquals(3.25, doubles[0], 0.001);
         assertEquals(79.6, doubles[1], 0.001);
 
         structure.setDouble("single_double", 18.2);
         double[] single = structure.getDoubles("single_double", in);
-        assertTrue(in == single);
+        assertSame(in, single);
         assertEquals(18.2, single[0], 0.001);
     }
 
@@ -167,7 +167,7 @@ public class StructureTest {
     public void testFraction() {
         structure.setFraction("fraction", 10, 1);
 
-        assertEquals(true, structure.hasField("fraction"));
+        assertTrue(structure.hasField("fraction"));
 
         assertEquals(10, structure.getFraction("fraction").getNumerator());
         assertEquals(1, structure.getFraction("fraction").getDenominator());
@@ -191,16 +191,18 @@ public class StructureTest {
         assertEquals(Arrays.asList("RGB", "BGR", "RGBx", "BGRx"), formats);
     }
 
-    @Test(expected = Structure.InvalidFieldException.class)
+    @Test
     public void testValueListChecksType() {
-        Caps caps = Caps.fromString("video/x-raw,format={RGB, BGR, RGBx, BGRx}");
-        caps.getStructure(0).getValues(Integer.class, "format");
+        assertThrows(Structure.InvalidFieldException.class, () -> {
+            Caps caps = Caps.fromString("video/x-raw,format={RGB, BGR, RGBx, BGRx}");
+            caps.getStructure(0).getValues(Integer.class, "format");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSetMistypedObject() {
         GCancellable notACapsInstance = new GCancellable();
-        structure.setObject("whatever", Caps.GTYPE_NAME, notACapsInstance);
+        assertThrows(IllegalArgumentException.class, () -> structure.setObject("whatever", Caps.GTYPE_NAME, notACapsInstance));
     }
 
     @Test
@@ -208,7 +210,7 @@ public class StructureTest {
         GCancellable anyKindOfObject = new GCancellable();
         structure.setObject("whatever", GType.OBJECT.getTypeName(), anyKindOfObject);
         Object value = structure.getValue("whatever");
-        Assert.assertSame(anyKindOfObject, value);
+        assertSame(anyKindOfObject, value);
     }
 
     @Test
@@ -216,21 +218,21 @@ public class StructureTest {
         GCancellable anyKindOfObject = new GCancellable();
         structure.setObject("whatever", GCancellable.GTYPE_NAME, anyKindOfObject);
         Object value = structure.getValue("whatever");
-        Assert.assertSame(anyKindOfObject, value);
+        assertSame(anyKindOfObject, value);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSetNullObject() {
-        structure.setObject("whatever", GCancellable.GTYPE_NAME, null);
+        assertThrows(IllegalArgumentException.class, () -> structure.setObject("whatever", GCancellable.GTYPE_NAME, null));
         Object value = structure.getValue("whatever");
-        Assert.assertNull(value);
+        assertNull(value);
     }
-    
+
     @Test
     public void testIssue173() {
         TestAssumptions.requireGstVersion(1, 16);
         TestAssumptions.requireElement("srtsink");
-        
+
         Element srtsink = ElementFactory.make("srtsink", "srtsink");
         srtsink.set("uri", "srt://:8888/");
         Object stats = srtsink.get("stats");

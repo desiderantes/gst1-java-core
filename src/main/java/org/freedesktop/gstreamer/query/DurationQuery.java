@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -32,6 +32,7 @@ import org.freedesktop.gstreamer.lowlevel.GstQueryAPI;
  * <a href="https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstQuery.html#gst-query-new-duration"
  * >https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstQuery.html#gst-query-new-duration</a>
  * <p>
+ *
  * @see Format
  */
 public class DurationQuery extends Query {
@@ -54,7 +55,7 @@ public class DurationQuery extends Query {
      * Answers a duration query by setting the requested value in the given
      * format.
      *
-     * @param format the {@link Format} for the duration
+     * @param format   the {@link Format} for the duration
      * @param duration the duration of the stream
      */
     public void setDuration(Format format, long duration) {
@@ -73,7 +74,7 @@ public class DurationQuery extends Query {
     }
 
     /**
-     * Gets the duration answer for this query, in the format available from 
+     * Gets the duration answer for this query, in the format available from
      * {@link #getFormat() }
      *
      * @return The total duration.

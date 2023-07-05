@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2018 Antonio Morales
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -26,28 +26,40 @@ import org.freedesktop.gstreamer.glib.NativeEnum;
  */
 @Gst.Since(minor = 14)
 public enum WebRTCPeerConnectionState implements NativeEnum<WebRTCPeerConnectionState> {
-    /** New WebRTC connection */
+    /**
+     * New WebRTC connection
+     */
     NEW(0),
-    /** A WebRTC connection is being made */
+    /**
+     * A WebRTC connection is being made
+     */
     CONNECTING(1),
-    /** A WebRTC connection has been made */
+    /**
+     * A WebRTC connection has been made
+     */
     CONNECTED(2),
-    /** A WebRTC connection has been disconnected */
+    /**
+     * A WebRTC connection has been disconnected
+     */
     DISCONNECTED(3),
-    /** Attempt to make a WebRTC connection failed */
+    /**
+     * Attempt to make a WebRTC connection failed
+     */
     FAILED(4),
-    /** A WebRTC connection has been closed */
+    /**
+     * A WebRTC connection has been closed
+     */
     CLOSED(5);
 
     private final int value;
 
-    private WebRTCPeerConnectionState(int value) {
+    WebRTCPeerConnectionState(int value) {
         this.value = value;
     }
-    
+
     @Override
     public int intValue() {
         return value;
     }
-    
+
 }

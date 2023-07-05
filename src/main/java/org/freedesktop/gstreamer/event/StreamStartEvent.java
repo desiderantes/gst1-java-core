@@ -21,6 +21,7 @@ package org.freedesktop.gstreamer.event;
 
 
 import org.freedesktop.gstreamer.glib.Natives;
+
 import static org.freedesktop.gstreamer.lowlevel.GstEventAPI.GSTEVENT_API;
 
 /**
@@ -32,9 +33,10 @@ import static org.freedesktop.gstreamer.lowlevel.GstEventAPI.GSTEVENT_API;
  * <p>
  */
 public class StreamStartEvent extends Event {
-	
+
     /**
      * This constructor is for internal use only.
+     *
      * @param init initialization data.
      */
     StreamStartEvent(Initializer init) {
@@ -43,6 +45,7 @@ public class StreamStartEvent extends Event {
 
     /**
      * Creates a new EOS event.
+     *
      * @param stream_id identifier for this stream
      */
     public StreamStartEvent(final String stream_id) {

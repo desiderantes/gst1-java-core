@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2018 Antonio Morales
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -25,14 +25,22 @@ import org.freedesktop.gstreamer.lowlevel.annotations.DefaultEnumValue;
  */
 @Gst.Since(minor = 14)
 public enum PromiseResult {
-    /** Initial state. Waiting for transition to any other state. */
+    /**
+     * Initial state. Waiting for transition to any other state.
+     */
     @DefaultEnumValue
     PENDING,
-    /** Interrupted by the consumer as it doesn't want the value anymore. */
+    /**
+     * Interrupted by the consumer as it doesn't want the value anymore.
+     */
     INTERRUPTED,
-    /** A producer marked a reply. */
+    /**
+     * A producer marked a reply.
+     */
     REPLIED,
-    /** The promise expired (the carrying object lost all refs) and the promise
-     * will never be fulfilled. */
+    /**
+     * The promise expired (the carrying object lost all refs) and the promise
+     * will never be fulfilled.
+     */
     EXPIRED
 }

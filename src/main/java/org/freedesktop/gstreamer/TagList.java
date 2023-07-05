@@ -1,18 +1,18 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2016 Christophe Lafolet
  * Copyright (c) 2014 Tom Greenwood <tgreenwood@cafex.com>
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -20,25 +20,19 @@
  */
 package org.freedesktop.gstreamer;
 
-import static org.freedesktop.gstreamer.lowlevel.GlibAPI.GLIB_API;
-import static org.freedesktop.gstreamer.lowlevel.GstTagAPI.GSTTAG_API;
-import static org.freedesktop.gstreamer.lowlevel.GstTagListAPI.GSTTAGLIST_API;
-
-import java.util.AbstractList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.PointerByReference;
 import org.freedesktop.gstreamer.glib.GDate;
+import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GstTagListAPI;
 
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.PointerByReference;
-import org.freedesktop.gstreamer.glib.NativeObject;
-import org.freedesktop.gstreamer.glib.Natives;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.freedesktop.gstreamer.lowlevel.GlibAPI.GLIB_API;
+import static org.freedesktop.gstreamer.lowlevel.GstTagAPI.GSTTAG_API;
+import static org.freedesktop.gstreamer.lowlevel.GstTagListAPI.GSTTAGLIST_API;
 
 /**
  * List of tags and values used to describe media metadata.
@@ -52,7 +46,7 @@ import org.freedesktop.gstreamer.glib.Natives;
 public class TagList extends MiniObject {
 
     public static final String GTYPE_NAME = "GstTagList";
-    
+
     /**
      * Creates a new instance of TagList
      *
@@ -75,6 +69,22 @@ public class TagList extends MiniObject {
     }
 
     /**
+     * Gets the low level type for the tag.
+     *
+     * @param tag the tag
+     * @return the type of {@code tag}
+     */
+    private static GType getTagType(String tag) {
+
+        GType type = MapHolder.tagTypeMap.get(tag);
+        if (type != null) {
+            return type;
+        }
+        MapHolder.tagTypeMap.put(tag, type = GSTTAG_API.gst_tag_get_type(tag));
+        return type;
+    }
+
+    /**
      * Gets the number of values of type {@code tag} stored in the list.
      *
      * @param tag the name of the tag to get the size of.
@@ -83,6 +93,16 @@ public class TagList extends MiniObject {
     public int getValueCount(String tag) {
         return GSTTAGLIST_API.gst_tag_list_get_tag_size(this, tag);
     }
+
+//    /**
+//     * Gets all data values for a tag contained in this list.
+//     *
+//     * @param tag the name of the tag to retrieve.
+//     * @return the data associated with {@code tag}.
+//     */
+//    public List<Object> getValues(Tag tag) {
+//        return getValues(tag.getId());
+//    }
 
     /**
      * Gets all data values for a tag contained in this list.
@@ -105,28 +125,6 @@ public class TagList extends MiniObject {
     }
 
 //    /**
-//     * Gets all data values for a tag contained in this list.
-//     *
-//     * @param tag the name of the tag to retrieve.
-//     * @return the data associated with {@code tag}.
-//     */
-//    public List<Object> getValues(Tag tag) {
-//        return getValues(tag.getId());
-//    }
-
-    /**
-     * Gets data for a tag from this list.
-     *
-     * @param tag the tag to retrieve.
-     * @param index which element of the array of data for this tag to retrieve.
-     * @return the data for the tag.
-     */
-    public Object getValue(String tag, int index) {
-        TagGetter get = MapHolder.getterMap.get(getTagType(tag));
-        return get != null ? get.get(this, tag, index) : "";
-    }
-
-//    /**
 //     * Gets data for a tag from this list.
 //     *
 //     * @param tag the tag to retrieve.
@@ -138,14 +136,15 @@ public class TagList extends MiniObject {
 //    }
 
     /**
-     * Gets a string tag from this list.
+     * Gets data for a tag from this list.
      *
-     * @param tag the tag to retrieve.
+     * @param tag   the tag to retrieve.
      * @param index which element of the array of data for this tag to retrieve.
      * @return the data for the tag.
      */
-    public String getString(String tag, int index) {
-        return getValue(tag, index).toString();
+    public Object getValue(String tag, int index) {
+        TagGetter get = MapHolder.getterMap.get(getTagType(tag));
+        return get != null ? get.get(this, tag, index) : "";
     }
 
 //    /**
@@ -160,18 +159,14 @@ public class TagList extends MiniObject {
 //    }
 
     /**
-     * Gets a numeric tag from this list.
+     * Gets a string tag from this list.
      *
-     * @param tag the tag to retrieve.
+     * @param tag   the tag to retrieve.
      * @param index which element of the array of data for this tag to retrieve.
      * @return the data for the tag.
      */
-    public Number getNumber(String tag, int index) {
-        Object data = getValue(tag, index);
-        if (!(data instanceof Number)) {
-            throw new IllegalArgumentException("Tag [" + tag + "] is not a number");
-        }
-        return (Number) data;
+    public String getString(String tag, int index) {
+        return getValue(tag, index).toString();
     }
 
 //    /**
@@ -184,6 +179,21 @@ public class TagList extends MiniObject {
 //    public Number getNumber(Tag tag, int index) {
 //        return getNumber(tag.getId(), index);
 //    }
+
+    /**
+     * Gets a numeric tag from this list.
+     *
+     * @param tag   the tag to retrieve.
+     * @param index which element of the array of data for this tag to retrieve.
+     * @return the data for the tag.
+     */
+    public Number getNumber(String tag, int index) {
+        Object data = getValue(tag, index);
+        if (!(data instanceof Number)) {
+            throw new IllegalArgumentException("Tag [" + tag + "] is not a number");
+        }
+        return (Number) data;
+    }
 
     /**
      * Gets a list of all the tags contained in this list.
@@ -205,30 +215,14 @@ public class TagList extends MiniObject {
      * is null, a copy of this list is returned.
      *
      * @param list2 the other tag list to merge with this one.
-     * @param mode the {@link TagMergeMode}.
+     * @param mode  the {@link TagMergeMode}.
      * @return a new tag list.
      */
     public TagList merge(TagList list2, TagMergeMode mode) {
         return GSTTAGLIST_API.gst_tag_list_merge(this, list2, mode);
     }
 
-    /**
-     * Gets the low level type for the tag.
-     *
-     * @param tag the tag
-     * @return the type of {@code tag}
-     */
-    private static GType getTagType(String tag) {
-
-        GType type = MapHolder.tagTypeMap.get(tag);
-        if (type != null) {
-            return type;
-        }
-        MapHolder.tagTypeMap.put(tag, type = GSTTAG_API.gst_tag_get_type(tag));
-        return type;
-    }
-
-    private static interface TagGetter {
+    private interface TagGetter {
 
         Object get(TagList tl, String tag, int index);
     }

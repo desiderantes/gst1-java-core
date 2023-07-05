@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2020 Neil C Smith
  * Copyright (C) 2018 Antonio Morales
  * Copyright (C) 2014 Tom Greenwood <tgreenwood@cafex.com>
@@ -9,13 +9,13 @@
  *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -24,19 +24,19 @@
 package org.freedesktop.gstreamer;
 
 import com.sun.jna.NativeLong;
-import org.freedesktop.gstreamer.event.Event;
 import com.sun.jna.Pointer;
-import java.util.HashSet;
-import java.util.Set;
+import org.freedesktop.gstreamer.event.Event;
 import org.freedesktop.gstreamer.glib.NativeFlags;
 import org.freedesktop.gstreamer.glib.Natives;
-
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
-import org.freedesktop.gstreamer.lowlevel.GstPadProbeInfo;
 import org.freedesktop.gstreamer.lowlevel.GstPadAPI;
+import org.freedesktop.gstreamer.lowlevel.GstPadProbeInfo;
+import org.freedesktop.gstreamer.lowlevel.GstPadPtr;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.freedesktop.gstreamer.lowlevel.GstPadAPI.GSTPAD_API;
-import org.freedesktop.gstreamer.lowlevel.GstPadPtr;
 
 /**
  * Object contained by elements that allows links to other elements.
@@ -101,7 +101,7 @@ public class Pad extends GstObject {
      * Creates a new pad with the given name in the given direction. If name is
      * null, a guaranteed unique name (across all pads) will be assigned.
      *
-     * @param name The name of the new pad.
+     * @param name      The name of the new pad.
      * @param direction The direction of the new pad.
      */
     public Pad(String name, PadDirection direction) {
@@ -110,12 +110,12 @@ public class Pad extends GstObject {
 
     /**
      * Creates a new pad with the given name from the given template.
-     *
+     * <p>
      * If name is null, a guaranteed unique name (across all pads) will be
      * assigned.
      *
      * @param template The pad template to use.
-     * @param name The name of the new pad.
+     * @param name     The name of the new pad.
      */
     public Pad(PadTemplate template, String name) {
         this(Natives.initializer(GSTPAD_API.ptr_gst_pad_new_from_template(template, name), false));
@@ -166,7 +166,6 @@ public class Pad extends GstObject {
      *
      * @return the negotiated #GstCaps or null if this pad has
      * no current caps
-     *
      */
     public Caps getCurrentCaps() {
         return GSTPAD_API.gst_pad_get_current_caps(this);
@@ -174,7 +173,7 @@ public class Pad extends GstObject {
 
     /**
      * Get the peer of this pad.
-     *
+     * <p>
      * MT safe.
      *
      * @return The peer Pad of this Pad.
@@ -185,7 +184,7 @@ public class Pad extends GstObject {
 
     /**
      * Get the capabilities of the peer connected to this pad.
-     *<p>
+     * <p>
      * When called on srcpads filter contains the caps that upstream could
      * produce in the order preferred by upstream. When called on sinkpads
      * filter contains the caps accepted by downstream in the preferred order.
@@ -223,7 +222,7 @@ public class Pad extends GstObject {
 
     /**
      * Links this source pad and a sink pad.
-     *
+     * <p>
      * MT Safe.
      *
      * @param sink the sink Pad to link.
@@ -237,10 +236,9 @@ public class Pad extends GstObject {
     }
 
     /**
-     *
      * Unlinks the source pad from the sink pad. Will emit the "unlinked" signal
      * on both pads.
-     *
+     * <p>
      * MT safe.
      *
      * @param pad the sink Pad to unlink.
@@ -340,7 +338,7 @@ public class Pad extends GstObject {
      * Add a listener for the <code>linked</code> signal on this {@link Pad}
      *
      * @param listener The listener to be called when a peer {@link Pad} is
-     * linked.
+     *                 linked.
      */
     public void connect(final LINKED listener) {
         connect(LINKED.class, listener, new GstCallback() {
@@ -365,7 +363,7 @@ public class Pad extends GstObject {
      * Add a listener for the <code>unlinked</code> signal on this {@link Pad}
      *
      * @param listener The listener to be called when when a peer {@link Pad} is
-     * unlinked.
+     *                 unlinked.
      */
     public void connect(final UNLINKED listener) {
         connect(UNLINKED.class, listener, new GstCallback() {
@@ -397,15 +395,15 @@ public class Pad extends GstObject {
      * already idle while calling addProbe(). In each of the groups, probes are
      * called in the order in which they were added.
      *
-     * @param mask set of mask flags for probe - common options are fields of
-     * {@link PadProbeType}
+     * @param mask     set of mask flags for probe - common options are fields of
+     *                 {@link PadProbeType}
      * @param callback callback that will be called with notifications of the
-     * pad state
+     *                 pad state
      */
     public void addProbe(final Set<PadProbeType> mask, PROBE callback) {
         addProbe(NativeFlags.toInt(mask), callback);
     }
-    
+
     /**
      * Be notified of different states of pads. The provided callback is called
      * for every state that matches mask.
@@ -416,14 +414,14 @@ public class Pad extends GstObject {
      * already idle while calling addProbe(). In each of the groups, probes are
      * called in the order in which they were added.
      *
-     * @param mask mask flag for probe
+     * @param mask     mask flag for probe
      * @param callback callback that will be called with notifications of the
-     * pad state
+     *                 pad state
      */
     public void addProbe(PadProbeType mask, PROBE callback) {
         addProbe(mask.intValue(), callback);
     }
-    
+
     synchronized void addProbe(int mask, PROBE callback) {
         final GstPadAPI.PadProbeCallback probe = new GstPadAPI.PadProbeCallback() {
             @Override
@@ -456,10 +454,10 @@ public class Pad extends GstObject {
         };
         addCallback(PROBE.class, callback, cb);
     }
-    
+
     /**
      * Remove the provided probe callback from the Pad.
-     * 
+     *
      * @param callback callback to remove
      */
     public synchronized void removeProbe(PROBE callback) {
@@ -606,7 +604,7 @@ public class Pad extends GstObject {
      * buffer after calling this function.
      *
      * @param buffer the Buffer, returns {@link FlowReturn#ERROR}
-     * if NULL.
+     *               if NULL.
      * @return a org.gstreamer.FlowReturn
      */
     public FlowReturn chain(Buffer buffer) {
@@ -625,7 +623,7 @@ public class Pad extends GstObject {
      * This is a lowlevel function. Usualy {@link Pad#pullRange} is used.
      *
      * @param offset The start offset of the buffer
-     * @param size The length of the buffer
+     * @param size   The length of the buffer
      * @param buffer the Buffer, returns {@link FlowReturn#ERROR} if NULL.
      * @return a FlowReturn from the peer pad. When this function returns OK,
      * buffer will contain a valid Buffer.
@@ -650,7 +648,7 @@ public class Pad extends GstObject {
      * not supported.
      *
      * @param offset The start offset of the buffer
-     * @param size The length of the buffer
+     * @param size   The length of the buffer
      * @param buffer the Buffer, returns {@link FlowReturn#ERROR} if NULL.
      * @return a FlowReturn from the peer pad. When this function returns OK,
      * buffer will contain a valid Buffer. MT safe.
@@ -671,9 +669,9 @@ public class Pad extends GstObject {
      * buffer after calling this function.
      *
      * @param buffer the GstBuffer to push returns GST_FLOW_ERROR if not.
-     * [transfer full]
+     *               [transfer full]
      * @return a GstFlowReturn from the peer pad.
-     *
+     * <p>
      * MT safe.
      */
     public FlowReturn push(final Buffer buffer) {
@@ -705,15 +703,15 @@ public class Pad extends GstObject {
      * @see #connect(LINKED)
      * @see #disconnect(LINKED)
      */
-    public static interface LINKED {
+    public interface LINKED {
 
         /**
          * Called when a {@link Pad} is linked to another Pad.
          *
-         * @param pad the pad that emitted the signal.
+         * @param pad  the pad that emitted the signal.
          * @param peer the peer pad that has been connected.
          */
-        public void linked(Pad pad, Pad peer);
+        void linked(Pad pad, Pad peer);
     }
 
     /**
@@ -723,22 +721,22 @@ public class Pad extends GstObject {
      * @see #connect(UNLINKED)
      * @see #disconnect(UNLINKED)
      */
-    public static interface UNLINKED {
+    public interface UNLINKED {
 
         /**
          * Called when a {@link Pad} is unlinked from another Pad.
          *
-         * @param pad the pad that emitted the signal.
+         * @param pad  the pad that emitted the signal.
          * @param peer the peer pad that has been connected.
          */
-        public void unlinked(Pad pad, Pad peer);
+        void unlinked(Pad pad, Pad peer);
     }
 
     /**
      * Callback used by
      * {@link #addProbe(java.util.EnumSet, org.freedesktop.gstreamer.Pad.PROBE)}
      */
-    public static interface PROBE {
+    public interface PROBE {
 
         /**
          * Callback used by
@@ -748,11 +746,11 @@ public class Pad extends GstObject {
          * <b>The PadProbeInfo and any Buffer, Event or Query referenced from
          * it, is only valid for the duration of the callback.</b>
          *
-         * @param pad Pad that is blocked
+         * @param pad  Pad that is blocked
          * @param info PadProbeInfo with access to underlying data
          * @return PadProbeReturn value
          */
-        public PadProbeReturn probeCallback(Pad pad, PadProbeInfo info);
+        PadProbeReturn probeCallback(Pad pad, PadProbeInfo info);
 
     }
 
@@ -762,10 +760,10 @@ public class Pad extends GstObject {
      * @see #addEventProbe(EVENT_PROBE)
      * @see #removeEventProbe(EVENT_PROBE)
      */
-    public static interface EVENT_PROBE {
+    public interface EVENT_PROBE {
 
-        public PadProbeReturn eventReceived(Pad pad, Event event);
-        
+        PadProbeReturn eventReceived(Pad pad, Event event);
+
     }
 
     /**
@@ -774,10 +772,10 @@ public class Pad extends GstObject {
      * @see #addDataProbe(DATA_PROBE)
      * @see #removeDataProbe(DATA_PROBE)
      */
-    public static interface DATA_PROBE {
+    public interface DATA_PROBE {
 
-        public PadProbeReturn dataReceived(Pad pad, Buffer buffer);
-        
+        PadProbeReturn dataReceived(Pad pad, Buffer buffer);
+
     }
 
     private static class Handle extends GstObject.Handle {

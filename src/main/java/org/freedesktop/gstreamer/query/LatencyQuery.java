@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -50,7 +50,7 @@ public class LatencyQuery extends Query {
     /**
      * Answers a latency query.
      *
-     * @param live if there is a live element upstream
+     * @param live       if there is a live element upstream
      * @param minLatency the minimal latency of the live element
      * @param maxLatency the maximal latency of the live element
      */

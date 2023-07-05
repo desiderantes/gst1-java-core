@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -20,25 +20,17 @@
 package org.freedesktop.gstreamer;
 
 import org.freedesktop.gstreamer.event.Event;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import org.freedesktop.gstreamer.event.FlushStopEvent;
+import org.freedesktop.gstreamer.event.TagEvent;
+import org.freedesktop.gstreamer.query.AllocationQuery;
+import org.freedesktop.gstreamer.query.Query;
+import org.junit.jupiter.api.*;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import org.freedesktop.gstreamer.event.FlushStopEvent;
 
-import org.freedesktop.gstreamer.event.TagEvent;
-import org.freedesktop.gstreamer.query.AllocationQuery;
-import org.freedesktop.gstreamer.query.Query;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -48,21 +40,21 @@ public class PadTest {
     public PadTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("test", new String[]{});
+        Gst.init("test");
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -72,16 +64,16 @@ public class PadTest {
         Element sink = ElementFactory.make("fakesink", "sink");
         Pad srcPad = src.getStaticPad("src");
         Pad sinkPad = sink.getStaticPad("sink");
-        assertNotNull("Could not get src pad", srcPad);
-        assertNotNull("Could not get sink pad", sinkPad);
+        assertNotNull(srcPad, "Could not get src pad");
+        assertNotNull(sinkPad, "Could not get sink pad");
         src = null;
         sink = null;
         WeakReference<Pad> srcRef = new WeakReference<>(srcPad);
         WeakReference<Pad> sinkRef = new WeakReference<>(sinkPad);
         srcPad = null;
         sinkPad = null;
-        assertTrue("Src pad not garbage collected", GCTracker.waitGC(srcRef));
-        assertTrue("Sink pad not garbage collected", GCTracker.waitGC(sinkRef));
+        assertTrue(GCTracker.waitGC(srcRef), "Src pad not garbage collected");
+        assertTrue(GCTracker.waitGC(sinkRef), "Sink pad not garbage collected");
     }
 
     @Test
@@ -115,15 +107,15 @@ public class PadTest {
 
         sink.addEventProbe(event_probe);
         sink.sendEvent(ev);
-        assertEquals("event_prober.probeEvent() was not called", ev, e.get());
+        assertEquals(ev, e.get(), "event_prober.probeEvent() was not called");
 
         sink.removeEventProbe(event_probe);
 
         Event ev2 = new TagEvent(new TagList());
         sink.sendEvent(ev2);
-        assertNotSame("event_prober.probeEvent() should not have been called", ev2, e.get());
+        assertNotSame(ev2, e.get(), "event_prober.probeEvent() should not have been called");
     }
-    
+
     @Test
     public void addEventProbe_Remove() {
         Element elem = ElementFactory.make("identity", "src");
@@ -146,18 +138,18 @@ public class PadTest {
 
         sink.addEventProbe(event_probe);
         sink.sendEvent(ev);
-        assertEquals("event_prober.probeEvent() was not called", ev, e.get());
+        assertEquals(ev, e.get(), "event_prober.probeEvent() was not called");
 
         Event ev2 = new TagEvent(new TagList());
         sink.sendEvent(ev2);
-        assertNotSame("event_prober.probeEvent() should not have been called", ev2, e.get());
-        
+        assertNotSame(ev2, e.get(), "event_prober.probeEvent() should not have been called");
+
         WeakReference<Pad.EVENT_PROBE> probeRef = new WeakReference<>(event_probe);
         event_probe = null;
-        assertTrue("Removed probe not collected", GCTracker.waitGC(probeRef));
-        
+        assertTrue(GCTracker.waitGC(probeRef), "Removed probe not collected");
+
     }
-    
+
     @Test
     public void addProbe_Event() {
         Element elem = ElementFactory.make("identity", "src");
@@ -168,8 +160,8 @@ public class PadTest {
         final AtomicReference<Event> e = new AtomicReference<>();
 
         Pad.PROBE probe = (Pad pad, PadProbeInfo info) -> {
-            assertTrue("Info type does not include event downstream",
-                    info.getType().contains(PadProbeType.EVENT_DOWNSTREAM));
+            assertTrue(info.getType().contains(PadProbeType.EVENT_DOWNSTREAM),
+                    "Info type does not include event downstream");
             e.set(info.getEvent());
             return PadProbeReturn.OK;
         };
@@ -179,15 +171,15 @@ public class PadTest {
 
         sink.addProbe(PadProbeType.EVENT_BOTH, probe);
         sink.sendEvent(ev);
-        assertEquals("Probe (Event) was not called", ev, e.get());
+        assertEquals(ev, e.get(), "Probe (Event) was not called");
 
         sink.removeProbe(probe);
 
         Event ev2 = new TagEvent(new TagList());
         sink.sendEvent(ev2);
-        assertNotSame("Probe (Event) should not have been called", ev2, e.get());
+        assertNotSame(ev2, e.get(), "Probe (Event) should not have been called");
     }
-    
+
     @Test
     public void addProbe_EventRemove() {
         Element elem = ElementFactory.make("identity", "src");
@@ -198,8 +190,8 @@ public class PadTest {
         final AtomicReference<Event> e = new AtomicReference<>();
 
         Pad.PROBE probe = (Pad pad, PadProbeInfo info) -> {
-            assertTrue("Info type does not include event downstream",
-                    info.getType().contains(PadProbeType.EVENT_DOWNSTREAM));
+            assertTrue(info.getType().contains(PadProbeType.EVENT_DOWNSTREAM),
+                    "Info type does not include event downstream");
             e.set(info.getEvent());
             return PadProbeReturn.REMOVE;
         };
@@ -209,19 +201,19 @@ public class PadTest {
 
         sink.addProbe(PadProbeType.EVENT_BOTH, probe);
         sink.sendEvent(ev);
-        assertEquals("Probe (Event) was not called", ev, e.get());
+        assertEquals(ev, e.get(), "Probe (Event) was not called");
 
         Event ev2 = new TagEvent(new TagList());
         sink.sendEvent(ev2);
-        assertNotSame("Probe (Event) should not have been called", ev2, e.get());
-        
+        assertNotSame(ev2, e.get(), "Probe (Event) should not have been called");
+
         WeakReference<Pad.PROBE> probeRef = new WeakReference<>(probe);
         probe = null;
-        assertTrue("Removed probe not collected", GCTracker.waitGC(probeRef));
-        
+        assertTrue(GCTracker.waitGC(probeRef), "Removed probe not collected");
+
         Event ev3 = new TagEvent(new TagList());
         sink.sendEvent(ev3);
-        assertNotSame("Probe (Event) should not have been called", ev3, e.get());
+        assertNotSame(ev3, e.get(), "Probe (Event) should not have been called");
     }
 
     @Test
@@ -250,19 +242,19 @@ public class PadTest {
 
         // push data
         FlowReturn res = src.push(buf);
-        assertEquals("data_prober.probeData() was not called", buf, b.get());
+        assertEquals(buf, b.get(), "data_prober.probeData() was not called");
 
         // remove the dataprobe
         src.removeDataProbe(data_probe);
 
         // push data
         res = src.push(buf2);
-        assertNotSame("data_prober.probeData() should not have been called", buf2, b.get());
+        assertNotSame(buf2, b.get(), "data_prober.probeData() should not have been called");
 
         elem.stop();
 
     }
-    
+
     @Test
     public void addProbe_Data() {
 
@@ -274,8 +266,8 @@ public class PadTest {
         Pad src = elem.getStaticPad("src");
 
         Pad.PROBE probe = (Pad pad, PadProbeInfo info) -> {
-            assertTrue("Info type does not include buffer",
-                    info.getType().contains(PadProbeType.BUFFER));
+            assertTrue(info.getType().contains(PadProbeType.BUFFER),
+                    "Info type does not include buffer");
             // These cause assertion messages to be logged by GStreamer
             // assertTrue(info.getEvent() == null);
             // assertTrue(info.getQuery() == null);
@@ -290,19 +282,19 @@ public class PadTest {
 
         // push data
         FlowReturn res = src.push(buf);
-        assertEquals("Probe (Data) was not called", buf, b.get());
+        assertEquals(buf, b.get(), "Probe (Data) was not called");
 
         // remove the dataprobe
         src.removeProbe(probe);
 
         // push data
         res = src.push(buf2);
-        assertNotSame("Probe (Data) should not have been called", buf2, b.get());
+        assertNotSame(buf2, b.get(), "Probe (Data) should not have been called");
 
         elem.stop();
 
     }
-    
+
     @Test
     public void addProbe_Idle() {
 
@@ -315,26 +307,26 @@ public class PadTest {
             called.set(true);
             return PadProbeReturn.REMOVE;
         };
-        
+
         src.addProbe(PadProbeType.IDLE, probe);
-        
-        assertTrue("Idle probe not called", called.get());
-        
+
+        assertTrue(called.get(), "Idle probe not called");
+
         WeakReference<Pad.PROBE> probeRef = new WeakReference<>(probe);
-        
+
         probe = null;
-        
-        assertTrue("Idle probe not collected", GCTracker.waitGC(probeRef));
-        
+
+        assertTrue(GCTracker.waitGC(probeRef), "Idle probe not collected");
+
     }
-    
+
     @Test
     public void addProbe_Query() {
         ProbeTester.test(PadProbeType.QUERY_BOTH, info -> {
             Query q = info.getQuery();
             return q instanceof AllocationQuery;
         });
-        
+
     }
-    
+
 }

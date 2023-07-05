@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -30,7 +30,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstControlSourceAPI.GSTCONTROLS
  * <p>
  */
 public class ControlSource extends GstObject {
-    
+
     public static final String GTYPE_NAME = "GstControlSource";
 
     private final Handle handle;
@@ -42,8 +42,8 @@ public class ControlSource extends GstObject {
 
     ControlSource(Initializer init) {
         this(new Handle(
-                init.ptr.as(GstControlSourcePtr.class, GstControlSourcePtr::new),
-                init.ownsHandle),
+                        init.ptr.as(GstControlSourcePtr.class, GstControlSourcePtr::new),
+                        init.ownsHandle),
                 init.needRef);
     }
 
@@ -69,8 +69,8 @@ public class ControlSource extends GstObject {
      * undefined contain NANs.
      *
      * @param timestamp the first timestamp
-     * @param interval the time steps
-     * @param values array to put control-values in
+     * @param interval  the time steps
+     * @param values    array to put control-values in
      * @return true if the values were successfully calculated
      */
     public boolean getValueArray(long timestamp, long interval, double[] values) {
@@ -89,7 +89,6 @@ public class ControlSource extends GstObject {
      * <p>
      * <a href="https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstControlSource.html#GstTimedValue"
      * >https://gstreamer.freedesktop.org/data/doc/gstreamer/stable/gstreamer/html/GstControlSource.html#GstTimedValue</a>
-     *
      */
     public static final class TimedValue {
 
@@ -101,7 +100,7 @@ public class ControlSource extends GstObject {
          * and corresponding value.
          *
          * @param timestamp the timestamp (GstClockTime) of the value change
-         * @param value the corresponding value
+         * @param value     the corresponding value
          */
         public TimedValue(long timestamp, double value) {
             this.timestamp = timestamp;
@@ -131,10 +130,7 @@ public class ControlSource extends GstObject {
             if (this.timestamp != other.timestamp) {
                 return false;
             }
-            if (Double.doubleToLongBits(this.value) != Double.doubleToLongBits(other.value)) {
-                return false;
-            }
-            return true;
+            return Double.doubleToLongBits(this.value) == Double.doubleToLongBits(other.value);
         }
 
         @Override

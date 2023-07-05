@@ -20,20 +20,14 @@
  */
 package org.freedesktop.gstreamer.elements;
 
+import org.freedesktop.gstreamer.*;
+import org.freedesktop.gstreamer.glib.NativeFlags;
+import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
+
 import java.io.File;
 import java.net.URI;
 import java.util.EnumSet;
 import java.util.Set;
-import org.freedesktop.gstreamer.Bus;
-
-import org.freedesktop.gstreamer.Element;
-import org.freedesktop.gstreamer.Format;
-import org.freedesktop.gstreamer.Gst;
-import org.freedesktop.gstreamer.Pad;
-import org.freedesktop.gstreamer.Pipeline;
-import org.freedesktop.gstreamer.TagList;
-import org.freedesktop.gstreamer.glib.NativeFlags;
-import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 
 /**
  * <p>
@@ -122,7 +116,7 @@ public class PlayBin extends Pipeline {
      * Creates a new PlayBin.
      *
      * @param name The name used to identify this pipeline.
-     * @param uri The URI of the media file to load.
+     * @param uri  The URI of the media file to load.
      */
     public PlayBin(String name, URI uri) {
         this(name);
@@ -133,7 +127,6 @@ public class PlayBin extends Pipeline {
      * Creates a new PlayBin proxy.
      *
      * @param init proxy initialization args
-     *
      */
     PlayBin(Initializer init) {
         super(init);
@@ -202,25 +195,11 @@ public class PlayBin extends Pipeline {
     /**
      * Sets an output {@link Element} on the PlayBin.
      *
-     * @param key The name of the output to change.
+     * @param key     The name of the output to change.
      * @param element The Element to set as the output.
      */
     private void setElement(String key, Element element) {
         set(key, element);
-    }
-
-    /**
-     * Set the flags to control the behaviour of this PlayBin.
-     * <p>
-     * The default value is
-     * soft-colorbalance+deinterlace+soft-volume+text+audio+video
-     * <p>
-     * See individual {@link PlayFlags} value descriptions for more information.
-     *
-     * @param flags set of {@link PlayFlags}
-     */
-    public void setFlags(Set<PlayFlags> flags) {
-        set("flags", NativeFlags.toInt(flags));
     }
 
     /**
@@ -241,12 +220,17 @@ public class PlayBin extends Pipeline {
     }
 
     /**
-     * Sets the audio playback volume.
+     * Set the flags to control the behaviour of this PlayBin.
+     * <p>
+     * The default value is
+     * soft-colorbalance+deinterlace+soft-volume+text+audio+video
+     * <p>
+     * See individual {@link PlayFlags} value descriptions for more information.
      *
-     * @param volume value between 0.0 and 1.0 with 1.0 being full volume.
+     * @param flags set of {@link PlayFlags}
      */
-    public void setVolume(double volume) {
-        set("volume", Math.max(Math.min(volume, 1d), 0d));
+    public void setFlags(Set<PlayFlags> flags) {
+        set("flags", NativeFlags.toInt(flags));
     }
 
     /**
@@ -257,6 +241,15 @@ public class PlayBin extends Pipeline {
      */
     public double getVolume() {
         return ((Number) get("volume")).doubleValue();
+    }
+
+    /**
+     * Sets the audio playback volume.
+     *
+     * @param volume value between 0.0 and 1.0 with 1.0 being full volume.
+     */
+    public void setVolume(double volume) {
+        set("volume", Math.max(Math.min(volume, 1d), 0d));
     }
 
     /**
@@ -565,11 +558,12 @@ public class PlayBin extends Pipeline {
      * Signal emitted when the current uri is about to finish. You can set the
      * uri and suburi to make sure that playback continues.
      */
-    public static interface ABOUT_TO_FINISH {
+    public interface ABOUT_TO_FINISH {
 
         /**
+         *
          */
-        public void aboutToFinish(PlayBin element);
+        void aboutToFinish(PlayBin element);
     }
 
     /**
@@ -577,11 +571,12 @@ public class PlayBin extends Pipeline {
      * changed. The application will most likely want to select a new video
      * stream.
      */
-    public static interface VIDEO_CHANGED {
+    public interface VIDEO_CHANGED {
 
         /**
+         *
          */
-        public void videoChanged(PlayBin element);
+        void videoChanged(PlayBin element);
     }
 
     /**
@@ -589,11 +584,12 @@ public class PlayBin extends Pipeline {
      * changed. The application will most likely want to select a new audio
      * stream.
      */
-    public static interface AUDIO_CHANGED {
+    public interface AUDIO_CHANGED {
 
         /**
+         *
          */
-        public void audioChanged(PlayBin element);
+        void audioChanged(PlayBin element);
     }
 
     /**
@@ -601,47 +597,48 @@ public class PlayBin extends Pipeline {
      * changed. The application will most likely want to select a new audio
      * stream.
      */
-    public static interface TEXT_CHANGED {
+    public interface TEXT_CHANGED {
 
         /**
+         *
          */
-        public void textChanged(PlayBin element);
+        void textChanged(PlayBin element);
     }
 
     /**
      * Signal is emitted whenever the tags of a video stream have changed. The
      * application will most likely want to get the new tags.
      */
-    public static interface VIDEO_TAGS_CHANGED {
+    public interface VIDEO_TAGS_CHANGED {
 
         /**
          * @param stream stream index with changed tags
          */
-        public void videoTagsChanged(PlayBin element, int stream);
+        void videoTagsChanged(PlayBin element, int stream);
     }
 
     /**
      * Signal is emitted whenever the tags of an audio stream have changed. The
      * application will most likely want to get the new tags.
      */
-    public static interface AUDIO_TAGS_CHANGED {
+    public interface AUDIO_TAGS_CHANGED {
 
         /**
          * @param stream stream index with changed tags
          */
-        public void audioTagsChanged(PlayBin element, int stream);
+        void audioTagsChanged(PlayBin element, int stream);
     }
 
     /**
      * Signal is emitted whenever the tags of a text stream have changed. The
      * application will most likely want to get the new tags.
      */
-    public static interface TEXT_TAGS_CHANGED {
+    public interface TEXT_TAGS_CHANGED {
 
         /**
          * @param stream stream index with changed tags
          */
-        public void textTagsChanged(PlayBin element, int stream);
+        void textTagsChanged(PlayBin element, int stream);
     }
 
     /**
@@ -655,7 +652,7 @@ public class PlayBin extends Pipeline {
      * application thread.
      */
     @Gst.Since(minor = 10)
-    public static interface ELEMENT_SETUP {
+    public interface ELEMENT_SETUP {
 
         /**
          * Element setup signal callback.
@@ -663,7 +660,7 @@ public class PlayBin extends Pipeline {
          * @param playbin signal source
          * @param element added element
          */
-        public void elementSetup(PlayBin playbin, Element element);
+        void elementSetup(PlayBin playbin, Element element);
     }
 
     /**
@@ -676,7 +673,7 @@ public class PlayBin extends Pipeline {
      * This signal is usually emitted from the context of a GStreamer streaming
      * thread.
      */
-    public static interface SOURCE_SETUP {
+    public interface SOURCE_SETUP {
 
         /**
          * Source setup signal callback.
@@ -684,7 +681,7 @@ public class PlayBin extends Pipeline {
          * @param playbin signal source
          * @param element source element added
          */
-        public void sourceSetup(PlayBin playbin, Element element);
+        void sourceSetup(PlayBin playbin, Element element);
     }
 
 }

@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -17,12 +17,14 @@
  */
 package org.freedesktop.gstreamer.controller;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.freedesktop.gstreamer.ControlSource;
 import org.freedesktop.gstreamer.lowlevel.GlibAPI.GList;
-import static org.freedesktop.gstreamer.lowlevel.GstControllerAPI.GSTCONTROLLER_API;
 import org.freedesktop.gstreamer.lowlevel.GstTimedValueControlSourcePtr;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.freedesktop.gstreamer.lowlevel.GstControllerAPI.GSTCONTROLLER_API;
 
 /**
  * Timed value control source base class.
@@ -39,9 +41,9 @@ import org.freedesktop.gstreamer.lowlevel.GstTimedValueControlSourcePtr;
  * All functions are MT-safe.
  */
 public class TimedValueControlSource extends ControlSource {
-    
+
     public static final String GTYPE_NAME = "GstTimedValueControlSource";
-    
+
     private final Handle handle;
 
     protected TimedValueControlSource(Handle handle, boolean needRef) {
@@ -51,9 +53,9 @@ public class TimedValueControlSource extends ControlSource {
 
     TimedValueControlSource(Initializer init) {
         this(new Handle(
-                init.ptr.as(GstTimedValueControlSourcePtr.class,
-                        GstTimedValueControlSourcePtr::new),
-                init.ownsHandle),
+                        init.ptr.as(GstTimedValueControlSourcePtr.class,
+                                GstTimedValueControlSourcePtr::new),
+                        init.ownsHandle),
                 init.needRef);
     }
 
@@ -61,14 +63,14 @@ public class TimedValueControlSource extends ControlSource {
      * Set the value of given controller-handled property at a certain time.
      *
      * @param timestamp the time the control-change is scheduled for
-     * @param value the control value
+     * @param value     the control value
      * @return false if the value could not be set
      */
     public boolean set(long timestamp, double value) {
         return GSTCONTROLLER_API.gst_timed_value_control_source_set(
                 handle.getPointer(), timestamp, value);
     }
-    
+
     /**
      * Sets multiple timed values at once.
      *
@@ -84,14 +86,14 @@ public class TimedValueControlSource extends ControlSource {
         }
         return true;
     }
-    
+
     /**
      * Returns a copy of the list of {@link TimedValue} for the given property.
-     * 
+     *
      * @return a list of TimedValue
      */
     public List<TimedValue> getAll() {
-        GList next = 
+        GList next =
                 GSTCONTROLLER_API.gst_timed_value_control_source_get_all(handle.getPointer());
         List<TimedValue> list = new ArrayList<>();
         while (next != null) {
@@ -102,11 +104,11 @@ public class TimedValueControlSource extends ControlSource {
         }
         return list;
     }
-    
+
     /**
      * Used to remove the value of given controller-handled property at a
      * certain time.
-     * 
+     *
      * @param timestamp the time the control-change should be removed from
      * @return FALSE if the value couldn't be unset (i.e. not found)
      */
@@ -114,7 +116,7 @@ public class TimedValueControlSource extends ControlSource {
         return GSTCONTROLLER_API.gst_timed_value_control_source_unset(
                 handle.getPointer(), timestamp);
     }
-    
+
     /**
      * Used to remove all time-stamped values of given controller-handled
      * property.
@@ -122,23 +124,23 @@ public class TimedValueControlSource extends ControlSource {
     public void unsetAll() {
         GSTCONTROLLER_API.gst_timed_value_control_source_unset_all(handle.getPointer());
     }
-    
+
     /**
      * Get the number of control points that are set.
-     * 
+     *
      * @return the number of control points that are set
      */
     public int getCount() {
         return GSTCONTROLLER_API.gst_timed_value_control_source_get_count(handle.getPointer());
     }
-    
+
     /**
      * Reset the controlled value cache.
      */
     public void invalidateCache() {
         GSTCONTROLLER_API.gst_timed_value_control_invalidate_cache(handle.getPointer());
     }
-    
+
 
     protected static class Handle extends ControlSource.Handle {
 

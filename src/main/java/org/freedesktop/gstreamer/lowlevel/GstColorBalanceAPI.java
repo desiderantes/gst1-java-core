@@ -1,8 +1,8 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2009 Tamas Korodi <kotyo@zamba.fm>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -20,55 +20,61 @@
 
 package org.freedesktop.gstreamer.lowlevel;
 
+import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 import org.freedesktop.gstreamer.interfaces.ColorBalance;
 import org.freedesktop.gstreamer.interfaces.ColorBalanceChannel;
 import org.freedesktop.gstreamer.lowlevel.GlibAPI.GList;
 
-import com.sun.jna.Library;
-import com.sun.jna.Pointer;
 import java.util.Arrays;
 import java.util.List;
 
 public interface GstColorBalanceAPI extends Library {
-	GstColorBalanceAPI GSTCOLORBALANCE_API = GstNative.load("gstvideo", GstColorBalanceAPI.class);
+    GstColorBalanceAPI GSTCOLORBALANCE_API = GstNative.load("gstvideo", GstColorBalanceAPI.class);
 
-	GType gst_color_balance_channel_get_type();
-	GType gst_color_balance_get_type();
+    GType gst_color_balance_channel_get_type();
 
-	/* vitrual class functions */
-	GList gst_color_balance_list_channels(ColorBalance balance);
+    GType gst_color_balance_get_type();
 
-	void gst_color_balance_set_value(ColorBalance balance, ColorBalanceChannel channel, int value);
+    /* vitrual class functions */
+    GList gst_color_balance_list_channels(ColorBalance balance);
 
-	int gst_color_balance_get_value(ColorBalance balance, ColorBalanceChannel channel);
+    void gst_color_balance_set_value(ColorBalance balance, ColorBalanceChannel channel, int value);
 
-	public static final class ColorBalanceChannelStruct extends com.sun.jna.Structure {
-		public volatile GObjectAPI.GObjectStruct parent;
-		public volatile String label;
-		public volatile int min_value;
-		public volatile int max_value;
+    int gst_color_balance_get_value(ColorBalance balance, ColorBalanceChannel channel);
 
-		public String getLabel() {
-			return (String) readField("label");
-		}
-		public int getMinValue() {
-			return (Integer) readField("min_value");
-		}
-		public int getMaxValue() {
-			return (Integer) readField("max_value");
-		}
-		public void read() {}
-		public void write() {}
-		public ColorBalanceChannelStruct(Pointer ptr) {
-			useMemory(ptr);
-		}
+    final class ColorBalanceChannelStruct extends com.sun.jna.Structure {
+        public volatile GObjectAPI.GObjectStruct parent;
+        public volatile String label;
+        public volatile int min_value;
+        public volatile int max_value;
 
-                @Override
-                protected List<String> getFieldOrder() {
-                    return Arrays.asList(new String[]{
-                        "parent", "label", "min_value",
-                        "max_value"
-                    });
-                }
-	}
+        public ColorBalanceChannelStruct(Pointer ptr) {
+            useMemory(ptr);
+        }
+
+        public String getLabel() {
+            return (String) readField("label");
+        }
+
+        public int getMinValue() {
+            return (Integer) readField("min_value");
+        }
+
+        public int getMaxValue() {
+            return (Integer) readField("max_value");
+        }
+
+        public void read() {
+        }
+
+        public void write() {
+        }
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Arrays.asList("parent", "label", "min_value",
+                    "max_value");
+        }
+    }
 }

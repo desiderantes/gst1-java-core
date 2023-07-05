@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -52,11 +52,11 @@ public class SeekingQuery extends Query {
     /**
      * Sets the seeking query result fields.
      *
-     * @param format the format to set for the {@code start} and {@code end}
-     * values.
+     * @param format   the format to set for the {@code start} and {@code end}
+     *                 values.
      * @param seekable the seekable flag to set
-     * @param start the start of the segment.
-     * @param end the end of the segment.
+     * @param start    the start of the segment.
+     * @param end      the end of the segment.
      */
     public void setSeeking(Format format, boolean seekable, long start, long end) {
         GstQueryAPI.GSTQUERY_API.gst_query_set_seeking(this, format, seekable, start, end);

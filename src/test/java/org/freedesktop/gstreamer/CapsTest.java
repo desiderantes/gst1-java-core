@@ -1,8 +1,8 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
  * Copyright (C) 2005 Andy Wingo <wingo@pobox.com>
  * Copyright (C) <2005> Thomas Vander Stichele <thomas at apestaart dot org>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -21,31 +21,38 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  * Unit test for GstCaps
  */
 public class CapsTest {
 
+    private static final String non_simple_caps_string =
+            "video/x-raw, format=I420, framerate=(fraction)[ 1/100, 100 ], "
+                    + "width=(int)[ 16, 4096 ], height=(int)[ 16, 4096 ]; video/x-raw, "
+                    + "format=YUY2, framerate=(fraction)[ 1/100, 100 ], width=(int)[ 16, 4096 ], "
+                    + "height=(int)[ 16, 4096 ]; video/x-raw, format=RGB, bpp=(int)8, depth=(int)8, "
+                    + "endianness=(int)1234, framerate=(fraction)[ 1/100, 100 ], width=(int)[ 16, 4096 ], "
+                    + "height=(int)[ 16, 4096 ]; video/x-raw, "
+                    + "format={ I420, YUY2, YV12 }, width=(int)[ 16, 4096 ], "
+                    + "height=(int)[ 16, 4096 ], framerate=(fraction)[ 1/100, 100 ]";
+
     public CapsTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("CapsTest", new String[] {});
+        Gst.init("CapsTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
@@ -56,14 +63,10 @@ public class CapsTest {
         Caps c2 = new Caps("video/x-raw, format=RGB, width=640, height=480");
         Caps c3 = Caps.merge(c1, c2);
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("merged caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("merged caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "merged caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "merged caps not invalidated");
+
         boolean widthFound = false, heightFound = false;
         for (int i = 0; i < c3.size(); ++i) {
             Structure s = c3.getStructure(i);
@@ -74,24 +77,22 @@ public class CapsTest {
                 heightFound = true;
             }
         }
-        assertTrue("width not appended", widthFound);
-        assertTrue("height not appended", heightFound);
+        assertTrue(widthFound, "width not appended");
+        assertTrue(heightFound, "height not appended");
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    
+
     @Test
     public void capsAppend() {
         Caps c1 = new Caps("video/x-raw, format=RGB, bpp=32, depth=24");
         Caps c2 = new Caps("video/x-raw, format=RGB, width=640, height=480");
         c1.append(c2);
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         boolean widthFound = false, heightFound = false;
         for (int i = 0; i < c1.size(); ++i) {
             Structure s = c1.getStructure(i);
@@ -102,28 +103,20 @@ public class CapsTest {
                 heightFound = true;
             }
         }
-        assertTrue("width not appended", widthFound);
-        assertTrue("height not appended", heightFound);
+        assertTrue(widthFound, "width not appended");
+        assertTrue(heightFound, "height not appended");
         // Verify reference count before dispose
-        Assert.assertEquals(1, c1.getRefCount());
+        assertEquals(1, c1.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c1.dispose(); 
+        c1.dispose();
     }
-    private static final String non_simple_caps_string =
-        "video/x-raw, format=I420, framerate=(fraction)[ 1/100, 100 ], "
-        + "width=(int)[ 16, 4096 ], height=(int)[ 16, 4096 ]; video/x-raw, "
-        + "format=YUY2, framerate=(fraction)[ 1/100, 100 ], width=(int)[ 16, 4096 ], "
-        + "height=(int)[ 16, 4096 ]; video/x-raw, format=RGB, bpp=(int)8, depth=(int)8, "
-        + "endianness=(int)1234, framerate=(fraction)[ 1/100, 100 ], width=(int)[ 16, 4096 ], "
-        + "height=(int)[ 16, 4096 ]; video/x-raw, "
-        + "format={ I420, YUY2, YV12 }, width=(int)[ 16, 4096 ], "
-        + "height=(int)[ 16, 4096 ], framerate=(fraction)[ 1/100, 100 ]";
+
     @Test
     public void simplify() {
         Caps c1 = new Caps(non_simple_caps_string);
-        assertNotNull("Caps not created", c1);
+        assertNotNull(c1, "Caps not created");
         Caps c2 = c1.simplify();
-        assertNotNull("Simplify returned null", c2);
+        assertNotNull(c2, "Simplify returned null");
         /* check simplified caps, should be:
          *
          * video/x-raw, format=RGB, bpp=(int)8, depth=(int)8, endianness=(int)1234,
@@ -133,348 +126,348 @@ public class CapsTest {
          *     width=(int)[ 16, 4096 ], height=(int)[ 16, 4096 ],
          *     framerate=(fraction)[ 1/100, 100 ]
          */
-        assertEquals("Caps not simplified to 2 structures", 2, c2.size());
+        assertEquals(2, c2.size(), "Caps not simplified to 2 structures");
         Structure s1 = c2.getStructure(0);
-        assertNotNull("Caps.getStructure(0) failed", s1);
+        assertNotNull(s1, "Caps.getStructure(0) failed");
         Structure s2 = c2.getStructure(1);
-        assertNotNull("Caps.getStructure(1) failed", s2);
+        assertNotNull(s2, "Caps.getStructure(1) failed");
         if (!s1.hasName("video/x-raw")) {
             Structure tmp = s1;
             s1 = s2;
             s2 = tmp;
         }
-        assertTrue("Could not locate video/x-raw structure", s1.hasName("video/x-raw"));
-        assertEquals("bpp not retrieved", 8, s1.getInteger("bpp"));
-        assertEquals("depth not retrieved", 8, s1.getInteger("depth"));
-        
-        assertTrue("Could not locate video/x-raw structure", s2.hasName("video/x-raw"));
-        
+        assertTrue(s1.hasName("video/x-raw"), "Could not locate video/x-raw structure");
+        assertEquals(8, s1.getInteger("bpp"), "bpp not retrieved");
+        assertEquals(8, s1.getInteger("depth"), "depth not retrieved");
+
+        assertTrue(s2.hasName("video/x-raw"), "Could not locate video/x-raw structure");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c1.getRefCount());
-        Assert.assertEquals(1, c2.getRefCount());
+        assertEquals(1, c1.getRefCount());
+        assertEquals(1, c2.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c1.dispose(); c2.dispose();
+        c1.dispose();
+        c2.dispose();
     }
+
     @Test
     public void truncate() {
 
         Caps c1 = Caps.fromString(non_simple_caps_string);
-        assertNotNull("Caps.fromString failed", c1);
-        assertEquals("Incorrect number of structures in caps", 4, c1.size());
+        assertNotNull(c1, "Caps.fromString failed");
+        assertEquals(4, c1.size(), "Incorrect number of structures in caps");
         Caps c2 = c1.truncate();
-        assertEquals("Caps not truncated", 1, c2.size());
-        assertEquals("Original caps untouched", 4, c1.size());
+        assertEquals(1, c2.size(), "Caps not truncated");
+        assertEquals(4, c1.size(), "Original caps untouched");
         // Verify reference count before dispose
-        Assert.assertEquals(1, c1.getRefCount());
-        Assert.assertEquals(1, c2.getRefCount());
+        assertEquals(1, c1.getRefCount());
+        assertEquals(1, c2.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c1.dispose(); c2.dispose();
+        c1.dispose();
+        c2.dispose();
     }
+
     @Test
     public void mergeANYAndSpecific() {
         /* ANY + specific = ANY */
         Caps c1 = Caps.anyCaps();
         Caps c2 = Caps.fromString("audio/x-raw,rate=44100");
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Too many structures in merged caps", 0, c3.size());
-        assertTrue("Merged caps should be ANY", c3.isAny());
+        assertEquals(0, c3.size(), "Too many structures in merged caps");
+        assertTrue(c3.isAny(), "Merged caps should be ANY");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
+
     @Test
     public void mergeSpecificAndANY() {
         /* specific + ANY = ANY */
         Caps c1 = Caps.fromString("audio/x-raw,rate=44100");
         Caps c2 = Caps.anyCaps();
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Too many structures in merged caps", 0, c3.size());
-        assertTrue("Merged caps should be ANY", c3.isAny());
+        assertEquals(0, c3.size(), "Too many structures in merged caps");
+        assertTrue(c3.isAny(), "Merged caps should be ANY");
         // Verify that the victim caps were invalidated and cannot be used.
         try {
             c1.toString();
             fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        } catch (IllegalStateException ex) {
+        }
         try {
             c2.toString();
             fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        } catch (IllegalStateException ex) {
+        }
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
+
     @Test
     public void mergeSpecificAndEMPTY() {
         /* specific + EMPTY = specific */
         Caps c1 = Caps.fromString("audio/x-raw,rate=44100");
         Caps c2 = Caps.emptyCaps();
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Wrong number of structures in merged structure", 1, c3.size());
-        assertFalse("Merged caps should not be empty", c3.isEmpty());
+        assertEquals(1, c3.size(), "Wrong number of structures in merged structure");
+        assertFalse(c3.isEmpty(), "Merged caps should not be empty");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
+
     @Test
     public void mergeEMPTYAndSpecific() {
         /* EMPTY + specific = specific */
         Caps c1 = Caps.emptyCaps();
         Caps c2 = Caps.fromString("audio/x-raw,rate=44100");
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Merged Caps structure count incorrect", 1, c3.size());
-        assertFalse("Merged caps should not be empty", c3.isEmpty());
+        assertEquals(1, c3.size(), "Merged Caps structure count incorrect");
+        assertFalse(c3.isEmpty(), "Merged caps should not be empty");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    @Test 
+
+    @Test
     public void mergeSame() {
         /* this is the same */
         Caps c1 = Caps.fromString("audio/x-raw,rate=44100,channels=1");
         Caps c2 = Caps.fromString("audio/x-raw,rate=44100,channels=1");
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Merged Caps structure count incorrect", 1, c3.size());
+        assertEquals(1, c3.size(), "Merged Caps structure count incorrect");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    @Test 
+
+    @Test
     public void mergeSameWithDifferentOrder() {
         /* and so is this */
         Caps c1 = Caps.fromString("audio/x-raw,rate=44100,channels=1");
         Caps c2 = Caps.fromString("audio/x-raw,channels=1,rate=44100");
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Merged Caps structure count incorrect", 1, c3.size());
+        assertEquals(1, c3.size(), "Merged Caps structure count incorrect");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    @Test public void mergeSameWithBufferData() {
+
+    @Test
+    public void mergeSameWithBufferData() {
         Caps c1 = Caps.fromString("video/x-foo, data=(buffer)AA");
         Caps c2 = Caps.fromString("video/x-foo, data=(buffer)AABB");
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Merged Caps structure count incorrect", 2, c3.size());
+        assertEquals(2, c3.size(), "Merged Caps structure count incorrect");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    @Test public void mergeSameWithBufferDataReversed() {
+
+    @Test
+    public void mergeSameWithBufferDataReversed() {
         Caps c1 = Caps.fromString("video/x-foo, data=(buffer)AABB");
         Caps c2 = Caps.fromString("video/x-foo, data=(buffer)AA");
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Merged Caps structure count incorrect", 2, c3.size());
+        assertEquals(2, c3.size(), "Merged Caps structure count incorrect");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    @Test public void mergeSameWithBufferDataSame() {
+
+    @Test
+    public void mergeSameWithBufferDataSame() {
         Caps c1 = Caps.fromString("video/x-foo, data=(buffer)AA");
         Caps c2 = Caps.fromString("video/x-foo, data=(buffer)AA");
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Merged Caps structure count incorrect", 1, c3.size());
+        assertEquals(1, c3.size(), "Merged Caps structure count incorrect");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    @Test public void mergeDifferentWithBufferDataSame() {
+
+    @Test
+    public void mergeDifferentWithBufferDataSame() {
         Caps c1 = Caps.fromString("video/x-foo, data=(buffer)AA");
         Caps c2 = Caps.fromString("video/x-bar, data=(buffer)AA");
         Caps c3 = Caps.merge(c1, c2);
-        assertEquals("Merged Caps structure count incorrect", 2, c3.size());
+        assertEquals(2, c3.size(), "Merged Caps structure count incorrect");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    @Test public void mergeSubset() {
+
+    @Test
+    public void mergeSubset() {
         /* the 2nd is already covered */
         Caps c2 = Caps.fromString("audio/x-raw,channels=[1,2]");
         Caps c1 = Caps.fromString("audio/x-raw,channels=1");
         Caps c3 = Caps.merge(c1, c2).simplify();
         System.out.println(c3.toString());
-        assertEquals("Merged Caps structure count incorrect", 1, c3.size());
+        assertEquals(1, c3.size(), "Merged Caps structure count incorrect");
         // Verify that the victim caps were invalidated and cannot be used.
-        try {
-            c1.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
-        try {
-            c2.toString();
-            fail("appended caps not invalidated");
-        } catch (IllegalStateException ex) {}
+        assertThrows(IllegalStateException.class, () -> c1.toString(), "appended caps not invalidated");
+
+        assertThrows(IllegalStateException.class, () -> c2.toString(), "appended caps not invalidated");
+
         // Verify reference count before dispose
-        Assert.assertEquals(1, c3.getRefCount());
+        assertEquals(1, c3.getRefCount());
         // Force cleanup to bring out any memory bugs
-        c3.dispose(); 
+        c3.dispose();
     }
-    @Test public void intersect() {
+
+    @Test
+    public void intersect() {
         Caps c2 = Caps.fromString("video/x-raw,format=I420,width=20");
         Caps c1 = Caps.fromString("video/x-raw,format=I420,height=30");
 
         Caps ci1 = c2.intersect(c1);
-        assertEquals("Intersected Caps structure count incorrect", 1, ci1.size());
-        
+        assertEquals(1, ci1.size(), "Intersected Caps structure count incorrect");
+
         Structure s = ci1.getStructure(0);
-        assertTrue("Incorrect name on intersected structure", s.hasName("video/x-raw"));
-        assertTrue("Intersected structure does not have 'format' field", s.hasField("format"));
-        assertTrue("Intersected structure does not have 'width' field", s.hasField("width"));
-        assertTrue("Intersected structure does not have 'height' field", s.hasField("height"));
+        assertTrue(s.hasName("video/x-raw"), "Incorrect name on intersected structure");
+        assertTrue(s.hasField("format"), "Intersected structure does not have 'format' field");
+        assertTrue(s.hasField("width"), "Intersected structure does not have 'width' field");
+        assertTrue(s.hasField("height"), "Intersected structure does not have 'height' field");
 
         /* with changed order */
         Caps ci2 = c1.intersect(c2);
-        assertEquals("Intersected Caps structure count incorrect", 1, ci2.size());
+        assertEquals(1, ci2.size(), "Intersected Caps structure count incorrect");
         s = ci2.getStructure(0);
-        assertTrue("Incorrect name on intersected structure", s.hasName("video/x-raw"));
-        assertTrue("Intersected structure does not have 'format' field", s.hasField("format"));
-        assertTrue("Intersected structure does not have 'width' field", s.hasField("width"));
-        assertTrue("Intersected structure does not have 'height' field", s.hasField("height"));
-        
-        assertTrue("Intersection should be same in both directions", ci1.isEqual(ci2));
+        assertTrue(s.hasName("video/x-raw"), "Incorrect name on intersected structure");
+        assertTrue(s.hasField("format"), "Intersected structure does not have 'format' field");
+        assertTrue(s.hasField("width"), "Intersected structure does not have 'width' field");
+        assertTrue(s.hasField("height"), "Intersected structure does not have 'height' field");
+
+        assertTrue(ci1.isEqual(ci2), "Intersection should be same in both directions");
         // Force cleanup to bring out any memory bugs
-        c2.dispose(); c1.dispose(); ci1.dispose(); ci2.dispose();
+        c2.dispose();
+        c1.dispose();
+        ci1.dispose();
+        ci2.dispose();
     }
-    @Test public void intersectUnspecified() {
+
+    @Test
+    public void intersectUnspecified() {
         /* field not specified = any value possible, so the intersection
          * should keep fields which are only part of one set of caps */
         Caps c2 = Caps.fromString("video/x-raw,format=I420,width=20");
         Caps c1 = Caps.fromString("video/x-raw,format=I420");
 
         Caps ci1 = c2.intersect(c1);
-        assertEquals("Intersected Caps structure count incorrect", 1, ci1.size());
+        assertEquals(1, ci1.size(), "Intersected Caps structure count incorrect");
         Structure s = ci1.getStructure(0);
-        assertTrue("Incorrect name on intersected structure", s.hasName("video/x-raw"));
-        assertTrue("Intersected structure does not have 'format' field", s.hasField("format"));
-        assertTrue("Intersected structure does not have 'width' field", s.hasField("width"));
-        
+        assertTrue(s.hasName("video/x-raw"), "Incorrect name on intersected structure");
+        assertTrue(s.hasField("format"), "Intersected structure does not have 'format' field");
+        assertTrue(s.hasField("width"), "Intersected structure does not have 'width' field");
+
         /* with changed order */
 
         Caps ci2 = c1.intersect(c2);
-        assertEquals("Intersected Caps structure count incorrect", 1, ci2.size());
+        assertEquals(1, ci2.size(), "Intersected Caps structure count incorrect");
         s = ci2.getStructure(0);
-        assertTrue("Incorrect name on intersected structure", s.hasName("video/x-raw"));
-        assertTrue("Intersected structure does not have 'format' field", s.hasField("format"));
-        assertTrue("Intersected structure does not have 'width' field", s.hasField("width"));
-        assertTrue("Intersection should be same in both directions", ci1.isEqual(ci2));
+        assertTrue(s.hasName("video/x-raw"), "Incorrect name on intersected structure");
+        assertTrue(s.hasField("format"), "Intersected structure does not have 'format' field");
+        assertTrue(s.hasField("width"), "Intersected structure does not have 'width' field");
+        assertTrue(ci1.isEqual(ci2), "Intersection should be same in both directions");
         // Force cleanup to bring out any memory bugs
-        c2.dispose(); c1.dispose(); ci1.dispose(); ci2.dispose();
+        c2.dispose();
+        c1.dispose();
+        ci1.dispose();
+        ci2.dispose();
     }
-    @Test public void intersectUnequal() {
+
+    @Test
+    public void intersectUnequal() {
         Caps c2 = Caps.fromString("video/x-raw,format=I420,width=20");
         Caps c1 = Caps.fromString("video/x-raw,format=I420,width=30");
 
         Caps ci1 = c2.intersect(c1);
-        assertTrue("Intersection of unequal caps should be empty", ci1.isEmpty());
+        assertTrue(ci1.isEmpty(), "Intersection of unequal caps should be empty");
         /* with changed order */
         Caps ci2 = c1.intersect(c2);
-        assertTrue("Intersection of unequal caps should be empty", ci1.isEmpty());
-        assertTrue("Intersection should be same in both directions", ci1.isEqual(ci2));
+        assertTrue(ci1.isEmpty(), "Intersection of unequal caps should be empty");
+        assertTrue(ci1.isEqual(ci2), "Intersection should be same in both directions");
         // Force cleanup to bring out any memory bugs
-        c2.dispose(); c1.dispose(); ci1.dispose(); ci2.dispose();
+        c2.dispose();
+        c1.dispose();
+        ci1.dispose();
+        ci2.dispose();
     }
-    
-    @Test public void intersectDifferentType() {
+
+    @Test
+    public void intersectDifferentType() {
         Caps c2 = Caps.fromString("video/x-raw,format=I420,width=20");
         Caps c1 = Caps.fromString("video/x-raw,format=RGB,width=20");
 
         Caps ci1 = c2.intersect(c1);
-        assertTrue("Intersection of different type caps should be empty", ci1.isEmpty());
+        assertTrue(ci1.isEmpty(), "Intersection of different type caps should be empty");
 
         /* with changed order */
         Caps ci2 = c1.intersect(c2);
-        assertTrue("Intersection of different type caps should be empty", ci1.isEmpty());
-        assertTrue("Intersection should be same in both directions", ci1.isEqual(ci2));
+        assertTrue(ci1.isEmpty(), "Intersection of different type caps should be empty");
+        assertTrue(ci1.isEqual(ci2), "Intersection should be same in both directions");
         // Force cleanup to bring out any memory bugs
-        c2.dispose(); c1.dispose(); ci1.dispose(); ci2.dispose();
+        c2.dispose();
+        c1.dispose();
+        ci1.dispose();
+        ci2.dispose();
     }
-    
+
 }

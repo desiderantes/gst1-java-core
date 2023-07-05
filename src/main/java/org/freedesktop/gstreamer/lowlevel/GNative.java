@@ -19,23 +19,51 @@
 
 package org.freedesktop.gstreamer.lowlevel;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Map;
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Map;
+
 /**
  *
  */
 public final class GNative {
-            
+
     private final static String[] nameFormats;
-    
+    private static final Converter enumConverter = new Converter() {
+        public Class<?> nativeType() {
+            return int.class;
+        }
+
+        public Object toNative(Object value) {
+            return value != null ? EnumMapper.getInstance().intValue((Enum<?>) value) : 0;
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        public Object fromNative(Object value, Class javaType) {
+            return EnumMapper.getInstance().valueOf((Integer) value, javaType);
+        }
+    };
+    private static final Converter booleanConverter = new Converter() {
+        public Class<?> nativeType() {
+            return int.class;
+        }
+
+        public Object toNative(Object value) {
+            return value != null ? Boolean.TRUE.equals(value) ? 1 : 0 : 0;
+        }
+
+        @SuppressWarnings("rawtypes")
+        public Object fromNative(Object value, Class javaType) {
+            return value != null ? ((Integer) value).intValue() != 0 : 0;
+        }
+    };
+
     static {
         String defFormats = "%s";
         if (Platform.isWindows()) {
@@ -46,7 +74,8 @@ public final class GNative {
         nameFormats = System.getProperty("gstreamer.GNative.nameFormats", defFormats).split("\\|");
     }
 
-    private GNative() {}
+    private GNative() {
+    }
 
     public static synchronized <T extends Library> T loadLibrary(String name, Class<T> interfaceClass, Map<String, ?> options) {
         for (String format : nameFormats)
@@ -61,7 +90,7 @@ public final class GNative {
     private static <T extends Library> T loadNativeLibrary(String name, Class<T> interfaceClass, Map<String, ?> options) {
         T library = interfaceClass.cast(Native.loadLibrary(name, interfaceClass, options));
         boolean needCustom = false;
-    search:
+        search:
         for (Method m : interfaceClass.getMethods())
             for (Class<?> cls : m.getParameterTypes())
                 if (cls.isArray() && getConverter(cls.getComponentType()) != null) {
@@ -72,9 +101,9 @@ public final class GNative {
             return library;
 //        System.out.println("Using custom library proxy for " + interfaceClass.getName());
         return interfaceClass.cast(
-        		Proxy.newProxyInstance(interfaceClass.getClassLoader(),
-        				new Class[]{ interfaceClass }, 
-        				new Handler<T>(library, options)));
+                Proxy.newProxyInstance(interfaceClass.getClassLoader(),
+                        new Class[]{interfaceClass},
+                        new Handler<T>(library, options)));
     }
 
     public static synchronized NativeLibrary getNativeLibrary(String name) {
@@ -87,43 +116,6 @@ public final class GNative {
         throw new UnsatisfiedLinkError("Could not load library: " + name);
     }
 
-    private static interface Converter {
-        Class<?> nativeType();
-        Object toNative(Object value);
-        Object fromNative(Object value, Class<?> javaType);
-    }
-
-    private static final Converter enumConverter = new Converter() {
-        public Class<?> nativeType() {
-            return int.class;
-        }
-
-        public Object toNative(Object value) {
-            return value != null ? EnumMapper.getInstance().intValue((Enum<?>) value) : 0;
-        }
-
-        @SuppressWarnings({"unchecked","rawtypes"})
-        public Object fromNative(Object value, Class javaType) {
-            return EnumMapper.getInstance().valueOf((Integer) value, javaType);
-        }
-    };
-
-    private static final Converter booleanConverter = new Converter() {
-        public Class<?> nativeType() {
-            return int.class;
-        }
-
-        public Object toNative(Object value) {
-            return value != null ? Boolean.TRUE.equals(value) ? 1 : 0 : 0;
-        }
-        
-        @SuppressWarnings("rawtypes")
-        public Object fromNative(Object value, Class javaType) {
-            return value != null ? ((Integer) value).intValue() != 0 : 0;
-        }
-    };
-
-
     private static Converter getConverter(Class<?> javaType) {
         if (Enum.class.isAssignableFrom(javaType))
             return enumConverter;
@@ -132,16 +124,51 @@ public final class GNative {
         return null;
     }
 
+
+    private interface Converter {
+        Class<?> nativeType();
+
+        Object toNative(Object value);
+
+        Object fromNative(Object value, Class<?> javaType);
+    }
+
     private static class Handler<T> implements InvocationHandler {
+        private static final ArrayIO intArrayIO = new ArrayIO() {
+            public void set(Object array, int index, Object data) {
+                java.lang.reflect.Array.setInt(array, index, data != null ? (Integer) data : 0);
+            }
+
+            public Object get(Object array, int index) {
+                return java.lang.reflect.Array.getInt(array, index);
+            }
+        };
+        private static final ArrayIO longArrayIO = new ArrayIO() {
+            public void set(Object array, int index, Object data) {
+                java.lang.reflect.Array.setLong(array, index, data != null ? (Long) data : 0);
+            }
+
+            public Object get(Object array, int index) {
+                return java.lang.reflect.Array.getLong(array, index);
+            }
+        };
         private final InvocationHandler proxy;
         @SuppressWarnings("unused") // Keep a reference to stop underlying Library being GC'd
         private final T library;
-        
+
         public Handler(T library, Map<String, ?> options) {
             this.library = library;
             this.proxy = Proxy.getInvocationHandler(library);
         }
-        
+
+        private static ArrayIO getArrayIO(final Class<?> cls) {
+            if (cls == int.class || cls == Integer.class)
+                return intArrayIO;
+            else if (cls == long.class || cls == Long.class)
+                return longArrayIO;
+            throw new IllegalArgumentException("No such conversion");
+        }
+
         @SuppressWarnings("null")
         public Object invoke(Object self, Method method, Object[] args) throws Throwable {
             int lastArg = args != null ? args.length : 0;
@@ -181,7 +208,7 @@ public final class GNative {
                 postInvoke[i].run();
             return retval;
         }
-        
+
         @SuppressWarnings("unused")
         Class<?> getNativeClass(Class<?> cls) {
             if (cls == Integer.class)
@@ -191,35 +218,10 @@ public final class GNative {
             return cls;
         }
 
-        private static interface ArrayIO {
-            public void set(Object array, int index, Object data);
-            public Object get(Object array, int index);
-        }
+        private interface ArrayIO {
+            void set(Object array, int index, Object data);
 
-        private static final ArrayIO intArrayIO = new ArrayIO() {
-            public void set(Object array, int index, Object data) {
-                java.lang.reflect.Array.setInt(array, index, data != null ? (Integer) data : 0);
-            }
-            public Object get(Object array, int index) {
-                return java.lang.reflect.Array.getInt(array, index);
-            }
-        };
-
-        private static final ArrayIO longArrayIO = new ArrayIO() {
-            public void set(Object array, int index, Object data) {
-                java.lang.reflect.Array.setLong(array, index, data != null ? (Long) data : 0);
-            }
-            public Object get(Object array, int index) {
-                return java.lang.reflect.Array.getLong(array, index);
-            }
-        };
-
-        private static ArrayIO getArrayIO(final Class<?> cls) {
-            if (cls == int.class || cls == Integer.class)
-                return intArrayIO;
-            else if (cls == long.class || cls == Long.class)
-                return longArrayIO;
-            throw new IllegalArgumentException("No such conversion");
+            Object get(Object array, int index);
         }
     }
 }

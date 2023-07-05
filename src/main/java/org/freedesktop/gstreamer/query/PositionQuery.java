@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019 Neil C Smith
  * Copyright (C) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
@@ -54,7 +54,7 @@ public class PositionQuery extends Query {
      * Answers a position query by setting the requested value in the given
      * format.
      *
-     * @param format the requested {@link Format}
+     * @param format   the requested {@link Format}
      * @param position the position to set in the answer
      */
     public void setPosition(Format format, long position) {

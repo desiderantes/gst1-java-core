@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,20 +19,16 @@
 
 package org.freedesktop.gstreamer.lowlevel;
 
-import org.freedesktop.gstreamer.lowlevel.ReferenceManager;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+
+import org.freedesktop.gstreamer.Caps;
+import org.freedesktop.gstreamer.Gst;
+import org.junit.jupiter.api.*;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import org.freedesktop.gstreamer.Caps;
-import org.freedesktop.gstreamer.Gst;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -42,23 +38,24 @@ public class ReferenceManagerTest {
     public ReferenceManagerTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("ReferenceManagerTest", new String[] {});
+        Gst.init("ReferenceManagerTest");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
+
     public boolean waitGC(Reference<? extends Object> ref) throws InterruptedException {
         System.gc();
         for (int i = 0; ref.get() != null && i < 20; ++i) {
@@ -68,17 +65,20 @@ public class ReferenceManagerTest {
         return ref.get() == null;
     }
 
-    @Test public void testReference() throws Exception {
+    @Test
+    public void testReference() throws Exception {
         Object ref = new Object();
         Caps target = new Caps("video/x-raw");
         ReferenceManager.addKeepAliveReference(ref, target);
         WeakReference<Object> targetRef = new WeakReference<Object>(target);
         target = null;
-        assertFalse("target collected prematurely", waitGC(targetRef));
+        assertFalse(waitGC(targetRef), "target collected prematurely");
         ref = null;
-        assertTrue("target not collected when ref is collected", waitGC(targetRef));
+        assertTrue(waitGC(targetRef), "target not collected when ref is collected");
     }
-    @Test public void testMultipleReferences() throws Exception {
+
+    @Test
+    public void testMultipleReferences() throws Exception {
         Object ref1 = new Object();
         Object ref2 = new Object();
         Caps target = new Caps("video/x-raw");
@@ -86,10 +86,10 @@ public class ReferenceManagerTest {
         ReferenceManager.addKeepAliveReference(ref2, target);
         WeakReference<Object> targetRef = new WeakReference<Object>(target);
         target = null;
-        assertFalse("target collected prematurely", waitGC(targetRef));
+        assertFalse(waitGC(targetRef), "target collected prematurely");
         ref1 = null;
-        assertFalse("target collected after only one ref disposed", waitGC(targetRef));
+        assertFalse(waitGC(targetRef), "target collected after only one ref disposed");
         ref2 = null;
-        assertTrue("target not collected when ref is dispose", waitGC(targetRef));
+        assertTrue(waitGC(targetRef), "target not collected when ref is dispose");
     }
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -17,55 +17,50 @@
 
 package org.freedesktop.gstreamer;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- *
  * @author inx
  */
 public class PadTemplateTest {
-    
-    @BeforeClass
+
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("test", new String[] {});
+        Gst.init("test");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
-    
-    @Before
+
+    @BeforeEach
     public void setUp() throws Exception {
     }
-    
-    @After
+
+    @AfterEach
     public void tearDown() throws Exception {
     }
-    
+
     @Test
     public void padTemplate()
-        throws Exception
-    {
+            throws Exception {
         Element src = ElementFactory.make("fakesrc", "src");
-        Element sink = ElementFactory.make("fakesink", "sink");        
+        Element sink = ElementFactory.make("fakesink", "sink");
         Pad srcPad = src.getStaticPad("src");
-        Pad sinkPad = sink.getStaticPad("sink");        
+        Pad sinkPad = sink.getStaticPad("sink");
         PadTemplate template;
-        
-        template = srcPad.getTemplate();        
-        assertEquals("wrong name!", template.getTemplateName(), "src");
-        assertEquals("wrong direction!", template.getDirection(), PadDirection.SRC);
-        assertEquals("wrong presence!", template.getPresence(), PadPresence.ALWAYS);        
-        
+
+        template = srcPad.getTemplate();
+        assertEquals(template.getTemplateName(), "src", "wrong name!");
+        assertEquals(template.getDirection(), PadDirection.SRC, "wrong direction!");
+        assertEquals(template.getPresence(), PadPresence.ALWAYS, "wrong presence!");
+
         template = sinkPad.getTemplate();
-        assertEquals("wrong name!", template.getTemplateName(), "sink");
-        assertEquals("wrong direction!", template.getDirection(), PadDirection.SINK);
-        assertEquals("wrong presence!", template.getPresence(), PadPresence.ALWAYS);
+        assertEquals(template.getTemplateName(), "sink", "wrong name!");
+        assertEquals(template.getDirection(), PadDirection.SINK, "wrong direction!");
+        assertEquals(template.getPresence(), PadPresence.ALWAYS, "wrong presence!");
     }
 }

@@ -5,16 +5,16 @@
  * Copyright (C) 2009 Tamas Korodi <kotyo@zamba.fm>
  * Copyright (c) 2009 Andres Colubri
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -22,40 +22,22 @@
  */
 package org.freedesktop.gstreamer.glib;
 
-import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GOBJECT_API;
-import static org.freedesktop.gstreamer.lowlevel.GSignalAPI.GSIGNAL_API;
-import static org.freedesktop.gstreamer.lowlevel.GValueAPI.GVALUE_API;
+import com.sun.jna.*;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+import org.freedesktop.gstreamer.lowlevel.*;
+import org.freedesktop.gstreamer.lowlevel.GObjectAPI.GParamSpec;
+import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValue;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.freedesktop.gstreamer.lowlevel.GObjectAPI;
-import org.freedesktop.gstreamer.lowlevel.GObjectAPI.GParamSpec;
-import org.freedesktop.gstreamer.lowlevel.GType;
-import org.freedesktop.gstreamer.lowlevel.GValueAPI.GValue;
-import org.freedesktop.gstreamer.lowlevel.GstTypes;
-import org.freedesktop.gstreamer.lowlevel.IntPtr;
-
-import com.sun.jna.Callback;
-import com.sun.jna.CallbackThreadInitializer;
-import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import org.freedesktop.gstreamer.MiniObject;
-import org.freedesktop.gstreamer.lowlevel.GObjectPtr;
-import org.freedesktop.gstreamer.lowlevel.GPointer;
-import org.freedesktop.gstreamer.lowlevel.GstMiniObjectPtr;
+import static org.freedesktop.gstreamer.lowlevel.GObjectAPI.GOBJECT_API;
+import static org.freedesktop.gstreamer.lowlevel.GSignalAPI.GSIGNAL_API;
+import static org.freedesktop.gstreamer.lowlevel.GValueAPI.GVALUE_API;
 
 /**
  * GObject is the fundamental type providing the common attributes and methods
@@ -63,7 +45,6 @@ import org.freedesktop.gstreamer.lowlevel.GstMiniObjectPtr;
  * <p>
  * See upstream documentation at <a href="https://developer.gnome.org/gobject/stable/gobject-The-Base-Object-Type.html"
  * >https://developer.gnome.org/gobject/stable/gobject-The-Base-Object-Type.html</a>
- *
  */
 public abstract class GObject extends RefCountedObject {
 
@@ -71,8 +52,8 @@ public abstract class GObject extends RefCountedObject {
     private static final Logger LOG = Logger.getLogger(GObject.class.getName());
     private static final CallbackThreadInitializer GCALLBACK_THREAD_INIT
             = new CallbackThreadInitializer(true,
-                    Boolean.getBoolean("glib.detachCallbackThreads"),
-                    "GCallback");
+            Boolean.getBoolean("glib.detachCallbackThreads"),
+            "GCallback");
     private static final Map<GObject, Boolean> STRONG_REFS
             = new ConcurrentHashMap<GObject, Boolean>();
     private static final GObjectAPI.GToggleNotify TOGGLE_NOTIFY = new ToggleNotify();
@@ -116,6 +97,96 @@ public abstract class GObject extends RefCountedObject {
         }
     }
 
+    private static boolean booleanValue(Object value) {
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue();
+        } else if (value instanceof Number) {
+            return ((Number) value).intValue() != 0;
+        } else if (value instanceof String) {
+            return Boolean.parseBoolean((String) value);
+        }
+        throw new IllegalArgumentException("Expected boolean value, not " + value.getClass());
+    }
+
+    private static double doubleValue(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        } else if (value instanceof String) {
+            return Double.parseDouble((String) value);
+        }
+        throw new IllegalArgumentException("Expected double value, not " + value.getClass());
+    }
+
+    private static float floatValue(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).floatValue();
+        } else if (value instanceof String) {
+            return Float.parseFloat((String) value);
+        }
+        throw new IllegalArgumentException("Expected float value, not " + value.getClass());
+    }
+
+    private static int intValue(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        } else if (value instanceof String) {
+            return Integer.parseInt((String) value);
+        }
+        throw new IllegalArgumentException("Expected integer value, not " + value.getClass());
+    }
+
+    private static long longValue(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        } else if (value instanceof String) {
+            return Long.parseLong((String) value);
+        }
+        throw new IllegalArgumentException("Expected long value, not " + value.getClass());
+    }
+
+    private static boolean setGValue(GValue value, GType type, Object data) {
+        if (type.equals(GType.INT)) {
+            GVALUE_API.g_value_set_int(value, intValue(data));
+        } else if (type.equals(GType.UINT)) {
+            GVALUE_API.g_value_set_uint(value, intValue(data));
+        } else if (type.equals(GType.CHAR)) {
+            GVALUE_API.g_value_set_char(value, (byte) intValue(data));
+        } else if (type.equals(GType.UCHAR)) {
+            GVALUE_API.g_value_set_uchar(value, (byte) intValue(data));
+        } else if (type.equals(GType.LONG)) {
+            GVALUE_API.g_value_set_long(value, new NativeLong(longValue(data)));
+        } else if (type.equals(GType.ULONG)) {
+            GVALUE_API.g_value_set_ulong(value, new NativeLong(longValue(data)));
+        } else if (type.equals(GType.INT64)) {
+            GVALUE_API.g_value_set_int64(value, longValue(data));
+        } else if (type.equals(GType.UINT64)) {
+            GVALUE_API.g_value_set_uint64(value, longValue(data));
+        } else if (type.equals(GType.BOOLEAN)) {
+            GVALUE_API.g_value_set_boolean(value, booleanValue(data));
+        } else if (type.equals(GType.FLOAT)) {
+            GVALUE_API.g_value_set_float(value, floatValue(data));
+        } else if (type.equals(GType.DOUBLE)) {
+            GVALUE_API.g_value_set_double(value, doubleValue(data));
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    private static GValue transform(GValue src, GType dstType) {
+        GValue dst = new GValue();
+        GVALUE_API.g_value_init(dst, dstType);
+        GVALUE_API.g_value_transform(src, dst);
+        return dst;
+    }
+
+    private static void transform(Object data, GType type, GValue dst) {
+        GValue src = new GValue();
+        GVALUE_API.g_value_init(src, type);
+        setGValue(src, type, data);
+        GVALUE_API.g_value_transform(src, dst);
+    }
+
     public <T> void connect(Class<T> listenerClass, T listener, Callback cb) {
         String signal = listenerClass.getSimpleName().toLowerCase().replaceAll("_", "-");
         connect(signal, listenerClass, listener, cb);
@@ -151,7 +222,6 @@ public abstract class GObject extends RefCountedObject {
      * Gets the current value of a <tt>GObject</tt> property.
      *
      * @param property The name of the property to get.
-     *
      * @return A java value representing the <tt>GObject</tt> property value.
      */
     public Object get(String property) {
@@ -280,6 +350,7 @@ public abstract class GObject extends RefCountedObject {
 
     /**
      * Get the native GType type name.
+     *
      * @return GType type name
      */
     public String getTypeName() {
@@ -299,9 +370,9 @@ public abstract class GObject extends RefCountedObject {
      * Sets the value of a <tt>GObject</tt> property.
      *
      * @param property The property to set.
-     * @param data The value for the property. This must be of the type expected
-     * by gstreamer. As a convenience, NativeEnums will be converted to their
-     * int value.
+     * @param data     The value for the property. This must be of the type expected
+     *                 by gstreamer. As a convenience, NativeEnums will be converted to their
+     *                 int value.
      */
     public void set(String property, Object data) {
         LOG.entering("GObject", "set", new Object[]{property, data});
@@ -492,146 +563,18 @@ public abstract class GObject extends RefCountedObject {
         return props;
     }
 
-    private static boolean booleanValue(Object value) {
-        if (value instanceof Boolean) {
-            return ((Boolean) value).booleanValue();
-        } else if (value instanceof Number) {
-            return ((Number) value).intValue() != 0;
-        } else if (value instanceof String) {
-            return Boolean.parseBoolean((String) value);
-        }
-        throw new IllegalArgumentException("Expected boolean value, not " + value.getClass());
-    }
-
-    private static double doubleValue(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        } else if (value instanceof String) {
-            return Double.parseDouble((String) value);
-        }
-        throw new IllegalArgumentException("Expected double value, not " + value.getClass());
-    }
-
-    private static float floatValue(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).floatValue();
-        } else if (value instanceof String) {
-            return Float.parseFloat((String) value);
-        }
-        throw new IllegalArgumentException("Expected float value, not " + value.getClass());
-    }
-
-    private static int intValue(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        } else if (value instanceof String) {
-            return Integer.parseInt((String) value);
-        }
-        throw new IllegalArgumentException("Expected integer value, not " + value.getClass());
-    }
-
-    private static long longValue(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).longValue();
-        } else if (value instanceof String) {
-            return Long.parseLong((String) value);
-        }
-        throw new IllegalArgumentException("Expected long value, not " + value.getClass());
-    }
-
-    private static boolean setGValue(GValue value, GType type, Object data) {
-        if (type.equals(GType.INT)) {
-            GVALUE_API.g_value_set_int(value, intValue(data));
-        } else if (type.equals(GType.UINT)) {
-            GVALUE_API.g_value_set_uint(value, intValue(data));
-        } else if (type.equals(GType.CHAR)) {
-            GVALUE_API.g_value_set_char(value, (byte) intValue(data));
-        } else if (type.equals(GType.UCHAR)) {
-            GVALUE_API.g_value_set_uchar(value, (byte) intValue(data));
-        } else if (type.equals(GType.LONG)) {
-            GVALUE_API.g_value_set_long(value, new NativeLong(longValue(data)));
-        } else if (type.equals(GType.ULONG)) {
-            GVALUE_API.g_value_set_ulong(value, new NativeLong(longValue(data)));
-        } else if (type.equals(GType.INT64)) {
-            GVALUE_API.g_value_set_int64(value, longValue(data));
-        } else if (type.equals(GType.UINT64)) {
-            GVALUE_API.g_value_set_uint64(value, longValue(data));
-        } else if (type.equals(GType.BOOLEAN)) {
-            GVALUE_API.g_value_set_boolean(value, booleanValue(data));
-        } else if (type.equals(GType.FLOAT)) {
-            GVALUE_API.g_value_set_float(value, floatValue(data));
-        } else if (type.equals(GType.DOUBLE)) {
-            GVALUE_API.g_value_set_double(value, doubleValue(data));
-        } else {
-            return false;
-        }
-        return true;
-    }
-
-    private static GValue transform(GValue src, GType dstType) {
-        GValue dst = new GValue();
-        GVALUE_API.g_value_init(dst, dstType);
-        GVALUE_API.g_value_transform(src, dst);
-        return dst;
-    }
-
-    private static void transform(Object data, GType type, GValue dst) {
-        GValue src = new GValue();
-        GVALUE_API.g_value_init(src, type);
-        setGValue(src, type, data);
-        GVALUE_API.g_value_transform(src, dst);
-    }
-
-    protected abstract class GCallback {
-
-        protected final Callback cb;
-        protected final NativeLong id;
-        volatile boolean connected = false;
-
-        protected GCallback(NativeLong id, Callback cb) {
-            this.id = id != null ? id : new NativeLong(0);
-            this.cb = cb;
-            this.connected = this.id.longValue() != 0;
-        }
-
-        void remove() {
-            if (connected) {
-                disconnect();
-                connected = false;
-            }
-        }
-
-        abstract protected void disconnect();
-
-    }
-
     /**
      * Base interface for classes that implement a GInterface
      */
-    public static interface GInterface {
+    public interface GInterface {
 
         /**
          * Get the GObject implementing this interface.
          *
          * @return implementing GObject
          */
-        public GObject getGObject();
+        GObject getGObject();
 
-    }
-
-    private final class SignalCallback extends GCallback {
-
-        protected SignalCallback(String signal, Callback cb) {
-            super(handle.connectSignal(signal, cb), cb);
-            if (!connected) {
-                throw new IllegalArgumentException(String.format("Failed to connect signal '%s'", signal));
-            }
-        }
-
-        @Override
-        synchronized protected void disconnect() {
-            handle.disconnectSignal(id);
-        }
     }
 
     protected static class Handle extends RefCountedObject.Handle {
@@ -722,11 +665,11 @@ public abstract class GObject extends RefCountedObject {
         public void callback(Pointer data, Pointer ptr, boolean is_last_ref) {
 
             /*
-            * Manage the strong reference to this instance.  When this is the last
-            * reference to the underlying object, remove the strong reference so
-            * it can be garbage collected.  If it is owned by someone else, then make
-            * it a strong ref, so the java GObject for the underlying C object can
-            * be retained for later retrieval
+             * Manage the strong reference to this instance.  When this is the last
+             * reference to the underlying object, remove the strong reference so
+             * it can be garbage collected.  If it is owned by someone else, then make
+             * it a strong ref, so the java GObject for the underlying C object can
+             * be retained for later retrieval
              */
             GObject o = (GObject) NativeObject.instanceFor(ptr);
             if (o == null) {
@@ -739,6 +682,44 @@ public abstract class GObject extends RefCountedObject {
             } else {
                 STRONG_REFS.put(o, Boolean.TRUE);
             }
+        }
+    }
+
+    protected abstract class GCallback {
+
+        protected final Callback cb;
+        protected final NativeLong id;
+        volatile boolean connected = false;
+
+        protected GCallback(NativeLong id, Callback cb) {
+            this.id = id != null ? id : new NativeLong(0);
+            this.cb = cb;
+            this.connected = this.id.longValue() != 0;
+        }
+
+        void remove() {
+            if (connected) {
+                disconnect();
+                connected = false;
+            }
+        }
+
+        abstract protected void disconnect();
+
+    }
+
+    private final class SignalCallback extends GCallback {
+
+        protected SignalCallback(String signal, Callback cb) {
+            super(handle.connectSignal(signal, cb), cb);
+            if (!connected) {
+                throw new IllegalArgumentException(String.format("Failed to connect signal '%s'", signal));
+            }
+        }
+
+        @Override
+        synchronized protected void disconnect() {
+            handle.disconnectSignal(id);
         }
     }
 

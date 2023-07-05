@@ -1,7 +1,7 @@
-/* 
+/*
  * Copyright (c) 2009 Levente Farkas
  * Copyright (c) 2007, 2008 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -33,15 +33,20 @@ public interface GstPluginFeatureAPI extends com.sun.jna.Library {
     /* normal GObject stuff */
     GType gst_plugin_feature_get_type();
 
-    @CallerOwnsReturn PluginFeature gst_plugin_feature_load(PluginFeature feature);
+    @CallerOwnsReturn
+    PluginFeature gst_plugin_feature_load(PluginFeature feature);
 
     void gst_plugin_feature_set_rank(PluginFeature feature, int rank);
+
     int gst_plugin_feature_get_rank(PluginFeature feature);
+
     String gst_plugin_feature_get_plugin_name(PluginFeature feature);
-    @CallerOwnsReturn Plugin gst_plugin_feature_get_plugin(PluginFeature feature);
+
+    @CallerOwnsReturn
+    Plugin gst_plugin_feature_get_plugin(PluginFeature feature);
 
     boolean gst_plugin_feature_check_version(PluginFeature feature,
-            int min_major, int min_minor, int min_micro);
+                                             int min_major, int min_minor, int min_micro);
 
-    void gst_plugin_feature_list_free (GList list);
+    void gst_plugin_feature_list_free(GList list);
 }

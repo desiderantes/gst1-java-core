@@ -1,10 +1,10 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
  * Copyright (c) 2008 Wayne Meissner
  * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
  *                    2000 Wim Taymans <wim.taymans@chello.be>
  *                    2005 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under
@@ -22,6 +22,7 @@
 package org.freedesktop.gstreamer.event;
 
 import org.freedesktop.gstreamer.glib.Natives;
+
 import static org.freedesktop.gstreamer.lowlevel.GstEventAPI.GSTEVENT_API;
 
 /**
@@ -59,7 +60,6 @@ import static org.freedesktop.gstreamer.lowlevel.GstEventAPI.GSTEVENT_API;
  * <p>
  * The application can use general event probes to intercept the QoS event and
  * implement custom application specific QoS handling.
- *
  */
 public class QOSEvent extends Event {
 
@@ -75,10 +75,9 @@ public class QOSEvent extends Event {
     /**
      * Creates a new quality-of-service event.
      *
-     *
      * @param proportion the proportion of the qos message
      * @param difference the time difference of the last Clock sync
-     * @param timestamp the timestamp of the buffer
+     * @param timestamp  the timestamp of the buffer
      */
     public QOSEvent(QOSType type, double proportion, long difference, long timestamp) {
         super(Natives.initializer(GSTEVENT_API.ptr_gst_event_new_qos(type, proportion, difference, timestamp)));
@@ -89,7 +88,7 @@ public class QOSEvent extends Event {
      */
     public QOSType getType() {
         QOSType[] type = {null};
-        GSTEVENT_API.gst_event_parse_qos(this, type, null, null, (long[]) null);
+        GSTEVENT_API.gst_event_parse_qos(this, type, null, null, null);
         return type[0];
     }
 
@@ -105,7 +104,7 @@ public class QOSEvent extends Event {
      */
     public double getProportion() {
         double[] p = {0d};
-        GSTEVENT_API.gst_event_parse_qos(this, null, p, null, (long[]) null);
+        GSTEVENT_API.gst_event_parse_qos(this, null, p, null, null);
         return p[0];
     }
 
@@ -121,7 +120,7 @@ public class QOSEvent extends Event {
      */
     public long getDifference() {
         long[] diff = {0};
-        GSTEVENT_API.gst_event_parse_qos(this, null, null, diff, (long[]) null);
+        GSTEVENT_API.gst_event_parse_qos(this, null, null, diff, null);
         return diff[0];
     }
 

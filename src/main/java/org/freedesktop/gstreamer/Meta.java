@@ -17,11 +17,12 @@
  */
 package org.freedesktop.gstreamer;
 
-import java.util.Objects;
 import org.freedesktop.gstreamer.glib.NativeObject;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GstMetaPtr;
+
+import java.util.Objects;
 
 /**
  * Base for all metadata types added to a Buffer.
@@ -54,7 +55,7 @@ public class Meta extends NativeObject {
 
     @Override
     public String toString() {
-        GstMetaPtr pointer = (GstMetaPtr)this.getPointer();
+        GstMetaPtr pointer = (GstMetaPtr) this.getPointer();
         return "[meta : gType=" + pointer.getGType() + "]";
     }
 
@@ -66,7 +67,7 @@ public class Meta extends NativeObject {
         /**
          * Create Handle.
          *
-         * @param ptr pointer to underlying native GstMeta.
+         * @param ptr        pointer to underlying native GstMeta.
          * @param ownsHandle
          */
         public Handle(GstMetaPtr ptr, boolean ownsHandle) {
@@ -106,8 +107,8 @@ public class Meta extends NativeObject {
          * Create an API for the given implementation type.
          *
          * @param impl class implementing the API, must be registered to the
-         * underlying implementation GType
-         * @param api name of the underlying API GType
+         *             underlying implementation GType
+         * @param api  name of the underlying API GType
          */
         public API(Class<T> impl, String api) {
             this.implClass = Objects.requireNonNull(impl);

@@ -1,17 +1,17 @@
-/* 
+/*
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2007, 2008 Wayne Meissner
  * Copyright (C) 2004 Wim Taymans <wim@fluendo.com>
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -19,10 +19,6 @@
  */
 package org.freedesktop.gstreamer.message;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import org.freedesktop.gstreamer.GstObject;
 import org.freedesktop.gstreamer.MiniObject;
 import org.freedesktop.gstreamer.Structure;
@@ -31,6 +27,11 @@ import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstMessagePtr;
 import org.freedesktop.gstreamer.lowlevel.ReferenceManager;
 import org.freedesktop.gstreamer.lowlevel.annotations.HasSubtype;
+
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.freedesktop.gstreamer.lowlevel.GstMessageAPI.GSTMESSAGE_API;
 
@@ -48,16 +49,16 @@ import static org.freedesktop.gstreamer.lowlevel.GstMessageAPI.GSTMESSAGE_API;
  * <p>
  * Messages are posted by objects in the pipeline and are passed to the
  * application using the {@link Bus}.
- *
+ * <p>
  * The basic use pattern of posting a message on a Bus is as follows:
  *
  * <example>
  * <title>Posting a Message</title>
  * <code>
- *    bus.post(new EOSMessage(source));
+ * bus.post(new EOSMessage(source));
  * </code>
  * </example>
- *
+ * <p>
  * An {@link Element} usually posts messages on the bus provided by the parent
  * container using {@link Element#postMessage postMessage()}.
  */
@@ -99,6 +100,14 @@ public class Message extends MiniObject {
         this.handle = handle;
     }
 
+    private static Message create(Initializer init) {
+        MessageType type = NativeEnum.fromInt(MessageType.class,
+                MessageType.UNKNOWN,
+                init.ptr.as(GstMessagePtr.class, GstMessagePtr::new).getMessageType()
+        );
+        return TYPE_MAP.getOrDefault(type, Message::new).apply(init);
+    }
+
     /**
      * Gets the Element that posted this message.
      *
@@ -125,14 +134,6 @@ public class Message extends MiniObject {
     public MessageType getType() {
         return NativeEnum.fromInt(MessageType.class, MessageType.UNKNOWN,
                 handle.getPointer().getMessageType());
-    }
-
-    private static Message create(Initializer init) {
-        MessageType type = NativeEnum.fromInt(MessageType.class,
-                MessageType.UNKNOWN,
-                init.ptr.as(GstMessagePtr.class, GstMessagePtr::new).getMessageType()
-        );
-        return TYPE_MAP.getOrDefault(type, Message::new).apply(init);
     }
 
     public static class Types implements TypeProvider {

@@ -1,15 +1,15 @@
-/* 
+/*
  * Copyright (c) 2019 Neil C Smith
- * 
+ *
  * This file is part of gstreamer-java.
  *
- * This code is free software: you can redistribute it and/or modify it under 
+ * This code is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT 
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License 
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
  * version 3 for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
@@ -19,8 +19,9 @@ package org.freedesktop.gstreamer.controller;
 
 import org.freedesktop.gstreamer.ControlSource;
 import org.freedesktop.gstreamer.glib.NativeEnum;
-import static org.freedesktop.gstreamer.lowlevel.GstControllerAPI.GSTCONTROLLER_API;
 import org.freedesktop.gstreamer.lowlevel.GstLFOControlSourcePtr;
+
+import static org.freedesktop.gstreamer.lowlevel.GstControllerAPI.GSTCONTROLLER_API;
 
 /**
  * LFO control source.
@@ -40,7 +41,7 @@ import org.freedesktop.gstreamer.lowlevel.GstLFOControlSourcePtr;
 public class LFOControlSource extends ControlSource {
 
     public static final String GTYPE_NAME = "GstLFOControlSource";
-    
+
     /**
      * Create a new, unbound LFOControlSource.
      */
@@ -50,14 +51,27 @@ public class LFOControlSource extends ControlSource {
 
     LFOControlSource(Initializer init) {
         this(new Handle(
-                init.ptr.as(GstLFOControlSourcePtr.class,
-                        GstLFOControlSourcePtr::new),
-                init.ownsHandle),
+                        init.ptr.as(GstLFOControlSourcePtr.class,
+                                GstLFOControlSourcePtr::new),
+                        init.ownsHandle),
                 init.needRef);
     }
 
     private LFOControlSource(Handle handle, boolean needRef) {
         super(handle, needRef);
+    }
+
+    /**
+     * Get the amplitude of the waveform.
+     *
+     * @return amplitude
+     */
+    public double getAmplitude() {
+        Object val = get("amplitude");
+        if (val instanceof Double) {
+            return (double) val;
+        }
+        return 1;
     }
 
     /**
@@ -76,12 +90,12 @@ public class LFOControlSource extends ControlSource {
     }
 
     /**
-     * Get the amplitude of the waveform.
+     * Get the frequency of the waveform.
      *
      * @return amplitude
      */
-    public double getAmplitude() {
-        Object val = get("amplitude");
+    public double getFrequency() {
+        Object val = get("frequency");
         if (val instanceof Double) {
             return (double) val;
         }
@@ -106,12 +120,12 @@ public class LFOControlSource extends ControlSource {
     }
 
     /**
-     * Get the frequency of the waveform.
+     * Get the value offset of the waveform.
      *
-     * @return amplitude
+     * @return offset
      */
-    public double getFrequency() {
-        Object val = get("frequency");
+    public double getOffset() {
+        Object val = get("offset");
         if (val instanceof Double) {
             return (double) val;
         }
@@ -134,14 +148,14 @@ public class LFOControlSource extends ControlSource {
     }
 
     /**
-     * Get the value offset of the waveform.
+     * Get the timeshift of the waveform.
      *
-     * @return offset
+     * @return timeshift
      */
-    public double getOffset() {
-        Object val = get("offset");
-        if (val instanceof Double) {
-            return (double) val;
+    public long getTimeshift() {
+        Object val = get("timeshift");
+        if (val instanceof Long) {
+            return (long) val;
         }
         return 1;
     }
@@ -161,16 +175,17 @@ public class LFOControlSource extends ControlSource {
     }
 
     /**
-     * Get the timeshift of the waveform.
+     * Get the waveform.
      *
-     * @return timeshift
+     * @return waveform
      */
-    public long getTimeshift() {
-        Object val = get("timeshift");
-        if (val instanceof Long) {
-            return (long) val;
+    public LFOWaveform getWaveform() {
+        Object val = get("waveform");
+        if (val instanceof Integer) {
+            int nativeInt = (Integer) val;
+            return NativeEnum.fromInt(LFOWaveform.class, nativeInt);
         }
-        return 1;
+        return LFOWaveform.SINE;
     }
 
     /**
@@ -184,20 +199,6 @@ public class LFOControlSource extends ControlSource {
     public LFOControlSource setWaveform(LFOWaveform value) {
         set("waveform", value.intValue());
         return this;
-    }
-
-    /**
-     * Get the waveform.
-     *
-     * @return waveform
-     */
-    public LFOWaveform getWaveform() {
-        Object val = get("waveform");
-        if (val instanceof Integer) {
-            int nativeInt = (Integer) val;
-            return NativeEnum.fromInt(LFOWaveform.class, nativeInt);
-        }
-        return LFOWaveform.SINE;
     }
 
     private static class Handle extends ControlSource.Handle {

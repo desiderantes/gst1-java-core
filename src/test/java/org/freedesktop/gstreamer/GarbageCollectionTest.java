@@ -1,6 +1,6 @@
-/* 
+/*
  * Copyright (c) 2007 Wayne Meissner
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * gstreamer-java is free software: you can redistribute it and/or modify
@@ -19,105 +19,101 @@
 
 package org.freedesktop.gstreamer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-import java.lang.ref.WeakReference;
+import org.junit.jupiter.api.*;
+
 import java.util.List;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- *
  * @author wayne
  */
 public class GarbageCollectionTest {
-    
+
     public GarbageCollectionTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
-        Gst.init("test", new String[] {});
+        Gst.init("test");
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDownClass() throws Exception {
         Gst.deinit();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
     @Test
     public void testElement() throws Exception {
-        
+
         Element e = ElementFactory.make("fakesrc", "test element");
         GCTracker tracker = new GCTracker(e);
-        e = null;        
-        assertTrue("Element not garbage collected", tracker.waitGC());        
-        assertTrue("GObject not destroyed", tracker.waitDestroyed());
+        e = null;
+        assertTrue(tracker.waitGC(), "Element not garbage collected");
+        assertTrue(tracker.waitDestroyed(), "GObject not destroyed");
     }
+
     @Test
     public void testBin() throws Exception {
         Bin bin = new Bin("test");
         Element e1 = ElementFactory.make("fakesrc", "source");
         Element e2 = ElementFactory.make("fakesink", "sink");
         bin.addMany(e1, e2);
-        
-        assertEquals("source not returned", e1, bin.getElementByName("source"));
-        assertEquals("sink not returned", e2, bin.getElementByName("sink"));
+
+        assertEquals(e1, bin.getElementByName("source"), "source not returned");
+        assertEquals(e2, bin.getElementByName("sink"), "sink not returned");
         GCTracker binTracker = new GCTracker(bin);
         bin = null;
-        assertTrue("Bin not garbage collected", binTracker.waitGC());
-        assertTrue("Bin not destroyed", binTracker.waitDestroyed());
+        assertTrue(binTracker.waitGC(), "Bin not garbage collected");
+        assertTrue(binTracker.waitDestroyed(), "Bin not destroyed");
         GCTracker e1Tracker = new GCTracker(e1);
         GCTracker e2Tracker = new GCTracker(e2);
         e1 = null;
         e2 = null;
-        
-        assertTrue("First Element not garbage collected", e1Tracker.waitGC());
-        assertTrue("First Element not destroyed", e1Tracker.waitDestroyed());
-        assertTrue("Second Element not garbage collected", e2Tracker.waitGC());
-        assertTrue("Second Element not destroyed", e2Tracker.waitDestroyed());
-        
+
+        assertTrue(e1Tracker.waitGC(), "First Element not garbage collected");
+        assertTrue(e1Tracker.waitDestroyed(), "First Element not destroyed");
+        assertTrue(e2Tracker.waitGC(), "Second Element not garbage collected");
+        assertTrue(e2Tracker.waitDestroyed(), "Second Element not destroyed");
+
     }
-    
+
     @Test
     public void testBinParsed() throws Exception {
         Bin bin = Gst.parseBinFromDescription("fakesrc name=source ! fakesink name=sink", false);
         int binRefCount = bin.getRefCount();
         List<Element> children = bin.getElements();
-        assertEquals("Iteration increased Bin refcount", binRefCount, bin.getRefCount());
-        assertEquals("Wrong number of child elements", 2, children.size());
+        assertEquals(binRefCount, bin.getRefCount(), "Iteration increased Bin refcount");
+        assertEquals(2, children.size(), "Wrong number of child elements");
         Element e1 = children.get(0);
         Element e2 = children.get(1);
         GCTracker binTracker = new GCTracker(bin);
         bin = null;
-        assertTrue("Bin not garbage collected", binTracker.waitGC());
-        assertTrue("Bin not destroyed", binTracker.waitDestroyed());
+        assertTrue(binTracker.waitGC(), "Bin not garbage collected");
+        assertTrue(binTracker.waitDestroyed(), "Bin not destroyed");
         GCTracker e1Tracker = new GCTracker(e1);
         GCTracker e2Tracker = new GCTracker(e2);
         children = null;
         e1 = null;
         e2 = null;
-        
-        assertTrue("First Element not garbage collected", e1Tracker.waitGC());
-        assertTrue("First Element not destroyed", e1Tracker.waitDestroyed());
-        assertTrue("Second Element not garbage collected", e2Tracker.waitGC());
-        assertTrue("Second Element not destroyed", e2Tracker.waitDestroyed());
-        
+
+        assertTrue(e1Tracker.waitGC(), "First Element not garbage collected");
+        assertTrue(e1Tracker.waitDestroyed(), "First Element not destroyed");
+        assertTrue(e2Tracker.waitGC(), "Second Element not garbage collected");
+        assertTrue(e2Tracker.waitDestroyed(), "Second Element not destroyed");
+
     }
+
     @Test
     public void testBinRetrieval() throws Exception {
         Bin bin = new Bin("test");
@@ -126,56 +122,56 @@ public class GarbageCollectionTest {
         bin.addMany(e1, e2);
         int id1 = System.identityHashCode(e1);
         int id2 = System.identityHashCode(e2);
-        
+
         e1 = null;
         e2 = null;
         System.gc();
         Thread.sleep(10);
         // Should return the same object that was put into the bin
-        assertEquals("source ID does not match", id1, System.identityHashCode(bin.getElementByName("source")));
-        assertEquals("sink ID does not match", id2, System.identityHashCode(bin.getElementByName("sink")));       
+        assertEquals(id1, System.identityHashCode(bin.getElementByName("source")), "source ID does not match");
+        assertEquals(id2, System.identityHashCode(bin.getElementByName("sink")), "sink ID does not match");
     }
+
     @Test
     public void pipeline() {
         Pipeline pipe = new Pipeline("test");
         GCTracker pipeTracker = new GCTracker(pipe);
         pipe = null;
-        assertTrue("Pipe not garbage collected", pipeTracker.waitGC());
+        assertTrue(pipeTracker.waitGC(), "Pipe not garbage collected");
         System.out.println("checking if pipeline is destroyed");
-        assertTrue("Pipe not destroyed", pipeTracker.waitDestroyed());
+        assertTrue(pipeTracker.waitDestroyed(), "Pipe not destroyed");
     }
+
     @Test
     public void pipelineBus() {
         Pipeline pipe = new Pipeline("test");
         Bus bus = pipe.getBus();
         GCTracker busTracker = new GCTracker(bus);
         GCTracker pipeTracker = new GCTracker(pipe);
-        
+
         pipe = null;
         bus = null;
-        assertTrue("Bus not garbage collected", busTracker.waitGC());
-        assertTrue("Bus not destroyed", busTracker.waitDestroyed());
-        assertTrue("Pipe not garbage collected", pipeTracker.waitGC());
-        assertTrue("Pipe not destroyed", pipeTracker.waitDestroyed());
+        assertTrue(busTracker.waitGC(), "Bus not garbage collected");
+        assertTrue(busTracker.waitDestroyed(), "Bus not destroyed");
+        assertTrue(pipeTracker.waitGC(), "Pipe not garbage collected");
+        assertTrue(pipeTracker.waitDestroyed(), "Pipe not destroyed");
 
     }
+
     @Test
     public void busWithListeners() {
         Pipeline pipe = new Pipeline("test");
         Bus bus = pipe.getBus();
-        bus.connect(new Bus.EOS() {
-
-            public void endOfStream(GstObject source) {
-            }
+        bus.connect((Bus.EOS) source -> {
         });
-        
+
         GCTracker busTracker = new GCTracker(bus);
         GCTracker pipeTracker = new GCTracker(pipe);
         bus = null;
         pipe = null;
-        assertTrue("Bus not garbage collected", busTracker.waitGC());
-        assertTrue("Bus not destroyed", busTracker.waitDestroyed());
-        assertTrue("Pipe not garbage collected", pipeTracker.waitGC());
-        assertTrue("Pipe not destroyed", pipeTracker.waitDestroyed());
+        assertTrue(busTracker.waitGC(), "Bus not garbage collected");
+        assertTrue(busTracker.waitDestroyed(), "Bus not destroyed");
+        assertTrue(pipeTracker.waitGC(), "Pipe not garbage collected");
+        assertTrue(pipeTracker.waitDestroyed(), "Pipe not destroyed");
     }
 }

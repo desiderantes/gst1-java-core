@@ -1,24 +1,21 @@
 package org.freedesktop.gstreamer.lowlevel;
 
-import static org.junit.Assert.assertTrue;
+
+import com.sun.jna.Structure;
+import org.freedesktop.gstreamer.Gst;
+import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.sun.jna.Structure;
-import java.util.Arrays;
-import org.freedesktop.gstreamer.Gst;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class LowLevelStructureTest {
 
@@ -29,86 +26,13 @@ public class LowLevelStructureTest {
     public LowLevelStructureTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
         initStructList();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-        if (untestable == null) {
-            untestable = new ArrayList<Class<? extends Structure>>();
-        }
-    }
-
-    @After
-    public void tearDown() {
-    }
-
-    @Test
-    public void runTest() {
-
-        for (Class<? extends Structure> struct : structs) {
-            testStruct(struct);
-        }
-
-        if (!untestable.isEmpty()) {
-            StringBuilder builder = new StringBuilder("UNTESTABLE:\n");
-            for (Class<? extends Structure> struct : untestable) {
-                builder.append(struct.getName());
-                builder.append("\n");
-            }
-            LOG.log(Level.WARNING, builder.toString());
-        }
-
-    }
-
-    @SuppressWarnings("unchecked")
-    private void testStruct(Class<? extends Structure> struct) {
-        LOG.log(Level.INFO, "Testing {0}", struct.getName());
-        Structure inst = null;
-        List<String> fields = null;
-        try {
-            inst = struct.newInstance();
-        } catch (Exception ex) {
-//            try {
-//                Constructor<? extends Structure> con = struct.getConstructor(Pointer.class);
-//                inst = con.newInstance(Pointer.NULL);
-//            } catch (Exception ex1) {
-            untestable.add(struct);
-//                assertTrue(false);
-            return;
-
-        }
-        try {
-            Structure.FieldOrder fieldOrder = inst.getClass().getAnnotation(Structure.FieldOrder.class);
-            if (fieldOrder != null) {
-                fields = Arrays.asList(fieldOrder.value());
-            } else {
-                Method getFieldOrder = inst.getClass().getDeclaredMethod("getFieldOrder");
-                getFieldOrder.setAccessible(true);
-                fields = (List<String>) getFieldOrder.invoke(inst);
-            }
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "Can't find getFieldOrder() method", ex);
-            assertTrue(false);
-        }
-        testFields(inst, fields);
-    }
-
-    private void testFields(Structure inst, List<String> expectedFields) {
-        Field[] fields = inst.getClass().getFields();
-        List<String> fieldNames = new ArrayList<String>();
-        for (Field field : fields) {
-            if (!Modifier.isStatic(field.getModifiers())) {
-                fieldNames.add(field.getName());
-            }
-        }
-        assertTrue(expectedFields.equals(fieldNames));
     }
 
     private static void initStructList() {
@@ -192,5 +116,78 @@ public class LowLevelStructureTest {
             structs.add(GstPromiseAPI.PromiseStruct.class);
         }
 
+    }
+
+    @BeforeEach
+    public void setUp() {
+        if (untestable == null) {
+            untestable = new ArrayList<Class<? extends Structure>>();
+        }
+    }
+
+    @AfterEach
+    public void tearDown() {
+    }
+
+    @Test
+    public void runTest() {
+
+        for (Class<? extends Structure> struct : structs) {
+            testStruct(struct);
+        }
+
+        if (!untestable.isEmpty()) {
+            StringBuilder builder = new StringBuilder("UNTESTABLE:\n");
+            for (Class<? extends Structure> struct : untestable) {
+                builder.append(struct.getName());
+                builder.append("\n");
+            }
+            LOG.log(Level.WARNING, builder.toString());
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void testStruct(Class<? extends Structure> struct) {
+        LOG.log(Level.INFO, "Testing {0}", struct.getName());
+        Structure inst = null;
+        List<String> fields = null;
+        try {
+            inst = struct.newInstance();
+        } catch (Exception ex) {
+//            try {
+//                Constructor<? extends Structure> con = struct.getConstructor(Pointer.class);
+//                inst = con.newInstance(Pointer.NULL);
+//            } catch (Exception ex1) {
+            untestable.add(struct);
+//                assertTrue(false);
+            return;
+
+        }
+        try {
+            Structure.FieldOrder fieldOrder = inst.getClass().getAnnotation(Structure.FieldOrder.class);
+            if (fieldOrder != null) {
+                fields = Arrays.asList(fieldOrder.value());
+            } else {
+                Method getFieldOrder = inst.getClass().getDeclaredMethod("getFieldOrder");
+                getFieldOrder.setAccessible(true);
+                fields = (List<String>) getFieldOrder.invoke(inst);
+            }
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Can't find getFieldOrder() method", ex);
+            fail();
+        }
+        testFields(inst, fields);
+    }
+
+    private void testFields(Structure inst, List<String> expectedFields) {
+        Field[] fields = inst.getClass().getFields();
+        List<String> fieldNames = new ArrayList<String>();
+        for (Field field : fields) {
+            if (!Modifier.isStatic(field.getModifiers())) {
+                fieldNames.add(field.getName());
+            }
+        }
+        assertEquals(expectedFields, fieldNames);
     }
 }

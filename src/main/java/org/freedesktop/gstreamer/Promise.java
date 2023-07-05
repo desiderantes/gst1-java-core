@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Neil C Smith
  * Copyright (c) 2018 Vinicius Tona
  * Copyright (c) 2018 Antonio Morales
- * 
+ *
  * This file is part of gstreamer-java.
  *
  * This code is free software: you can redistribute it and/or modify it under the terms of the GNU
@@ -17,13 +17,12 @@
  */
 package org.freedesktop.gstreamer;
 
-import static org.freedesktop.gstreamer.lowlevel.GstPromiseAPI.GSTPROMISE_API;
-
+import com.sun.jna.Pointer;
 import org.freedesktop.gstreamer.glib.NativeObject;
+import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 
-import com.sun.jna.Pointer;
-import org.freedesktop.gstreamer.glib.Natives;
+import static org.freedesktop.gstreamer.lowlevel.GstPromiseAPI.GSTPROMISE_API;
 
 /**
  * A miniobject for future/promise-like functionality
@@ -39,7 +38,7 @@ public class Promise extends MiniObject {
     public static final String GTYPE_NAME = "GstPromise";
 
     private GstCallback changeFunction;
-    
+
     /**
      * Creates a new instance of Promise. This constructor is used internally.
      *
@@ -61,7 +60,7 @@ public class Promise extends MiniObject {
      * Creates a new instance of promise with a callback attached.
      *
      * @param listener Listener to be called whenever the state of a
-     * {@link Promise} is changed
+     *                 {@link Promise} is changed
      */
     public Promise(final PROMISE_CHANGE listener) {
         this(new GstCallback() {
@@ -70,7 +69,7 @@ public class Promise extends MiniObject {
             }
         });
     }
-    
+
     private Promise(GstCallback callback) {
         this(Natives.initializer(GSTPROMISE_API
                 .ptr_gst_promise_new_with_change_func(callback, null, null)));
@@ -89,14 +88,14 @@ public class Promise extends MiniObject {
 
     /**
      * Set a reply on the promise.
-     *
+     * <p>
      * Will wake up any waiters on the promise with the REPLIED
      * {@link PromiseResult} state. If the promise has already been interrupted
      * than the replied will not be visible to any waiters
      *
      * @param structure the {@link Structure} to reply the promise with, caller
-     * should not use this structure afterward as it is invalidated through
-     * {@link NativeObject#invalidate()}
+     *                  should not use this structure afterward as it is invalidated through
+     *                  {@link NativeObject#invalidate()}
      */
     public void reply(final Structure structure) {
         GSTPROMISE_API.gst_promise_reply(this, structure);
@@ -104,7 +103,7 @@ public class Promise extends MiniObject {
 
     /**
      * Interrupt waiting for the result of the promise.
-     *
+     * <p>
      * Any waiters on the promise will receive the INTERRUPTED
      * {@link PromiseResult} state.
      */
@@ -114,7 +113,7 @@ public class Promise extends MiniObject {
 
     /**
      * Expire a promise.
-     *
+     * <p>
      * Any waiters on the promise will received the EXPIRED
      * {@link PromiseResult} state.
      */
@@ -124,7 +123,7 @@ public class Promise extends MiniObject {
 
     /**
      * Retrieve the reply set on the promise.
-     *
+     * <p>
      * The state of the promise must be in the REPLIED {@link PromiseResult}
      * state. The return structure is owned by the promise and thus cannot be
      * modified.
@@ -139,7 +138,7 @@ public class Promise extends MiniObject {
      * Called whenever the state of the promise is changed from PENDING to any
      * other {@link PromiseResult}
      */
-    public static interface PROMISE_CHANGE {
+    public interface PROMISE_CHANGE {
 
         /**
          * Called whenever the state of the promise is changed from PENDING to
@@ -147,6 +146,6 @@ public class Promise extends MiniObject {
          *
          * @param promise the original promise that had the callback attached to
          */
-        public void onChange(Promise promise);
+        void onChange(Promise promise);
     }
 }
