@@ -30,22 +30,19 @@ import static org.freedesktop.gstreamer.lowlevel.GlibAPI.GLIB_API;
  * Wraps the glib main loop/main context in a ScheduledExecutor interface.
  */
 public class MainContextExecutorService extends AbstractExecutorService implements ScheduledExecutorService {
-    private final List<Runnable> bgTasks = new LinkedList<Runnable>();
+    private final List<Runnable> bgTasks = new LinkedList<>();
     private final GMainContext context;
-    private final Callable<Boolean> idleCallback = new Callable<Boolean>() {
-
-        public Boolean call() throws Exception {
-            //            System.out.println("Running g_idle callbacks");
-            List<Runnable> tasks = new ArrayList<Runnable>();
-            synchronized (bgTasks) {
-                tasks.addAll(bgTasks);
-                bgTasks.clear();
-            }
-            for (Runnable r : tasks) {
-                r.run();
-            }
-            return false;
+    private final Callable<Boolean> idleCallback = () -> {
+        //            System.out.println("Running g_idle callbacks");
+        List<Runnable> tasks;
+        synchronized (bgTasks) {
+            tasks = new ArrayList<>(bgTasks);
+            bgTasks.clear();
         }
+        for (Runnable r : tasks) {
+            r.run();
+        }
+        return false;
     };
     private GSource idleSource = null;
     private final boolean running = true;
@@ -74,19 +71,19 @@ public class MainContextExecutorService extends AbstractExecutorService implemen
     }
 
     public ScheduledFuture<?> schedule(Runnable runnable, long delay, TimeUnit units) {
-        return new ScheduledTimeout<Object>(Executors.callable(runnable), delay, units);
+        return new ScheduledTimeout<>(Executors.callable(runnable), delay, units);
     }
 
     public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit units) {
-        return new ScheduledTimeout<V>(callable, delay, units);
+        return new ScheduledTimeout<>(callable, delay, units);
     }
 
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable runnable, long initialiDelay, long period, TimeUnit units) {
-        return new ScheduledTimeout<Object>(Executors.callable(runnable), initialiDelay, period, units);
+        return new ScheduledTimeout<>(Executors.callable(runnable), initialiDelay, period, units);
     }
 
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable runnable, long initialiDelay, long delay, TimeUnit units) {
-        return new ScheduledTimeout<Object>(Executors.callable(runnable), initialiDelay, delay, units);
+        return new ScheduledTimeout<>(Executors.callable(runnable), initialiDelay, delay, units);
     }
 
     public void shutdown() {
@@ -94,9 +91,9 @@ public class MainContextExecutorService extends AbstractExecutorService implemen
     }
 
     public List<Runnable> shutdownNow() {
-        List<Runnable> tasks = new ArrayList<Runnable>();
+        List<Runnable> tasks;
         synchronized (bgTasks) {
-            tasks.addAll(bgTasks);
+            tasks = new ArrayList<>(bgTasks);
             bgTasks.clear();
         }
         return tasks;
@@ -121,11 +118,9 @@ public class MainContextExecutorService extends AbstractExecutorService implemen
         private final long period;
         private final TimeUnit units;
         private volatile GSource source;
-        private final Callable<Boolean> periodCallback = new Callable<Boolean>() {
-            public Boolean call() {
-                runAndReset();
-                return !isCancelled();
-            }
+        private final Callable<Boolean> periodCallback = () -> {
+            runAndReset();
+            return !isCancelled();
         };
         private final Callable<Boolean> delayCallback = new Callable<Boolean>() {
             public Boolean call() {
@@ -155,7 +150,7 @@ public class MainContextExecutorService extends AbstractExecutorService implemen
             start(delay, delayCallback);
         }
 
-        private final int getMilliseconds(long time) {
+        private int getMilliseconds(long time) {
             return (int) units.toMillis(time);
         }
 

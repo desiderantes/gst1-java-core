@@ -201,12 +201,8 @@ public class TagList extends MiniObject {
      * @return a list of tag names.
      */
     public List<String> getTagNames() {
-        final List<String> list = new LinkedList<String>();
-        GSTTAGLIST_API.gst_tag_list_foreach(this, new GstTagListAPI.TagForeachFunc() {
-            public void callback(Pointer ptr, String tag, Pointer user_data) {
-                list.add(tag);
-            }
-        }, null);
+        final List<String> list = new LinkedList<>();
+        GSTTAGLIST_API.gst_tag_list_foreach(this, (ptr, tag, user_data) -> list.add(tag), null);
         return list;
     }
 
@@ -235,69 +231,55 @@ public class TagList extends MiniObject {
 
         private static final Map<GType, TagGetter> getterMap = new HashMap<GType, TagGetter>() {
             {
-                put(GType.INT, new TagGetter() {
-                    public Object get(TagList tl, String tag, int index) {
-                        int[] value = {0};
-                        GSTTAGLIST_API.gst_tag_list_get_int_index(tl, tag, index, value);
-                        return value[0];
-                    }
+                put(GType.INT, (tl, tag, index) -> {
+                    int[] value = {0};
+                    GSTTAGLIST_API.gst_tag_list_get_int_index(tl, tag, index, value);
+                    return value[0];
                 });
-                put(GType.UINT, new TagGetter() {
-                    public Object get(TagList tl, String tag, int index) {
-                        int[] value = {0};
-                        GSTTAGLIST_API.gst_tag_list_get_uint_index(tl, tag, index, value);
-                        return value[0];
-                    }
+                put(GType.UINT, (tl, tag, index) -> {
+                    int[] value = {0};
+                    GSTTAGLIST_API.gst_tag_list_get_uint_index(tl, tag, index, value);
+                    return value[0];
                 });
-                put(GType.INT64, new TagGetter() {
-                    public Object get(TagList tl, String tag, int index) {
-                        long[] value = {0};
-                        GSTTAGLIST_API.gst_tag_list_get_int64_index(tl, tag, index, value);
-                        return value[0];
-                    }
+                put(GType.INT64, (tl, tag, index) -> {
+                    long[] value = {0};
+                    GSTTAGLIST_API.gst_tag_list_get_int64_index(tl, tag, index, value);
+                    return value[0];
                 });
-                put(GType.DOUBLE, new TagGetter() {
-                    public Object get(TagList tl, String tag, int index) {
-                        double[] value = {0d};
-                        GSTTAGLIST_API.gst_tag_list_get_double_index(tl, tag, index, value);
-                        return value[0];
-                    }
+                put(GType.DOUBLE, (tl, tag, index) -> {
+                    double[] value = {0d};
+                    GSTTAGLIST_API.gst_tag_list_get_double_index(tl, tag, index, value);
+                    return value[0];
                 });
-                put(GType.STRING, new TagGetter() {
-                    public Object get(TagList tl, String tag, int index) {
-                        Pointer[] value = {null};
-                        GSTTAGLIST_API.gst_tag_list_get_string_index(tl, tag, index, value);
-                        if (value[0] == null) {
-                            return null;
-                        }
-                        String ret = value[0].getString(0);
-                        GLIB_API.g_free(value[0]);
-                        return ret;
+                put(GType.STRING, (tl, tag, index) -> {
+                    Pointer[] value = {null};
+                    GSTTAGLIST_API.gst_tag_list_get_string_index(tl, tag, index, value);
+                    if (value[0] == null) {
+                        return null;
                     }
+                    String ret = value[0].getString(0);
+                    GLIB_API.g_free(value[0]);
+                    return ret;
                 });
-                put(GType.valueOf(GDate.GTYPE_NAME), new TagGetter() {
-                    public Object get(TagList tl, String tag, int index) {
-                        PointerByReference value = new PointerByReference();
-                        GSTTAGLIST_API.gst_tag_list_get_date_index(tl, tag, index, value);
-                        if (value.getValue() == null) {
-                            return null;
-                        }
-                        return Natives.objectFor(value.getValue(), GDate.class, false, true);
+                put(GType.valueOf(GDate.GTYPE_NAME), (tl, tag, index) -> {
+                    PointerByReference value = new PointerByReference();
+                    GSTTAGLIST_API.gst_tag_list_get_date_index(tl, tag, index, value);
+                    if (value.getValue() == null) {
+                        return null;
                     }
+                    return Natives.objectFor(value.getValue(), GDate.class, false, true);
                 });
-                put(GType.valueOf(DateTime.GTYPE_NAME), new TagGetter() {
-                    public Object get(TagList tl, String tag, int index) {
-                        PointerByReference value = new PointerByReference();
-                        GSTTAGLIST_API.gst_tag_list_get_date_time_index(tl, tag, index, value);
-                        if (value.getValue() == null) {
-                            return null;
-                        }
-                        return new DateTime(value.getValue(), false, true);
+                put(GType.valueOf(DateTime.GTYPE_NAME), (tl, tag, index) -> {
+                    PointerByReference value = new PointerByReference();
+                    GSTTAGLIST_API.gst_tag_list_get_date_time_index(tl, tag, index, value);
+                    if (value.getValue() == null) {
+                        return null;
                     }
+                    return new DateTime(value.getValue(), false, true);
                 });
 
             }
         };
-        static private final Map<String, GType> tagTypeMap = new ConcurrentHashMap<String, GType>();
+        static private final Map<String, GType> tagTypeMap = new ConcurrentHashMap<>();
     }
 }

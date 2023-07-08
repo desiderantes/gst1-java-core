@@ -50,22 +50,19 @@ public class ReferenceManager {
      * Holds static data for lazy loading.
      */
     private static class StaticData {
-        private static final Map<Object, Object> map = new ConcurrentHashMap<Object, Object>();
-        private static final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
+        private static final Map<Object, Object> map = new ConcurrentHashMap<>();
+        private static final ReferenceQueue<Object> queue = new ReferenceQueue<>();
 
         static {
-            Thread t = new Thread(new Runnable() {
-
-                public void run() {
-                    while (true) {
-                        try {
-                            map.remove(queue.remove());
-                        } catch (InterruptedException ex) {
-                            break;
-                        } catch (Throwable ex) {
-                            // Don't break out of the loop for any other reason
-                            continue;
-                        }
+            Thread t = new Thread(() -> {
+                while (true) {
+                    try {
+                        map.remove(queue.remove());
+                    } catch (InterruptedException ex) {
+                        break;
+                    } catch (Throwable ex) {
+                        // Don't break out of the loop for any other reason
+                        continue;
                     }
                 }
             });

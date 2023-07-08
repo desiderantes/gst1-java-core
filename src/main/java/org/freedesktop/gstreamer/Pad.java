@@ -423,20 +423,17 @@ public class Pad extends GstObject {
     }
 
     synchronized void addProbe(int mask, PROBE callback) {
-        final GstPadAPI.PadProbeCallback probe = new GstPadAPI.PadProbeCallback() {
-            @Override
-            public PadProbeReturn callback(Pad pad, GstPadProbeInfo probeInfo, Pointer user_data) {
-                PadProbeInfo info = new PadProbeInfo(probeInfo);
-                PadProbeReturn ret = callback.probeCallback(pad, info);
-                info.invalidate();
-                if (ret == PadProbeReturn.REMOVE) {
-                    // don't want handle to try and remove in GCallback::disconnect
-                    // @TODO move to Map<PROBE, NativeLong> of probes over callback
-                    handle.probes.remove(probeInfo.id);
-                    removeCallback(PROBE.class, callback);
-                }
-                return ret;
+        final GstPadAPI.PadProbeCallback probe = (pad, probeInfo, user_data) -> {
+            PadProbeInfo info = new PadProbeInfo(probeInfo);
+            PadProbeReturn ret = callback.probeCallback(pad, info);
+            info.invalidate();
+            if (ret == PadProbeReturn.REMOVE) {
+                // don't want handle to try and remove in GCallback::disconnect
+                // @TODO move to Map<PROBE, NativeLong> of probes over callback
+                handle.probes.remove(probeInfo.id);
+                removeCallback(PROBE.class, callback);
             }
+            return ret;
         };
 
         NativeLong id = handle.addProbe(mask, probe);
@@ -470,24 +467,22 @@ public class Pad extends GstObject {
     }
 
     synchronized void addEventProbe(final EVENT_PROBE listener, final int mask) {
-        final GstPadAPI.PadProbeCallback probe = new GstPadAPI.PadProbeCallback() {
-            public PadProbeReturn callback(Pad pad, GstPadProbeInfo probeInfo, Pointer user_data) {
-                if ((probeInfo.padProbeType & mask) != 0) {
-                    Event event = null;
-                    if ((probeInfo.padProbeType & EVENT_HAS_INFO_MASK) != 0) {
-                        event = GSTPAD_API.gst_pad_probe_info_get_event(probeInfo);
-                    }
-                    PadProbeReturn ret = listener.eventReceived(pad, event);
-                    if (ret == PadProbeReturn.REMOVE) {
-                        // don't want handle to try and remove in GCallback::disconnect
-                        handle.probes.remove(probeInfo.id);
-                        removeCallback(EVENT_PROBE.class, listener);
-                    }
-                    return ret;
+        final GstPadAPI.PadProbeCallback probe = (pad, probeInfo, user_data) -> {
+            if ((probeInfo.padProbeType & mask) != 0) {
+                Event event = null;
+                if ((probeInfo.padProbeType & EVENT_HAS_INFO_MASK) != 0) {
+                    event = GSTPAD_API.gst_pad_probe_info_get_event(probeInfo);
                 }
-
-                return PadProbeReturn.OK;
+                PadProbeReturn ret = listener.eventReceived(pad, event);
+                if (ret == PadProbeReturn.REMOVE) {
+                    // don't want handle to try and remove in GCallback::disconnect
+                    handle.probes.remove(probeInfo.id);
+                    removeCallback(EVENT_PROBE.class, listener);
+                }
+                return ret;
             }
+
+            return PadProbeReturn.OK;
         };
 
         NativeLong id = handle.addProbe(mask, probe);
@@ -512,21 +507,19 @@ public class Pad extends GstObject {
 
     public synchronized void addDataProbe(final DATA_PROBE listener) {
 
-        final GstPadAPI.PadProbeCallback probe = new GstPadAPI.PadProbeCallback() {
-            public PadProbeReturn callback(Pad pad, GstPadProbeInfo probeInfo, Pointer user_data) {
-                if ((probeInfo.padProbeType & GstPadAPI.GST_PAD_PROBE_TYPE_BUFFER) != 0) {
-                    Buffer buffer = GSTPAD_API.gst_pad_probe_info_get_buffer(probeInfo);
-                    PadProbeReturn ret = listener.dataReceived(pad, buffer);
-                    if (ret == PadProbeReturn.REMOVE) {
-                        // don't want handle to try and remove in GCallback::disconnect
-                        handle.probes.remove(probeInfo.id);
-                        removeCallback(DATA_PROBE.class, listener);
-                    }
-                    return ret;
+        final GstPadAPI.PadProbeCallback probe = (pad, probeInfo, user_data) -> {
+            if ((probeInfo.padProbeType & GstPadAPI.GST_PAD_PROBE_TYPE_BUFFER) != 0) {
+                Buffer buffer = GSTPAD_API.gst_pad_probe_info_get_buffer(probeInfo);
+                PadProbeReturn ret = listener.dataReceived(pad, buffer);
+                if (ret == PadProbeReturn.REMOVE) {
+                    // don't want handle to try and remove in GCallback::disconnect
+                    handle.probes.remove(probeInfo.id);
+                    removeCallback(DATA_PROBE.class, listener);
                 }
-
-                return PadProbeReturn.OK;
+                return ret;
             }
+
+            return PadProbeReturn.OK;
         };
 
         GCallback cb = new GCallback(handle.addProbe(GstPadAPI.GST_PAD_PROBE_TYPE_BUFFER, probe), probe) {

@@ -111,15 +111,8 @@ public abstract class NativeObject implements AutoCloseable {
             T retVal = constructor.newInstance(new Initializer(gptr, refAdjust > 0, ownsHandle));
             //retVal.initNativeHandle(ptr, refAdjust > 0, ownsHandle);
             return retVal;
-        } catch (SecurityException ex) {
-            throw new RuntimeException(ex);
-        } catch (IllegalAccessException ex) {
-            throw new RuntimeException(ex);
-        } catch (InstantiationException ex) {
-            throw new RuntimeException(ex);
-        } catch (NoSuchMethodException ex) {
-            throw new RuntimeException(ex);
-        } catch (InvocationTargetException ex) {
+        } catch (SecurityException | InvocationTargetException | NoSuchMethodException | InstantiationException |
+                 IllegalAccessException ex) {
             throw new RuntimeException(ex);
         }
 

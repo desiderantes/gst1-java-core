@@ -29,7 +29,7 @@ public enum GSocketType {
     DATAGRAM(2),
     SEQPACKET(3);
 
-    private static final Map<Integer, GSocketType> fastResolveMap = new HashMap<Integer, GSocketType>();
+    private static final Map<Integer, GSocketType> fastResolveMap = new HashMap<>();
 
     static {
         for (GSocketType dataUnitType : values()) {

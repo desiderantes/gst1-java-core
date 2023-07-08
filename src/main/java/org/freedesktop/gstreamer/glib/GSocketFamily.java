@@ -32,7 +32,7 @@ public enum GSocketFamily {
     IPV4(GlibAPI.GLIB_SYSDEF_AF_INET),
     IPV6(GlibAPI.GLIB_SYSDEF_AF_INET6);
 
-    private static final Map<Integer, GSocketFamily> fastResolveMap = new HashMap<Integer, GSocketFamily>();
+    private static final Map<Integer, GSocketFamily> fastResolveMap = new HashMap<>();
 
     static {
         for (GSocketFamily dataUnitType : values()) {

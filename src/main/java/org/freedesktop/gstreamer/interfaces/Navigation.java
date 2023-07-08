@@ -41,7 +41,7 @@ public class Navigation extends GstInterface {
      * @param element the element to use as a <tt>Navigation</tt>
      * @return a <tt>Navigation</tt> for the element
      */
-    public static final Navigation wrap(Element element) {
+    public static Navigation wrap(Element element) {
         return new Navigation(element);
     }
 

@@ -295,47 +295,47 @@ public interface GValueAPI extends Library {
         }
 
         public Integer toInt() {
-            return g_type.equals(GType.INT) ? new Integer(GVALUE_API.g_value_get_int(this)) : null;
+            return g_type.equals(GType.INT) ? GVALUE_API.g_value_get_int(this) : null;
         }
 
         public Integer toUInt() {
-            return g_type.equals(GType.UINT) ? new Integer(GVALUE_API.g_value_get_uint(this)) : null;
+            return g_type.equals(GType.UINT) ? GVALUE_API.g_value_get_uint(this) : null;
         }
 
         public Byte toChar() {
-            return g_type.equals(GType.CHAR) ? new Byte(GVALUE_API.g_value_get_char(this)) : null;
+            return g_type.equals(GType.CHAR) ? GVALUE_API.g_value_get_char(this) : null;
         }
 
         public Byte toUChar() {
-            return g_type.equals(GType.UCHAR) ? new Byte(GVALUE_API.g_value_get_uchar(this)) : null;
+            return g_type.equals(GType.UCHAR) ? GVALUE_API.g_value_get_uchar(this) : null;
         }
 
         public Long toLong() {
-            return g_type.equals(GType.LONG) ? new Long(GVALUE_API.g_value_get_long(this).longValue()) : null;
+            return g_type.equals(GType.LONG) ? GVALUE_API.g_value_get_long(this).longValue() : null;
         }
 
         public Long toULong() {
-            return g_type.equals(GType.ULONG) ? new Long(GVALUE_API.g_value_get_ulong(this).longValue()) : null;
+            return g_type.equals(GType.ULONG) ? GVALUE_API.g_value_get_ulong(this).longValue() : null;
         }
 
         public Long toInt64() {
-            return g_type.equals(GType.INT64) ? new Long(GVALUE_API.g_value_get_int64(this)) : null;
+            return g_type.equals(GType.INT64) ? GVALUE_API.g_value_get_int64(this) : null;
         }
 
         public Long toUInt64() {
-            return g_type.equals(GType.UINT64) ? new Long(GVALUE_API.g_value_get_uint64(this)) : null;
+            return g_type.equals(GType.UINT64) ? GVALUE_API.g_value_get_uint64(this) : null;
         }
 
         public Boolean toBoolean() {
-            return g_type.equals(GType.BOOLEAN) ? Boolean.valueOf(GVALUE_API.g_value_get_boolean(this)) : null;
+            return g_type.equals(GType.BOOLEAN) ? GVALUE_API.g_value_get_boolean(this) : null;
         }
 
         public Float toFloat() {
-            return g_type.equals(GType.FLOAT) ? new Float(GVALUE_API.g_value_get_float(this)) : null;
+            return g_type.equals(GType.FLOAT) ? GVALUE_API.g_value_get_float(this) : null;
         }
 
         public Double toDouble() {
-            return g_type.equals(GType.DOUBLE) ? new Double(GVALUE_API.g_value_get_double(this)) : null;
+            return g_type.equals(GType.DOUBLE) ? GVALUE_API.g_value_get_double(this) : null;
         }
 
         public String toJavaString() {

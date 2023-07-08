@@ -21,7 +21,6 @@ package org.freedesktop.gstreamer.lowlevel;
 import com.sun.jna.NativeLibrary;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

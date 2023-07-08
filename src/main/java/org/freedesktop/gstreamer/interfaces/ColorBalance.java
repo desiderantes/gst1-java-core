@@ -45,7 +45,7 @@ public class ColorBalance extends GstInterface {
      * @param element the element to use as a <tt>ColorBalance</tt>
      * @return a <tt>ColorBalance</tt> for the element
      */
-    public static final ColorBalance wrap(Element element) {
+    public static ColorBalance wrap(Element element) {
         return new ColorBalance(element);
     }
 
@@ -75,8 +75,8 @@ public class ColorBalance extends GstInterface {
      * @param needRef
      * @return a ColorBalanceChannel instance
      */
-    private final ColorBalanceChannel channelFor(Pointer pointer,
-                                                 boolean needRef) {
+    private ColorBalanceChannel channelFor(Pointer pointer,
+                                           boolean needRef) {
         return new ColorBalanceChannel(this, pointer, needRef, true);
     }
 

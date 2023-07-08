@@ -43,8 +43,7 @@ public interface NativeFlags<T extends Enum<T>> extends NativeEnum<T> {
         return ret;
     }
 
-    static <FLAG extends Enum<FLAG> & NativeFlags<FLAG>> EnumSet<FLAG>
-    fromInt(Class<FLAG> type, int val) {
+    static <FLAG extends Enum<FLAG> & NativeFlags<FLAG>> EnumSet<FLAG> fromInt(Class<FLAG> type, int val) {
         EnumSet<FLAG> set = EnumSet.allOf(type);
         set.removeIf(f -> ((val & f.intValue()) == 0));
         return set;

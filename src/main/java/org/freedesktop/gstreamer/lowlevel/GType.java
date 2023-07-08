@@ -39,7 +39,7 @@ public class GType extends IntegerType {
     public static final int SIZE = Native.SIZE_T_SIZE;
     private static final int G_TYPE_FUNDAMENTAL_SHIFT = 2;
 
-    private static final Map<Long, GType> gTypeByValues = new ConcurrentHashMap<Long, GType>();
+    private static final Map<Long, GType> gTypeByValues = new ConcurrentHashMap<>();
     public static final GType INVALID = init(0);
     public static final GType NONE = init(1);
     public static final GType INTERFACE = init(2);
@@ -62,7 +62,7 @@ public class GType extends IntegerType {
     public static final GType PARAM = init(19);
     public static final GType OBJECT = init(20);
     public static final GType VARIANT = init(21);
-    private static final Map<String, GType> gTypeByNames = new ConcurrentHashMap<String, GType>();
+    private static final Map<String, GType> gTypeByNames = new ConcurrentHashMap<>();
     // descriptions set in lazy
     private GType parent;
     private String name;

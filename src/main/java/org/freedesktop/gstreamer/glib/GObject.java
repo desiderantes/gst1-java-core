@@ -55,7 +55,7 @@ public abstract class GObject extends RefCountedObject {
             Boolean.getBoolean("glib.detachCallbackThreads"),
             "GCallback");
     private static final Map<GObject, Boolean> STRONG_REFS
-            = new ConcurrentHashMap<GObject, Boolean>();
+            = new ConcurrentHashMap<>();
     private static final GObjectAPI.GToggleNotify TOGGLE_NOTIFY = new ToggleNotify();
 
     private final Handle handle;
@@ -99,7 +99,7 @@ public abstract class GObject extends RefCountedObject {
 
     private static boolean booleanValue(Object value) {
         if (value instanceof Boolean) {
-            return ((Boolean) value).booleanValue();
+            return (Boolean) value;
         } else if (value instanceof Number) {
             return ((Number) value).intValue() != 0;
         } else if (value instanceof String) {
@@ -239,9 +239,9 @@ public abstract class GObject extends RefCountedObject {
         } else if (propType.equals(GType.UINT)) {
             return GVALUE_API.g_value_get_uint(propValue);
         } else if (propType.equals(GType.CHAR)) {
-            return Integer.valueOf(GVALUE_API.g_value_get_char(propValue));
+            return (int) GVALUE_API.g_value_get_char(propValue);
         } else if (propType.equals(GType.UCHAR)) {
-            return Integer.valueOf(GVALUE_API.g_value_get_uchar(propValue));
+            return (int) GVALUE_API.g_value_get_uchar(propValue);
         } else if (propType.equals(GType.LONG)) {
             return GVALUE_API.g_value_get_long(propValue).longValue();
         } else if (propType.equals(GType.ULONG)) {
@@ -359,9 +359,9 @@ public abstract class GObject extends RefCountedObject {
 
     public List<String> listPropertyNames() {
         GObjectAPI.GParamSpec[] lst = listProperties();
-        List<String> result = new ArrayList<String>(lst.length);
-        for (int i = 0; i < lst.length; i++) {
-            result.add(lst[i].g_name);
+        List<String> result = new ArrayList<>(lst.length);
+        for (GParamSpec gParamSpec : lst) {
+            result.add(gParamSpec.g_name);
         }
         return result;
     }
@@ -451,11 +451,7 @@ public abstract class GObject extends RefCountedObject {
 
     protected synchronized <T> void addCallback(Class<T> listenerClass, T listener, GCallback cb) {
         final Map<Class<?>, Map<Object, GCallback>> signals = getCallbackMap();
-        Map<Object, GCallback> map = signals.get(listenerClass);
-        if (map == null) {
-            map = new HashMap<Object, GCallback>();
-            signals.put(listenerClass, map);
-        }
+        Map<Object, GCallback> map = signals.computeIfAbsent(listenerClass, k -> new HashMap<>());
         map.put(listener, cb);
     }
 
@@ -540,9 +536,9 @@ public abstract class GObject extends RefCountedObject {
         throw new IllegalArgumentException("Unknown conversion from GType=" + type);
     }
 
-    private synchronized final Map<Class<?>, Map<Object, GCallback>> getCallbackMap() {
+    private synchronized Map<Class<?>, Map<Object, GCallback>> getCallbackMap() {
         if (callbackListeners == null) {
-            callbackListeners = new ConcurrentHashMap<Class<?>, Map<Object, GCallback>>();
+            callbackListeners = new ConcurrentHashMap<>();
         }
         return callbackListeners;
     }

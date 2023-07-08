@@ -242,7 +242,7 @@ public class Registry extends GstObject {
      * @return The converted list.
      */
     private <T extends GstObject> List<T> objectList(GList glist, Class<T> objectClass) {
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         GList next = glist;
         while (next != null) {
             if (next.data != null) {

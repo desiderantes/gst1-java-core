@@ -62,7 +62,7 @@ import static org.freedesktop.gstreamer.lowlevel.GstBinAPI.GSTBIN_API;
  * {@link Bin#getElements}
  * <p>
  * The {@link ELEMENT_ADDED} signal is fired whenever a new element is added to
- * the bin. Likewise the {@link ELEMENT_REMOVED} signal is fired whenever an
+ * the bin. Likewise, the {@link ELEMENT_REMOVED} signal is fired whenever an
  * element is removed from the bin.
  */
 public class Bin extends Element {

@@ -83,14 +83,11 @@ public class WebRTCBin extends Bin {
      * @param listener callback that is called when a offer is created
      */
     public void createOffer(final CREATE_OFFER listener) {
-        Promise promise = new Promise(new Promise.PROMISE_CHANGE() {
-            @SuppressWarnings("unused")
-            public void onChange(Promise promise) {
-                Structure reply = promise.getReply();
-                WebRTCSessionDescription description = (WebRTCSessionDescription) reply.getValue("offer");
-                listener.onOfferCreated(description);
-                promise.dispose();
-            }
+        Promise promise = new Promise(promise1 -> {
+            Structure reply = promise1.getReply();
+            WebRTCSessionDescription description = (WebRTCSessionDescription) reply.getValue("offer");
+            listener.onOfferCreated(description);
+            promise1.dispose();
         });
         emit("create-offer", null, promise);
     }
@@ -107,14 +104,11 @@ public class WebRTCBin extends Bin {
      * @param listener callback that is called when an answer is created.
      */
     public void createAnswer(final CREATE_ANSWER listener) {
-        Promise promise = new Promise(new Promise.PROMISE_CHANGE() {
-            @SuppressWarnings("unused")
-            public void onChange(Promise promise) {
-                Structure reply = promise.getReply();
-                WebRTCSessionDescription description = (WebRTCSessionDescription) reply.getValue("answer");
-                listener.onAnswerCreated(description);
-                promise.dispose();
-            }
+        Promise promise = new Promise(promise1 -> {
+            Structure reply = promise1.getReply();
+            WebRTCSessionDescription description = (WebRTCSessionDescription) reply.getValue("answer");
+            listener.onAnswerCreated(description);
+            promise1.dispose();
         });
         emit("create-answer", null, promise);
     }

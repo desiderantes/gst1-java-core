@@ -60,7 +60,7 @@ public class GstTypes {
      * @param gType The type of Class
      * @return The Class of the desired type or null.
      */
-    public static final TypeRegistration<?> registrationFor(final GType gType) {
+    public static TypeRegistration<?> registrationFor(final GType gType) {
         final String gTypeName = gType.getTypeName();
 
         // Is this GType still registered in the map ? 
@@ -90,13 +90,13 @@ public class GstTypes {
         return null;
     }
 
-    public static final Class<? extends NativeObject> classFor(final GType gType) {
+    public static Class<? extends NativeObject> classFor(final GType gType) {
         TypeRegistration<?> reg = registrationFor(gType);
         return reg != null ? reg.getJavaType() : null;
     }
 
     //TODO : need refactoring to take into account derived class
-    public static final GType typeFor(Class<? extends NativeObject> cls) {
+    public static GType typeFor(Class<? extends NativeObject> cls) {
         for (Map.Entry<String, TypeRegistration<?>> e : TYPES.entrySet()) {
             if (e.getValue().getJavaType().equals(cls)) {
                 return GType.valueOf(e.getKey());

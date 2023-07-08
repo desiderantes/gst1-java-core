@@ -237,7 +237,7 @@ public class BinTest {
 
     @Test
     public void testParseBin() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
         assertNotNull(bin, "Bin not created");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -245,7 +245,7 @@ public class BinTest {
 
     @Test
     public void testParseBinElementCount() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
         assertEquals(2, bin.getElements().size(), "Number of elements in pipeline incorrect");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -253,7 +253,7 @@ public class BinTest {
 
     @Test
     public void testParseBinSrcElement() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
         assertEquals("fakesrc", bin.getSources().get(0).getFactory().getName(), "First element not a fakesrc");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -261,7 +261,7 @@ public class BinTest {
 
     @Test
     public void testParseBinSinkElement() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", false, errors);
         assertEquals("fakesink", bin.getSinks().get(0).getFactory().getName(), "First element not a fakesink");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -269,7 +269,7 @@ public class BinTest {
 
     @Test
     public void testParseBinDisabledGhostPadsForSource() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc", false, errors);
         assertEquals(0, bin.getSrcPads().size(), "Number of src pads incorrect");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -277,7 +277,7 @@ public class BinTest {
 
     @Test
     public void testParseBinDisabledGhostPadsForSink() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesink", false, errors);
         assertEquals(0, bin.getSinkPads().size(), "Number of sink pads incorrect");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -285,7 +285,7 @@ public class BinTest {
 
     @Test
     public void testParseBinEnabledGhostPadsForSource() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc", true, errors);
         assertEquals(1, bin.getSrcPads().size(), "Number of src pads incorrect");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -293,7 +293,7 @@ public class BinTest {
 
     @Test
     public void testParseBinEnabledGhostPadsForSink() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesink", true, errors);
         assertEquals(1, bin.getSinkPads().size(), "Number of sink pads incorrect");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -301,7 +301,7 @@ public class BinTest {
 
     @Test
     public void testParseBinEnabledGhostPadsForSourceWithNoUsablePads() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
         assertEquals(0, bin.getSrcPads().size(), "Number of src pads incorrect");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -309,7 +309,7 @@ public class BinTest {
 
     @Test
     public void testParseBinEnabledGhostPadsForSinkWithNoUsablePads() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
         assertEquals(0, bin.getSinkPads().size(), "Number of sink pads incorrect");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");
@@ -317,7 +317,7 @@ public class BinTest {
 
     @Test
     public void testParseBinEnabledGhostPadsWithNoUsablePads() {
-        ArrayList<GError> errors = new ArrayList<GError>();
+        ArrayList<GError> errors = new ArrayList<>();
         Bin bin = Gst.parseBinFromDescription("fakesrc ! fakesink", true, errors);
         assertEquals(0, bin.getPads().size(), "Number of pads incorrect");
         assertEquals(0, errors.size(), "parseBinFromDescription with error!");

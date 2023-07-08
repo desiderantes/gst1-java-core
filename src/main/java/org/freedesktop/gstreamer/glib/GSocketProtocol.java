@@ -30,7 +30,7 @@ public enum GSocketProtocol {
     UDP(17),
     SCTP(132);
 
-    private static final Map<Integer, GSocketProtocol> fastResolveMap = new HashMap<Integer, GSocketProtocol>();
+    private static final Map<Integer, GSocketProtocol> fastResolveMap = new HashMap<>();
 
     static {
         for (GSocketProtocol dataUnitType : values()) {

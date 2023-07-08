@@ -37,21 +37,19 @@ import static org.freedesktop.gstreamer.lowlevel.GlibAPI.GLIB_API;
  */
 public class MainLoop extends RefCountedObject {
 
-    private static final List<Runnable> bgTasks = new LinkedList<Runnable>();
-    private static final GlibAPI.GSourceFunc bgCallback = new GlibAPI.GSourceFunc() {
-        public boolean callback(Pointer source) {
-            //            System.out.println("Running g_idle callbacks");
-            List<Runnable> tasks = new ArrayList<Runnable>();
-            synchronized (bgTasks) {
-                tasks.addAll(bgTasks);
-                bgTasks.clear();
-            }
-            for (Runnable r : tasks) {
-                r.run();
-            }
-            GLIB_API.g_source_unref(source);
-            return false;
+    private static final List<Runnable> bgTasks = new LinkedList<>();
+    private static final GlibAPI.GSourceFunc bgCallback = source -> {
+        //            System.out.println("Running g_idle callbacks");
+        List<Runnable> tasks = new ArrayList<>();
+        synchronized (bgTasks) {
+            tasks.addAll(bgTasks);
+            bgTasks.clear();
         }
+        for (Runnable r : tasks) {
+            r.run();
+        }
+        GLIB_API.g_source_unref(source);
+        return false;
     };
     private Thread bgThread;
 
@@ -85,11 +83,7 @@ public class MainLoop extends RefCountedObject {
      * Instructs a main loop to stop processing and return from {@link #run}.
      */
     public void quit() {
-        invokeLater(new Runnable() {
-            public void run() {
-                GLIB_API.g_main_loop_quit(MainLoop.this);
-            }
-        });
+        invokeLater(() -> GLIB_API.g_main_loop_quit(MainLoop.this));
     }
 
     /**
@@ -123,12 +117,7 @@ public class MainLoop extends RefCountedObject {
      * Runs the main loop in a background thread.
      */
     public void startInBackground() {
-        bgThread = new java.lang.Thread(new Runnable() {
-
-            public void run() {
-                MainLoop.this.run();
-            }
-        });
+        bgThread = new java.lang.Thread(MainLoop.this::run);
         bgThread.setDaemon(true);
         bgThread.setName("gmainloop");
         bgThread.start();
@@ -142,13 +131,11 @@ public class MainLoop extends RefCountedObject {
      * @param r the task to invoke.
      */
     public void invokeAndWait(Runnable r) {
-        FutureTask<Object> task = new FutureTask<Object>(r, null);
+        FutureTask<Object> task = new FutureTask<>(r, null);
         invokeLater(task);
         try {
             task.get();
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex.getCause());
-        } catch (ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex.getCause());
         }
     }

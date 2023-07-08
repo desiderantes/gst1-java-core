@@ -90,7 +90,7 @@ public class ElementFactory extends PluginFeature {
      */
     public static List<ElementFactory> listGetElements(ListType type, Rank minrank) {
         GList glist = GSTELEMENTFACTORY_API.gst_element_factory_list_get_elements(type.getValue(), minrank.intValue());
-        List<ElementFactory> list = new ArrayList<ElementFactory>();
+        List<ElementFactory> list = new ArrayList<>();
 
         GList next = glist;
         while (next != null) {
@@ -125,7 +125,7 @@ public class ElementFactory extends PluginFeature {
      */
     public static List<ElementFactory> listGetElementsFilter(ListType type, Rank minrank,
                                                              Caps caps, PadDirection direction, boolean subsetonly) {
-        List<ElementFactory> filterList = new ArrayList<ElementFactory>();
+        List<ElementFactory> filterList = new ArrayList<>();
 
         GList glist = GSTELEMENTFACTORY_API.gst_element_factory_list_get_elements(type.getValue(), minrank.intValue());
 
@@ -297,7 +297,7 @@ public class ElementFactory extends PluginFeature {
         }
         GList glist = GSTELEMENTFACTORY_API.gst_element_factory_get_static_pad_templates(this);
         LOG.log(DEBUG, "GSTELEMENTFACTORY_API.gst_element_factory_get_static_pad_templates returned: " + glist);
-        List<StaticPadTemplate> templates = new ArrayList<StaticPadTemplate>();
+        List<StaticPadTemplate> templates = new ArrayList<>();
         GList next = glist;
         while (next != null) {
             if (next.data != null) {

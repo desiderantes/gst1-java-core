@@ -66,7 +66,7 @@ public class ColorBalanceChannel extends GObject {
         GSTCOLORBALANCE_API.gst_color_balance_set_value(colorBalance, this, value);
     }
 
-    public int getValue(int value) {
+    public int getValue() {
         return GSTCOLORBALANCE_API.gst_color_balance_get_value(colorBalance, this);
     }
 }

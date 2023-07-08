@@ -492,7 +492,7 @@ public class Structure extends NativeObject {
         if (val instanceof GValueAPI.GValueArray) {
             GValueAPI.GValueArray arr = (GValueAPI.GValueArray) val;
             int count = arr.getNValues();
-            List<T> values = new ArrayList<T>(count);
+            List<T> values = new ArrayList<>(count);
             for (int i = 0; i < count; i++) {
                 Object o = arr.getValue(i);
                 if (type.isInstance(o)) {

@@ -114,7 +114,7 @@ public class DeviceProvider extends GstObject {
      */
     public List<Device> getDevices() {
         GlibAPI.GList glist = GSTDEVICEPROVIDER_API.gst_device_provider_get_devices(this);
-        List<Device> list = new ArrayList<Device>();
+        List<Device> list = new ArrayList<>();
 
         GlibAPI.GList next = glist;
         while (next != null) {

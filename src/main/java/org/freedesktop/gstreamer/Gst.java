@@ -80,7 +80,7 @@ public final class Gst {
     private static volatile CountDownLatch quit = new CountDownLatch(1);
     private static GMainContext mainContext;
     private static boolean useDefaultContext = false;
-    private static final List<Runnable> shutdownTasks = Collections.synchronizedList(new ArrayList<Runnable>());
+    private static final List<Runnable> shutdownTasks = Collections.synchronizedList(new ArrayList<>());
     // set minorVersion to a value guaranteed to be >= anything else unless set in init()
     private static int minorVersion = Integer.MAX_VALUE;
 
@@ -620,10 +620,10 @@ public final class Gst {
 
     private static class NativeArgs {
 
-        public IntByReference argcRef;
-        public PointerByReference argvRef;
-        Memory[] argsCopy;
-        Memory argvMemory;
+        public final IntByReference argcRef;
+        public final PointerByReference argvRef;
+        final Memory[] argsCopy;
+        final Memory argvMemory;
 
         public NativeArgs(String progname, String[] args) {
             //
@@ -653,7 +653,7 @@ public final class Gst {
             //
             // Unpack the native arguments back into a String array
             //
-            List<String> args = new ArrayList<String>();
+            List<String> args = new ArrayList<>();
             Pointer argv = argvRef.getValue();
             for (int i = 1; i < argcRef.getValue(); i++) {
                 Pointer arg = argv.getPointer((long) i * Native.POINTER_SIZE);
@@ -661,7 +661,7 @@ public final class Gst {
                     args.add(arg.getString(0));
                 }
             }
-            return args.toArray(new String[args.size()]);
+            return args.toArray(new String[0]);
         }
     }
 

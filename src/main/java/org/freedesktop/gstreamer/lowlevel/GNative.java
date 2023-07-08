@@ -60,7 +60,7 @@ public final class GNative {
 
         @SuppressWarnings("rawtypes")
         public Object fromNative(Object value, Class javaType) {
-            return value != null ? ((Integer) value).intValue() != 0 : 0;
+            return value != null ? (Integer) value != 0 : 0;
         }
     };
 
@@ -88,7 +88,7 @@ public final class GNative {
     }
 
     private static <T extends Library> T loadNativeLibrary(String name, Class<T> interfaceClass, Map<String, ?> options) {
-        T library = interfaceClass.cast(Native.loadLibrary(name, interfaceClass, options));
+        T library = interfaceClass.cast(Native.load(name, interfaceClass, options));
         boolean needCustom = false;
         search:
         for (Method m : interfaceClass.getMethods())
@@ -103,7 +103,7 @@ public final class GNative {
         return interfaceClass.cast(
                 Proxy.newProxyInstance(interfaceClass.getClassLoader(),
                         new Class[]{interfaceClass},
-                        new Handler<T>(library, options)));
+                        new Handler<>(library, options)));
     }
 
     public static synchronized NativeLibrary getNativeLibrary(String name) {
@@ -191,11 +191,9 @@ public final class GNative {
                         io.set(dst, a, converter.toNative(src[a]));
                     if (postInvoke == null)
                         postInvoke = new Runnable[lastArg];
-                    postInvoke[postCount++] = new Runnable() {
-                        public void run() {
-                            for (int a = 0; a < src.length; ++a)
-                                src[a] = converter.fromNative(io.get(dst, a), cls.getComponentType());
-                        }
+                    postInvoke[postCount++] = () -> {
+                        for (int a = 0; a < src.length; ++a)
+                            src[a] = converter.fromNative(io.get(dst, a), cls.getComponentType());
                     };
                     args[i] = dst;
                 }

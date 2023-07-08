@@ -60,11 +60,11 @@ public class GTypeMapper extends com.sun.jna.DefaultTypeMapper {
                 Annotation[][] parameterAnnotations = method.getParameterAnnotations();
                 if (index < parameterAnnotations.length) {
                     Annotation[] annotations = parameterAnnotations[index];
-                    for (int i = 0; i < annotations.length; ++i) {
-                        if (annotations[i] instanceof Invalidate) {
+                    for (Annotation annotation : annotations) {
+                        if (annotation instanceof Invalidate) {
                             ((NativeObject) arg).invalidate();
                             break;
-                        } else if (annotations[i] instanceof IncRef) {
+                        } else if (annotation instanceof IncRef) {
                             Natives.ref((RefCountedObject) arg);
                         }
                     }
@@ -196,11 +196,11 @@ public class GTypeMapper extends com.sun.jna.DefaultTypeMapper {
 
     private final TypeConverter booleanConverter = new TypeConverter() {
         public Object toNative(Object arg, ToNativeContext context) {
-            return Integer.valueOf(Boolean.TRUE.equals(arg) ? 1 : 0);
+            return Boolean.TRUE.equals(arg) ? 1 : 0;
         }
 
         public Object fromNative(Object arg0, FromNativeContext arg1) {
-            return Boolean.valueOf(((Integer) arg0).intValue() != 0);
+            return ((Integer) arg0).intValue() != 0;
         }
 
         public Class<?> nativeType() {

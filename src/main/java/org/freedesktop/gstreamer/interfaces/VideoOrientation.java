@@ -40,7 +40,7 @@ public class VideoOrientation extends GstInterface {
      * @param element the element to use as a <tt>VideoOrientation</tt>
      * @return a <tt>VideoOrientation</tt> for the element
      */
-    public static final VideoOrientation wrap(Element element) {
+    public static VideoOrientation wrap(Element element) {
         return new VideoOrientation(element);
     }
 
