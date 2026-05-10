@@ -163,8 +163,6 @@ public class ElementFactoryTest {
     }
 
     @Test
-    @Disabled("Flaky in CI: GC timing for ElementFactory wrappers is nondeterministic")
-    //TODO: Fix this
     public void testGarbageCollection() throws Throwable {
         ElementFactory factory = ElementFactory.find("fakesrc");
         assertNotNull(factory, "Could not locate fakesrc factory");

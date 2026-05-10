@@ -19,22 +19,18 @@
 package org.freedesktop.gstreamer.glib;
 
 import com.sun.jna.Pointer;
-import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GTypedPtr;
 import org.freedesktop.gstreamer.lowlevel.GstTypes;
 
-import java.lang.ref.ReferenceQueue;
+import java.lang.ref.Cleaner;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
-import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -49,20 +45,37 @@ public abstract class NativeObject implements AutoCloseable {
 
     private static final Level LIFECYCLE = Level.FINE;
     private static final Logger LOG = Logger.getLogger(NativeObject.class.getName());
-    private static final ConcurrentMap<Pointer, NativeRef> INSTANCES = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Pointer, WeakReference<NativeObject>> INSTANCES = new ConcurrentHashMap<>();
+    private static final Cleaner CLEANER = Cleaner.create();
 
     final Handle handle;
     private final Pointer ptr;
+    private final Cleaner.Cleanable cleanable;
 
-    //    /**
-//     * Creates a new instance of NativeObject
-//     */
     protected NativeObject(Handle handle) {
         this.handle = Objects.requireNonNull(handle);
         this.ptr = handle.ptrRef.get().getPointer();
         if (handle.isCacheable()) {
-            // need to put all nativeRef in map now so WeakReference doesn't go out of scope
-            INSTANCES.put(this.ptr, new NativeRef(this, handle));
+            INSTANCES.put(this.ptr, new WeakReference<>(this));
+        }
+        this.cleanable = CLEANER.register(this, new CleanupAction(handle, ptr));
+    }
+
+    private static final class CleanupAction implements Runnable {
+        private final Handle handle;
+        private final Pointer ptr;
+        private final String type;
+
+        private CleanupAction(Handle handle, Pointer ptr) {
+            this.handle = handle;
+            this.ptr = ptr;
+            this.type = handle.getClass().getName();
+        }
+
+        @Override
+        public void run() {
+            LOG.log(LIFECYCLE, () -> "Cleaner disposing of " + type + " : " + ptr);
+            handle.dispose();
         }
     }
 
@@ -161,7 +174,7 @@ public abstract class NativeObject implements AutoCloseable {
      */
     public void dispose() {
         LOG.log(LIFECYCLE, "Disposing object " + getClass().getName() + " = " + handle);
-        handle.dispose();
+        cleanable.clean();
     }
 
     @Override
@@ -236,46 +249,6 @@ public abstract class NativeObject implements AutoCloseable {
             this.ptr = ptr;
             this.needRef = needRef;
             this.ownsHandle = ownsHandle;
-        }
-
-    }
-
-    private static final class NativeRef extends WeakReference<NativeObject> {
-
-        private static final boolean REAP_ON_EDT = Boolean.getBoolean("glib.reapOnEDT");
-        private static final ReferenceQueue<NativeObject> QUEUE = new ReferenceQueue<>();
-        private static final ExecutorService REAPER
-                = Executors.newSingleThreadExecutor((r) -> {
-            Thread t = new Thread(r, "NativeObject Reaper");
-            t.setDaemon(true);
-            return t;
-        });
-
-        static {
-            REAPER.submit(() -> {
-                while (true) {
-                    try {
-                        NativeRef ref = (NativeRef) QUEUE.remove();
-                        LOG.log(LIFECYCLE, () -> "Disposing of " + ref.type + " : " + ref.handle.ptrRef.get());
-                        if (REAP_ON_EDT) {
-                            Gst.invokeLater(ref.handle::dispose);
-                        } else {
-                            ref.handle.dispose();
-                        }
-                    } catch (Throwable t) {
-                        LOG.log(Level.WARNING, "Reaper thread exception", t);
-                    }
-                }
-            });
-        }
-
-        private final Handle handle;
-        private final String type;
-
-        private NativeRef(NativeObject obj, Handle handle) {
-            super(obj, QUEUE);
-            this.type = obj.getClass().getSimpleName();
-            this.handle = handle;
         }
 
     }

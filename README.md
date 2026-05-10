@@ -28,6 +28,27 @@ requires people to know the Java language and be familiar with the GStreamer fra
 (and possibly be prepared to apply things from tutorials on GStreamer programming in
 other languages to the Java bindings).
 
+## Building
+
+The project uses [Gradle](https://gradle.org/) for building.
+
+```bash
+# Build the library
+./gradlew build
+
+# Run tests
+./gradlew test
+
+# Run tests with a specific number of forks (native tests can be unstable with many forks)
+./gradlew test -PnativeTestForks=1
+```
+
+The project uses [Spotless](https://github.com/diffplug/spotless) to enforce code formatting. You can format the code using:
+
+```bash
+./gradlew spotlessApply
+```
+
 ## History and status
 
 Releases are available via Maven Central (under the `org.freedesktop.gstreamer`
@@ -57,7 +78,7 @@ Linux users should be able to get GStreamer from their distribution repository i
 isn't already installed.
 
 You will need to have the GStreamer 1.x native libraries available in your system path
-in order to use the bindings, and may also need to set up environment variables
+ to use the bindings, and may also need to set up environment variables
 depending on how GStreamer is installed. See the `Utils` class in each example project
 for one possible way to configure this inside your Java code.
 
@@ -70,9 +91,9 @@ The minimum supported version of GStreamer is 1.8.x. If you require access to fe
 related to later GStreamer versions (eg. WebRTC support), make sure to request the
 version you need when calling `Gst.init(..)`
 
-You will also need the [JNA (Java Native Access)][jna] library, minimum version 5.2.0.
+This library uses the [JNA (Java Native Access)][jna] library, minimum version 5.18.1.
 
-The minimum required Java version is Java 8.
+The minimum required Java version is Java 17.
 
 ## Contributions
 
