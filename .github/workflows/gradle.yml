@@ -4,7 +4,7 @@ on:
   [push, pull_request]
 
 jobs:
-  test-1-24-jdk25:
+  test-1-26-jdk26:
 
     runs-on: ubuntu-26.04
 
@@ -17,14 +17,33 @@ jobs:
         with:
          java-version: '26'
          distribution: 'temurin'
+         cache: 'gradle'
 
       - name: Install GStreamer
-        run: sudo apt-get update && sudo apt-get install gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+        run: sudo apt-get update && sudo apt-get install -y gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
 
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build with Gradle (no tests)
+        run: ./gradlew build -x test
 
-  test-1-20-jdk17:
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Publish test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: build/test-results/test/*.xml
+
+      - name: Upload test report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-jdk26
+          path: |
+            build/reports/tests/test
+            build/test-results/test
+
+  test-1-24-jdk17:
 
     runs-on: ubuntu-24.04
 
@@ -37,9 +56,28 @@ jobs:
         with:
          java-version: '17'
          distribution: 'temurin'
+         cache: 'gradle'
 
       - name: Install GStreamer
-        run: sudo apt-get update && sudo apt-get install gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+        run: sudo apt-get update && sudo apt-get install -y gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
 
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build with Gradle (no tests)
+        run: ./gradlew build -x test
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Publish test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: build/test-results/test/*.xml
+
+      - name: Upload test report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-jdk17
+          path: |
+            build/reports/tests/test
+            build/test-results/test
