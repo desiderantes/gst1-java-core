@@ -9,10 +9,6 @@ plugins {
 group = "com.desiderantes"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
-
 java {
     withJavadocJar()
     withSourcesJar()
@@ -60,9 +56,9 @@ testing {
 spotless {
     java {
         licenseHeaderFile(rootProject.file("src/main/java/org/freedesktop/gstreamer/Gst.java"), "package")
+        eclipse().configFile(rootProject.file("eclipse-formatter.xml"))
         importOrder()
         removeUnusedImports()
-        eclipse().configFile(rootProject.file("eclipse-formatter.xml"))
     }
 }
 
